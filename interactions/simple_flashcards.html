@@ -1,0 +1,265 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning and Teaching Concepts True/False Quiz</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            max-width: 90%;
+            width: 600px;
+        }
+        .flipcard {
+            width: 100%;
+            height: 300px;
+            perspective: 1000px;
+            margin-bottom: 20px;
+        }
+        .flipcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flipcard.flipped .flipcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flipcard-front, .flipcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        .flipcard-front {
+            background-color: #f9f9f9;
+        }
+        .flipcard-back {
+            background-color: #e9e9e9;
+            transform: rotateY(180deg);
+        }
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .answer-buttons {
+            margin-top: 20px;
+        }
+        .answer-buttons button {
+            margin: 0 10px;
+        }
+        .progress {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .score {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .feedback {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        #incorrectTopics {
+            text-align: left;
+            margin-top: 20px;
+            display: none;
+        }
+        #incorrectTopics h2 {
+            color: #d9534f;
+        }
+        #incorrectTopics ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Learning and Teaching Concepts True/False Quiz</h1>
+        <div class="flipcard">
+            <div class="flipcard-inner">
+                <div class="flipcard-front">
+                    <p id="statement"></p>
+                    <div class="answer-buttons">
+                        <button onclick="checkAnswer(true)">True</button>
+                        <button onclick="checkAnswer(false)">False</button>
+                    </div>
+                </div>
+                <div class="flipcard-back">
+                    <p id="feedback"></p>
+                    <p id="explanation"></p>
+                    <button onclick="returnToQuestion()">Return to Question</button>
+                </div>
+            </div>
+        </div>
+        <button onclick="nextCard()" id="nextBtn" style="display: none;">Next Question</button>
+        <div class="progress">
+            <p id="progressText"></p>
+        </div>
+        <div class="score">
+            <p id="scoreText">Score: 0 / 0</p>
+        </div>
+        <div id="incorrectTopics" style="display: none;">
+            <h2>Topics to Review:</h2>
+            <ul id="incorrectTopicsList"></ul>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                statement: "Active Learning involves students in passive listening or reading.",
+                isTrue: false,
+                explanation: "Active Learning involves students in active participation, going beyond passive listening or reading. It includes activities like debates, simulations, and group problem-solving."
+            },
+            {
+                statement: "Backward Design starts with developing teaching activities and then determines learning outcomes.",
+                isTrue: false,
+                explanation: "Backward Design is an approach that starts with the desired learning outcomes (learning goals) and works backward to develop assessments and teaching activities."
+            },
+            {
+                statement: "The Castle Top Diagram is used to plan the instructional strategy of a course.",
+                isTrue: true,
+                explanation: "The Castle Top Diagram is indeed a visual tool used to plan the instructional strategy of a course by mapping out a sequence of learning activities."
+            },
+            {
+                statement: "FIDeLity Feedback stands for Frequent, Immediate, Discriminating, and Loving feedback.",
+                isTrue: true,
+                explanation: "FIDeLity Feedback is characterized by being Frequent, Immediate, Discriminating (clearly differentiates between levels of performance), and Loving (delivered empathetically)."
+            },
+            {
+                statement: "Indirect Learning is generally more effective for long-term retention than direct learning.",
+                isTrue: false,
+                explanation: "While indirect learning (e.g., reading textbooks, listening to lectures) can be valuable, it is often less engaging and effective for long-term retention than direct, hands-on learning experiences."
+            },
+            {
+                statement: "Integrated Course Design emphasizes the alignment of situational factors, learning goals, feedback and assessment, and teaching/learning activities.",
+                isTrue: true,
+                explanation: "Integrated Course Design indeed emphasizes the alignment and interconnectedness of these key elements to support student learning."
+            },
+            {
+                statement: "Self-Assessment is a process where instructors evaluate students' work based on set criteria.",
+                isTrue: false,
+                explanation: "Self-Assessment is a process where students evaluate their own work and progress based on set criteria, fostering self-awareness and promoting a deeper understanding of their strengths and areas for improvement."
+            },
+            {
+                statement: "Situational Factors only include the number of students in a course.",
+                isTrue: false,
+                explanation: "Situational Factors include various contextual elements that influence course design and delivery, such as the number of students, class size, student demographics, and available resources."
+            }
+        ];
+
+        let currentIndex = 0;
+        let isFlipped = false;
+        let score = 0;
+        let incorrectTopics = [];
+
+        function updateCard() {
+            if (currentIndex < questions.length) {
+                document.getElementById('statement').textContent = questions[currentIndex].statement;
+                document.querySelector('.flipcard').classList.remove('flipped');
+                isFlipped = false;
+                document.getElementById('nextBtn').style.display = 'none';
+                document.querySelector('.answer-buttons').style.display = 'block';
+                updateProgress();
+            } else {
+                showIncorrectTopics();
+            }
+        }
+
+        function flipCard() {
+            document.querySelector('.flipcard').classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function returnToQuestion() {
+            flipCard();
+        }
+
+        function nextCard() {
+            currentIndex++;
+            updateCard();
+        }
+
+        function checkAnswer(userAnswer) {
+            const correctAnswer = questions[currentIndex].isTrue;
+            const feedbackElement = document.getElementById('feedback');
+            const explanationElement = document.getElementById('explanation');
+
+            if (userAnswer === correctAnswer) {
+                feedbackElement.textContent = "Correct!";
+                feedbackElement.style.color = "green";
+                score++;
+            } else {
+                feedbackElement.textContent = "Incorrect.";
+                feedbackElement.style.color = "red";
+                incorrectTopics.push(questions[currentIndex].statement);
+            }
+
+            explanationElement.textContent = questions[currentIndex].explanation;
+            
+            flipCard();
+            document.getElementById('nextBtn').style.display = 'inline-block';
+            document.querySelector('.answer-buttons').style.display = 'none';
+            updateScore();
+        }
+
+        function updateProgress() {
+            document.getElementById('progressText').textContent = `Question ${currentIndex + 1} of ${questions.length}`;
+        }
+
+        function updateScore() {
+            document.getElementById('scoreText').textContent = `Score: ${score} / ${currentIndex + 1}`;
+        }
+
+        function showIncorrectTopics() {
+            document.querySelector('.flipcard').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+            document.getElementById('incorrectTopics').style.display = 'block';
+            
+            const incorrectTopicsList = document.getElementById('incorrectTopicsList');
+            incorrectTopicsList.innerHTML = '';
+            
+            if (incorrectTopics.length > 0) {
+                incorrectTopics.forEach(topic => {
+                    const li = document.createElement('li');
+                    li.textContent = topic;
+                    incorrectTopicsList.appendChild(li);
+                });
+            } else {
+                const li = document.createElement('li');
+                li.textContent = "Great job! You answered all questions correctly.";
+                incorrectTopicsList.appendChild(li);
+            }
+        }
+
+        updateCard();
+    </script>
+
+
+</body></html>
