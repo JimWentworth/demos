@@ -1,0 +1,1931 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Card Generator</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6f9ceb;
+            --success-color: #4caf50;
+            --danger-color: #f44336;
+            --warning-color: #ff9800;
+            --light-color: #f5f5f5;
+            --dark-color: #333;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark-color);
+            padding: 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .container {
+            width: 100%;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+        
+        h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+        }
+        
+        p {
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .intro {
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto 30px auto;
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .intro strong {
+            color: var(--primary-color);
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .game-area {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .card-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            justify-content: center;
+            min-height: 150px;
+        }
+        
+        .term-card, .definition-card {
+            background-color: var(--light-color);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: grab;
+            transition: all 0.3s ease;
+            user-select: none;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        
+        .term-card {
+            border-left: 4px solid var(--primary-color);
+            background-color: #e6ecf5;
+        }
+        
+        .definition-card {
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .term-card.dragging, .definition-card.dragging {
+            opacity: 0.6;
+            transform: scale(0.98);
+        }
+        
+        .term-card.matched, .definition-card.matched {
+            opacity: 0;
+            transform: scale(0.8);
+            pointer-events: none;
+        }
+        
+        .term-card.selected, .definition-card.selected {
+            box-shadow: 0 0 0 3px var(--primary-color);
+        }
+        
+        .setup-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .input-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        @media (max-width: 600px) {
+            .input-pair {
+                grid-template-columns: 1fr;
+            }
+            
+            .card-container {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .card-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        input, textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            width: 100%;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-box {
+            background-color: #f5f5f5;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: center;
+            flex-grow: 1;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .progress-container {
+            flex-grow: 2;
+        }
+        
+        .progress-bar {
+            height: 10px;
+            background-color: #eee;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .bulk-import {
+            margin-bottom: 25px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .manual-entry {
+            margin-top: 30px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        
+        @media (max-width: 500px) {
+            .controls {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .controls button {
+                width: 100%;
+            }
+        }
+        
+        .feedback {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 30px;
+            border-radius: 5px;
+            color: white;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+            text-align: center;
+            max-width: 90%;
+        }
+        
+        .feedback.success {
+            background-color: var(--success-color);
+        }
+        
+        .feedback.error {
+            background-color: var(--danger-color);
+        }
+        
+        .feedback.warning {
+            background-color: var(--warning-color);
+        }
+        
+        .show {
+            opacity: 1;
+        }
+        
+        .add-pair-btn {
+            background-color: var(--secondary-color);
+        }
+        
+        .remove-pair-btn {
+            background-color: var(--danger-color);
+            margin-top: 5px;
+        }
+        
+        .instructions {
+            background-color: rgba(111, 156, 235, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .section-header {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e6ecf5;
+        }
+        
+        .game-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .counter {
+            font-size: 0.9rem;
+            background-color: #e6ecf5;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .remaining-counter {
+            color: var(--primary-color);
+        }
+        
+        /* Animation for card entrance */
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+        
+        /* Animation for card exit */
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+        }
+        
+        .fade-out {
+            animation: fadeOut 0.5s ease forwards;
+        }
+        
+        /* Animation for shuffling */
+        @keyframes shuffle {
+            0% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 1;
+            }
+            20% {
+                transform: translateX(5px) rotate(3deg);
+                opacity: 0.8;
+            }
+            40% {
+                transform: translateX(-5px) rotate(-3deg);
+                opacity: 0.6;
+            }
+            60% {
+                transform: translateX(3px) rotate(2deg);
+                opacity: 0.4;
+            }
+            80% {
+                transform: translateX(-3px) rotate(-1deg);
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+        }
+        
+        .shuffle-out {
+            animation: shuffle 0.6s ease forwards;
+            pointer-events: none;
+        }
+        
+        /* Animation for cards appearing after shuffle */
+        @keyframes shuffleIn {
+            0% {
+                transform: translateY(10px) scale(0.95);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .shuffle-in {
+            animation: shuffleIn 0.5s ease forwards;
+        }
+        
+        .file-upload {
+            margin-top: 10px;
+        }
+        
+        .file-input-container {
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .file-input-container input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-button {
+            display: inline-block;
+            padding: 10px 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .file-name {
+            margin-left: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .import-options {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .import-tab {
+            padding: 8px 15px;
+            border-radius: 5px 5px 0 0;
+            background-color: #eee;
+            cursor: pointer;
+        }
+        
+        .import-tab.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .import-content {
+            display: none;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 0 5px 5px 5px;
+        }
+        
+        .import-content.active {
+            display: block;
+        }
+        
+        /* Shuffle cover overlay */
+        .shuffle-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .shuffle-overlay.active {
+            opacity: 1;
+        }
+        
+        .shuffle-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            animation: pulse 1s infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.1);
+            }
+        }
+        
+        /* Celebration modal */
+        .celebration-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+        
+        .celebration-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .celebration-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 80%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .celebration-modal.active .celebration-content {
+            transform: scale(1);
+        }
+        
+        .celebration-title {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            animation: popIn 0.5s ease forwards;
+        }
+        
+        .celebration-message {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            animation: fadeSlideIn 0.5s ease forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+        
+        .celebration-stats {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-around;
+            animation: fadeSlideIn 0.5s ease forwards;
+            animation-delay: 0.4s;
+            opacity: 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .celebration-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            animation: fadeSlideIn 0.5s ease forwards;
+            animation-delay: 0.6s;
+            opacity: 0;
+        }
+        
+        @media (max-width: 500px) {
+            .celebration-buttons {
+                flex-direction: column;
+            }
+        }
+        
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            opacity: 0;
+        }
+        
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeSlideIn {
+            0% {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        .setup-section {
+            margin-bottom: 20px;
+        }
+        
+        .setup-section-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e6ecf5;
+            color: var(--primary-color);
+        }
+        
+        .or-divider {
+            text-align: center;
+            margin: 25px 0;
+            position: relative;
+        }
+        
+        .or-divider::before,
+        .or-divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 30px);
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .or-divider::before {
+            left: 0;
+        }
+        
+        .or-divider::after {
+            right: 0;
+        }
+        
+        .or-text {
+            display: inline-block;
+            padding: 0 15px;
+            background-color: white;
+            position: relative;
+            z-index: 1;
+            color: #888;
+            font-weight: bold;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .buttons-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 500px) {
+            .button-group, .buttons-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        .remove-all-btn {
+            background-color: var(--danger-color);
+        }
+        
+        .dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        
+        .dialog.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .dialog-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            text-align: center;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .dialog-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--dark-color);
+        }
+        
+        .dialog-text {
+            margin-bottom: 20px;
+            color: #555;
+        }
+        
+        .dialog-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .dialog-cancel {
+            background-color: #ccc;
+        }
+        
+        .dialog-delete {
+            background-color: var(--danger-color);
+        }
+        
+        .dialog-continue {
+            background-color: var(--warning-color);
+        }
+        
+        .warning-icon {
+            color: var(--warning-color);
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .warning-header {
+            color: var(--warning-color);
+            border-bottom: 2px solid var(--warning-color);
+            display: inline-block;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .science-note {
+            background-color: #f0f7ff;
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .science-note h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+        }
+        
+        .start-game-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            background-color: var(--primary-color);
+            margin: 20px 0;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .start-game-btn:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+        }
+        
+        .start-game-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Flash Card Generator</h1>
+    
+    <div class="intro">
+        <p>Create and practice with interactive flash cards to enhance your learning through retrieval practice. Research shows that <strong>actively recalling information</strong> (rather than simply re-reading) significantly improves long-term memory retention and understanding.</p>
+        
+        <div class="science-note">
+            <h3>Why Retrieval Practice Works</h3>
+            <p>According to cognitive science, the act of retrieving information from memory actually strengthens neural pathways, making future recall easier. This matching game engages your memory in an active, challenging way that enhances learning beyond passive studying methods.</p>
+        </div>
+    </div>
+    
+    <div id="setup-container" class="container">
+        <h2>Create Your Flash Cards</h2>
+        <p>Create your matching game by importing terms or entering them manually.</p>
+        
+        <form id="setup-form" class="setup-form">
+            <!-- Import section - Now positioned first -->
+            <div class="setup-section">
+                <div class="setup-section-title">Import Terms</div>
+                <div class="bulk-import">
+                    <div class="import-options">
+                        <div class="import-tab active" data-tab="text-import">Paste Text</div>
+                        <div class="import-tab" data-tab="file-import">Upload CSV</div>
+                    </div>
+                    
+                    <div class="import-content active" id="text-import">
+                        <p>Enter terms and definitions in CSV format, one pair per line:<br>
+                        <code>term,definition</code></p>
+                        <div class="form-group">
+                            <textarea id="bulk-import" placeholder="apple,a round fruit with red or green skin
+banana,a long curved fruit with yellow skin
+orange,a round citrus fruit with orange skin
+grape,a small juicy fruit growing in clusters"></textarea>
+                        </div>
+                        <button type="button" id="text-import-btn">Import Text</button>
+                    </div>
+                    
+                    <div class="import-content" id="file-import">
+                        <p>Upload a CSV file with terms and definitions. Each line should have a term and definition separated by a comma.</p>
+                        <div class="file-input-container">
+                            <div class="file-input-button">Choose CSV File</div>
+                            <span class="file-name" id="file-name">No file chosen</span>
+                            <input type="file" id="csv-file" accept=".csv,text/csv">
+                        </div>
+                        <button type="button" id="file-import-btn">Import File</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Top Start Game button - appears when terms exist -->
+            <button type="submit" id="top-start-game-btn" class="start-game-btn" style="display: none;">Start Game</button>
+            
+            <div class="or-divider">
+                <span class="or-text">OR</span>
+            </div>
+            
+            <!-- Manual entry section - Now positioned second -->
+            <div class="setup-section">
+                <div class="setup-section-title">Enter Terms Manually</div>
+                
+                <div id="pairs-container">
+                    <div class="input-pair">
+                        <div class="form-group">
+                            <label for="term1">Term 1</label>
+                            <input type="text" id="term1" name="term1" required="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="def1">Definition 1</label>
+                            <textarea id="def1" name="def1" required=""></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="input-pair">
+                        <div class="form-group">
+                            <label for="term2">Term 2</label>
+                            <input type="text" id="term2" name="term2" required="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="def2">Definition 2</label>
+                            <textarea id="def2" name="def2" required=""></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="input-pair">
+                        <div class="form-group">
+                            <label for="term3">Term 3</label>
+                            <input type="text" id="term3" name="term3" required="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="def3">Definition 3</label>
+                            <textarea id="def3" name="def3" required=""></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="input-pair">
+                        <div class="form-group">
+                            <label for="term4">Term 4</label>
+                            <input type="text" id="term4" name="term4" required="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="def4">Definition 4</label>
+                            <textarea id="def4" name="def4" required=""></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" id="add-pair-btn" class="add-pair-btn">Add More Pairs</button>
+                    <button type="button" id="remove-all-btn" class="remove-all-btn">Remove All Pairs</button>
+                </div>
+            </div>
+            
+            <button type="submit" id="bottom-start-game-btn" class="start-game-btn">Start Game</button>
+        </form>
+    </div>
+    
+    <div id="game-container" class="container game-container" style="display: none;">
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <p>Match each term with its correct definition. You can either drag a term to its matching definition (or vice versa), or click on a term and then click on its matching definition. Once you make a match, new cards will appear and the board will be reshuffled!</p>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stat-box">
+                <div id="timer">Time: 0:00</div>
+            </div>
+            
+            <div class="stat-box progress-container">
+                <div id="progress-label">Progress: 0/0</div>
+                <div class="progress-bar">
+                    <div id="progress" class="progress"></div>
+                </div>
+            </div>
+            
+            <div class="stat-box">
+                <div id="remaining">Remaining: 0</div>
+            </div>
+        </div>
+        
+        <div class="game-area">
+            <div style="position: relative;">
+                <div id="terms-overlay" class="shuffle-overlay">
+                    <div class="shuffle-text">Shuffling...</div>
+                </div>
+                <div class="section-header">Terms</div>
+                <div id="terms-container" class="card-container">
+                    <!-- Terms will be dynamically added here -->
+                </div>
+            </div>
+            
+            <div style="position: relative;">
+                <div id="definitions-overlay" class="shuffle-overlay">
+                    <div class="shuffle-text">Shuffling...</div>
+                </div>
+                <div class="section-header">Definitions</div>
+                <div id="definitions-container" class="card-container">
+                    <!-- Definitions will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="reset-btn">Reset Game</button>
+            <button id="new-game-btn">New Game</button>
+        </div>
+    </div>
+    
+    <div id="celebration-modal" class="celebration-modal">
+        <div class="celebration-content">
+            <h2 class="celebration-title">Congratulations!</h2>
+            <p class="celebration-message" id="celebration-message">You've matched all the terms with their definitions!</p>
+            
+            <div class="celebration-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="final-time">0:00</div>
+                    <div class="stat-label">Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="final-matches">0/0</div>
+                    <div class="stat-label">Matches</div>
+                </div>
+            </div>
+            
+            <div class="celebration-buttons">
+                <button id="play-again-btn">Play Again</button>
+                <button id="new-terms-btn">New Terms</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Remove All Confirmation Dialog -->
+    <div id="confirm-dialog" class="dialog">
+        <div class="dialog-content">
+            <h3 class="dialog-title">Remove All Pairs?</h3>
+            <p class="dialog-text">Are you sure you want to remove all terms and definitions? This action cannot be undone.</p>
+            <div class="dialog-buttons">
+                <button id="confirm-cancel" class="dialog-cancel">Cancel</button>
+                <button id="confirm-delete" class="dialog-delete">Remove All</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import Confirmation Dialog -->
+    <div id="import-warning-dialog" class="dialog">
+        <div class="dialog-content">
+            <div class="warning-icon">⚠️</div>
+            <h3 class="warning-header">Warning: Existing Terms Will Be Replaced</h3>
+            <p class="dialog-text">You have existing terms and definitions that will be replaced with the imported data. Would you like to continue?</p>
+            <div class="dialog-buttons">
+                <button id="import-cancel" class="dialog-cancel">Cancel</button>
+                <button id="import-continue" class="dialog-continue">Continue Import</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="feedback" class="feedback"></div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const setupContainer = document.getElementById('setup-container');
+            const gameContainer = document.getElementById('game-container');
+            const setupForm = document.getElementById('setup-form');
+            const pairsContainer = document.getElementById('pairs-container');
+            const addPairBtn = document.getElementById('add-pair-btn');
+            const removeAllBtn = document.getElementById('remove-all-btn');
+            const textImportBtn = document.getElementById('text-import-btn');
+            const fileImportBtn = document.getElementById('file-import-btn');
+            const csvFileInput = document.getElementById('csv-file');
+            const fileNameDisplay = document.getElementById('file-name');
+            const bulkImportTextarea = document.getElementById('bulk-import');
+            const termsContainer = document.getElementById('terms-container');
+            const definitionsContainer = document.getElementById('definitions-container');
+            const progressLabel = document.getElementById('progress-label');
+            const timerDisplay = document.getElementById('timer');
+            const remainingDisplay = document.getElementById('remaining');
+            const progressBar = document.getElementById('progress');
+            const resetBtn = document.getElementById('reset-btn');
+            const newGameBtn = document.getElementById('new-game-btn');
+            const feedbackEl = document.getElementById('feedback');
+            const importTabs = document.querySelectorAll('.import-tab');
+            const termsOverlay = document.getElementById('terms-overlay');
+            const definitionsOverlay = document.getElementById('definitions-overlay');
+            const celebrationModal = document.getElementById('celebration-modal');
+            const celebrationMessage = document.getElementById('celebration-message');
+            const finalTimeDisplay = document.getElementById('final-time');
+            const finalMatchesDisplay = document.getElementById('final-matches');
+            const playAgainBtn = document.getElementById('play-again-btn');
+            const newTermsBtn = document.getElementById('new-terms-btn');
+            const confirmDialog = document.getElementById('confirm-dialog');
+            const confirmCancel = document.getElementById('confirm-cancel');
+            const confirmDelete = document.getElementById('confirm-delete');
+            const importWarningDialog = document.getElementById('import-warning-dialog');
+            const importCancel = document.getElementById('import-cancel');
+            const importContinue = document.getElementById('import-continue');
+            const topStartGameBtn = document.getElementById('top-start-game-btn');
+            
+            let pairCount = 4;
+            let activeTerms = [];
+            let activeDefinitions = [];
+            let activePairsData = [];
+            let matchedPairs = 0;
+            let totalPairs = 0;
+            let selectedElement = null;
+            let gameData = [];
+            let gameQueue = [];
+            let gameTimer = null;
+            let seconds = 0;
+            let isShuffling = false;
+            let pendingImportText = null; // Store text that's waiting for confirmation
+            let pendingImportFile = null; // Store file that's waiting for confirmation
+            const MAX_ACTIVE_PAIRS = 4;
+            
+            // Initialize the top Start Game button visibility
+            updateTopButtonVisibility();
+            
+            // Celebration messages
+            const celebrationMessages = [
+                "Amazing job! You've matched all the terms perfectly!",
+                "Fantastic work! You've completed all the matches!",
+                "Brilliant! You've mastered these terms and definitions!",
+                "Outstanding! You've successfully matched everything!",
+                "Excellent work! You've completed the matching game!",
+                "Well done! You've successfully matched all the terms!",
+                "Great job! You've conquered this matching challenge!",
+                "Superb work! You've matched everything correctly!",
+                "Impressive! You've completed all the matches perfectly!",
+                "Terrific job! You've mastered these matches!"
+            ];
+            
+            // Function to check if there are enough pairs to show the top button
+            function updateTopButtonVisibility() {
+                // Count filled terms
+                const filledTermsCount = countFilledTerms();
+                
+                // Show the top buttons row if there are enough terms
+                if (filledTermsCount >= 2) {
+                    topStartGameBtn.style.display = 'block';
+                } else {
+                    topStartGameBtn.style.display = 'none';
+                }
+            }
+            
+            // Count how many terms have been filled in
+            function countFilledTerms() {
+                let count = 0;
+                const inputs = pairsContainer.querySelectorAll('.input-pair');
+                
+                inputs.forEach(pair => {
+                    const termInput = pair.querySelector('input[id^="term"]');
+                    const defInput = pair.querySelector('textarea[id^="def"]');
+                    
+                    if (termInput && defInput && 
+                        termInput.value.trim() !== '' && 
+                        defInput.value.trim() !== '') {
+                        count++;
+                    }
+                });
+                
+                return count;
+            }
+            
+            // Monitor input changes to update the top button visibility
+            pairsContainer.addEventListener('input', function(e) {
+                // Only check if this is a term or definition input
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    // Debounce the check to avoid too many calls
+                    clearTimeout(e.target.timer);
+                    e.target.timer = setTimeout(() => {
+                        updateTopButtonVisibility();
+                    }, 300);
+                }
+            });
+            
+            // Import tabs functionality
+            importTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    document.querySelectorAll('.import-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.import-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    tab.classList.add('active');
+                    
+                    // Show corresponding content
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Display filename when file is chosen
+            csvFileInput.addEventListener('change', () => {
+                if (csvFileInput.files.length > 0) {
+                    fileNameDisplay.textContent = csvFileInput.files[0].name;
+                } else {
+                    fileNameDisplay.textContent = 'No file chosen';
+                }
+            });
+            
+            // Add more term-definition pairs
+            addPairBtn.addEventListener('click', () => {
+                pairCount++;
+                const newPair = document.createElement('div');
+                newPair.className = 'input-pair';
+                newPair.innerHTML = `
+                    <div class="form-group">
+                        <label for="term${pairCount}">Term ${pairCount}</label>
+                        <input type="text" id="term${pairCount}" name="term${pairCount}" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="def${pairCount}">Definition ${pairCount}</label>
+                        <textarea id="def${pairCount}" name="def${pairCount}" required></textarea>
+                    </div>
+                    <button type="button" class="remove-pair-btn">Remove</button>
+                `;
+                pairsContainer.appendChild(newPair);
+                
+                // Add event listener to remove button
+                newPair.querySelector('.remove-pair-btn').addEventListener('click', () => {
+                    newPair.remove();
+                    renumberPairs();
+                    updateTopButtonVisibility();
+                });
+            });
+            
+            // Remove all pairs button
+            removeAllBtn.addEventListener('click', () => {
+                // Check if there are any pairs to remove
+                if (pairsContainer.children.length > 0) {
+                    // Show confirmation dialog
+                    confirmDialog.classList.add('active');
+                } else {
+                    showFeedback('No pairs to remove', 'error');
+                }
+            });
+            
+            // Confirm dialog - Cancel button
+            confirmCancel.addEventListener('click', () => {
+                confirmDialog.classList.remove('active');
+            });
+            
+            // Confirm dialog - Delete button
+            confirmDelete.addEventListener('click', () => {
+                // Remove all pairs
+                while (pairsContainer.firstChild) {
+                    pairsContainer.removeChild(pairsContainer.firstChild);
+                }
+                
+                // Add a single empty pair
+                const emptyPair = document.createElement('div');
+                emptyPair.className = 'input-pair';
+                emptyPair.innerHTML = `
+                    <div class="form-group">
+                        <label for="term1">Term 1</label>
+                        <input type="text" id="term1" name="term1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="def1">Definition 1</label>
+                        <textarea id="def1" name="def1" required></textarea>
+                    </div>
+                `;
+                pairsContainer.appendChild(emptyPair);
+                
+                // Reset pair count
+                pairCount = 1;
+                
+                // Update top button visibility
+                updateTopButtonVisibility();
+                
+                // Close dialog
+                confirmDialog.classList.remove('active');
+                
+                // Show feedback
+                showFeedback('All pairs have been removed', 'success');
+            });
+            
+            // Import warning dialog - Cancel button
+            importCancel.addEventListener('click', () => {
+                importWarningDialog.classList.remove('active');
+                pendingImportText = null;
+                pendingImportFile = null;
+            });
+            
+            // Import warning dialog - Continue button
+            importContinue.addEventListener('click', () => {
+                importWarningDialog.classList.remove('active');
+                
+                // Process the pending import
+                if (pendingImportText) {
+                    processImport(pendingImportText);
+                    pendingImportText = null;
+                } else if (pendingImportFile) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        processImport(e.target.result);
+                    };
+                    reader.onerror = () => {
+                        showFeedback('Error reading file', 'error');
+                    };
+                    reader.readAsText(pendingImportFile);
+                    pendingImportFile = null;
+                }
+            });
+            
+            // Function to check if there are existing filled term-definition pairs
+            function hasExistingTerms() {
+                const inputs = pairsContainer.querySelectorAll('.input-pair');
+                for (let i = 0; i < inputs.length; i++) {
+                    const termInput = inputs[i].querySelector('input[id^="term"]');
+                    const defInput = inputs[i].querySelector('textarea[id^="def"]');
+                    
+                    if (termInput && defInput && 
+                        (termInput.value.trim() !== '' || defInput.value.trim() !== '')) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+            
+            // Import from text area
+            textImportBtn.addEventListener('click', () => {
+                const bulkText = bulkImportTextarea.value.trim();
+                if (!bulkText) {
+                    showFeedback('Please enter some data to import', 'error');
+                    return;
+                }
+                
+                if (hasExistingTerms()) {
+                    // Store the text for later use
+                    pendingImportText = bulkText;
+                    // Show warning dialog
+                    importWarningDialog.classList.add('active');
+                } else {
+                    // No existing terms, proceed with import
+                    processImport(bulkText);
+                }
+            });
+            
+            // Import from CSV file
+            fileImportBtn.addEventListener('click', () => {
+                if (!csvFileInput.files.length) {
+                    showFeedback('Please select a CSV file first', 'error');
+                    return;
+                }
+                
+                const file = csvFileInput.files[0];
+                
+                if (hasExistingTerms()) {
+                    // Store the file for later use
+                    pendingImportFile = file;
+                    // Show warning dialog
+                    importWarningDialog.classList.add('active');
+                } else {
+                    // No existing terms, proceed with import
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        processImport(e.target.result);
+                    };
+                    reader.onerror = () => {
+                        showFeedback('Error reading file', 'error');
+                    };
+                    reader.readAsText(file);
+                }
+            });
+            
+            // Process the import (after any needed confirmation)
+            function processImport(text) {
+                // Clear existing inputs
+                while (pairsContainer.children.length > 0) {
+                    pairsContainer.removeChild(pairsContainer.lastChild);
+                }
+                
+                // Parse the CSV content
+                const lines = text.split('\n');
+                let validPairs = 0;
+                
+                lines.forEach((line) => {
+                    line = line.trim();
+                    if (!line) return; // Skip empty lines
+                    
+                    // Find the first comma that's not inside quotes
+                    let commaPos = -1;
+                    let inQuotes = false;
+                    
+                    for (let i = 0; i < line.length; i++) {
+                        if (line[i] === '"') {
+                            inQuotes = !inQuotes;
+                        } else if (line[i] === ',' && !inQuotes) {
+                            commaPos = i;
+                            break;
+                        }
+                    }
+                    
+                    let term, definition;
+                    
+                    if (commaPos !== -1) {
+                        term = line.substring(0, commaPos).trim();
+                        definition = line.substring(commaPos + 1).trim();
+                        
+                        // Remove quotes if present
+                        if (term.startsWith('"') && term.endsWith('"')) {
+                            term = term.substring(1, term.length - 1);
+                        }
+                        if (definition.startsWith('"') && definition.endsWith('"')) {
+                            definition = definition.substring(1, definition.length - 1);
+                        }
+                    } else {
+                        // If no comma found, just use the whole line as the term
+                        term = line.trim();
+                        definition = "";
+                    }
+                    
+                    if (term) {
+                        validPairs++;
+                        const newPair = document.createElement('div');
+                        newPair.className = 'input-pair';
+                        newPair.innerHTML = `
+                            <div class="form-group">
+                                <label for="term${validPairs}">Term ${validPairs}</label>
+                                <input type="text" id="term${validPairs}" name="term${validPairs}" value="${escapeHtml(term)}" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="def${validPairs}">Definition ${validPairs}</label>
+                                <textarea id="def${validPairs}" name="def${validPairs}" required>${escapeHtml(definition)}</textarea>
+                            </div>
+                            ${validPairs > 1 ? '<button type="button" class="remove-pair-btn">Remove</button>' : ''}
+                        `;
+                        pairsContainer.appendChild(newPair);
+                        
+                        // Add event listener to remove button
+                        const removeBtn = newPair.querySelector('.remove-pair-btn');
+                        if (removeBtn) {
+                            removeBtn.addEventListener('click', () => {
+                                newPair.remove();
+                                renumberPairs();
+                                updateTopButtonVisibility();
+                            });
+                        }
+                    }
+                });
+                
+                // Update pair count
+                pairCount = validPairs;
+                
+                // Update top button visibility
+                updateTopButtonVisibility();
+                
+                if (validPairs > 0) {
+                    showFeedback(`Imported ${validPairs} pairs successfully!`, 'success');
+                } else {
+                    showFeedback('No valid data found to import', 'error');
+                }
+            }
+            
+            // Function to renumber all pairs after removal
+            function renumberPairs() {
+                const pairs = pairsContainer.querySelectorAll('.input-pair');
+                pairs.forEach((pair, index) => {
+                    const pairNum = index + 1;
+                    
+                    // Update term label and ID
+                    const termLabel = pair.querySelector('label[for^="term"]');
+                    const termInput = pair.querySelector('input[id^="term"]');
+                    termLabel.setAttribute('for', `term${pairNum}`);
+                    termLabel.textContent = `Term ${pairNum}`;
+                    termInput.id = `term${pairNum}`;
+                    termInput.name = `term${pairNum}`;
+                    
+                    // Update definition label and ID
+                    const defLabel = pair.querySelector('label[for^="def"]');
+                    const defInput = pair.querySelector('textarea[id^="def"]');
+                    defLabel.setAttribute('for', `def${pairNum}`);
+                    defLabel.textContent = `Definition ${pairNum}`;
+                    defInput.id = `def${pairNum}`;
+                    defInput.name = `def${pairNum}`;
+                });
+                
+                // Update pairCount
+                pairCount = pairs.length;
+            }
+            
+            // Helper function to escape HTML special characters
+            function escapeHtml(text) {
+                if (!text) return '';
+                
+                const map = {
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#039;'
+                };
+                
+                return text.replace(/[&<>"']/g, m => map[m]);
+            }
+            
+            // Setup form submission event (both buttons use this)
+            setupForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                // Collect all term-definition pairs
+                gameData = [];
+                const inputs = pairsContainer.querySelectorAll('.input-pair');
+                
+                inputs.forEach((pair, index) => {
+                    const termInput = pair.querySelector(`input[id^="term"]`);
+                    const defInput = pair.querySelector(`textarea[id^="def"]`);
+                    
+                    if (termInput && defInput && termInput.value.trim() && defInput.value.trim()) {
+                        gameData.push({
+                            id: index + 1,
+                            term: termInput.value.trim(),
+                            definition: defInput.value.trim()
+                        });
+                    }
+                });
+                
+                if (gameData.length < 2) {
+                    showFeedback('Please add at least 2 term-definition pairs', 'error');
+                    return;
+                }
+                
+                // Initialize the game
+                initializeGame(gameData);
+                
+                // Hide setup, show game
+                setupContainer.style.display = 'none';
+                gameContainer.style.display = 'block';
+                
+                // Start the timer
+                startTimer();
+            });
+            
+            function initializeGame(data) {
+                // Clear previous game
+                clearGameBoard();
+                activeTerms = [];
+                activeDefinitions = [];
+                activePairsData = [];
+                matchedPairs = 0;
+                totalPairs = data.length;
+                seconds = 0;
+                updateTimer();
+                
+                // Stop any existing timer
+                if (gameTimer) {
+                    clearInterval(gameTimer);
+                    gameTimer = null;
+                }
+                
+                // Shuffle the data
+                gameQueue = [...data].sort(() => Math.random() - 0.5);
+                
+                // Update displays
+                updateProgress();
+                updateRemainingCount();
+                
+                // Add initial pairs to the game
+                addActivePairs();
+            }
+            
+            function clearGameBoard() {
+                termsContainer.innerHTML = '';
+                definitionsContainer.innerHTML = '';
+            }
+            
+            function addActivePairs() {
+                // Calculate how many new pairs to add
+                const pairsToAdd = Math.min(MAX_ACTIVE_PAIRS - activePairsData.length, gameQueue.length);
+                
+                if (pairsToAdd <= 0) return;
+                
+                // Add new pairs to active pairs data
+                for (let i = 0; i < pairsToAdd; i++) {
+                    if (gameQueue.length > 0) {
+                        const item = gameQueue.shift();
+                        activePairsData.push(item);
+                    }
+                }
+                
+                // Now rebuild the entire board with shuffled positions
+                rebuildGameBoard();
+                
+                // Update the remaining count
+                updateRemainingCount();
+            }
+            
+            function rebuildGameBoard() {
+                // If cards already exist, perform shuffle animation
+                if (termsContainer.children.length > 0 || definitionsContainer.children.length > 0) {
+                    performShuffleAnimation();
+                } else {
+                    // First time loading, just build the board
+                    buildBoardWithCards();
+                }
+            }
+            
+            function performShuffleAnimation() {
+                if (isShuffling) return;
+                isShuffling = true;
+                
+                // Show overlays
+                termsOverlay.classList.add('active');
+                definitionsOverlay.classList.add('active');
+                
+                // Add shuffle-out animation to all existing cards
+                const allCards = [...termsContainer.children, ...definitionsContainer.children];
+                allCards.forEach(card => {
+                    card.classList.add('shuffle-out');
+                });
+                
+                // Wait for animation to complete
+                setTimeout(() => {
+                    // Clear the board
+                    clearGameBoard();
+                    activeTerms = [];
+                    activeDefinitions = [];
+                    
+                    // Build the new board
+                    setTimeout(() => {
+                        buildBoardWithCards();
+                        
+                        // Hide overlays after new cards have been added
+                        setTimeout(() => {
+                            termsOverlay.classList.remove('active');
+                            definitionsOverlay.classList.remove('active');
+                            isShuffling = false;
+                        }, 200);
+                    }, 300);
+                }, 600);
+            }
+            
+            function buildBoardWithCards() {
+                // Create copies of the active pairs data for terms and definitions
+                // and shuffle them independently
+                const shuffledTermData = [...activePairsData].sort(() => Math.random() - 0.5);
+                const shuffledDefData = [...activePairsData].sort(() => Math.random() - 0.5);
+                
+                // Add terms to the board
+                shuffledTermData.forEach(item => {
+                    const termEl = document.createElement('div');
+                    termEl.className = 'term-card shuffle-in';
+                    termEl.textContent = item.term;
+                    termEl.dataset.id = item.id;
+                    termEl.draggable = true;
+                    termsContainer.appendChild(termEl);
+                    activeTerms.push(termEl);
+                    
+                    // Add drag events
+                    termEl.addEventListener('dragstart', handleDragStart);
+                    termEl.addEventListener('dragend', handleDragEnd);
+                    termEl.addEventListener('click', handleClick);
+                });
+                
+                // Add definitions to the board
+                shuffledDefData.forEach(item => {
+                    const defEl = document.createElement('div');
+                    defEl.className = 'definition-card shuffle-in';
+                    defEl.textContent = item.definition;
+                    defEl.dataset.id = item.id;
+                    defEl.draggable = true;
+                    definitionsContainer.appendChild(defEl);
+                    activeDefinitions.push(defEl);
+                    
+                    // Add drag events
+                    defEl.addEventListener('dragstart', handleDragStart);
+                    defEl.addEventListener('dragend', handleDragEnd);
+                    defEl.addEventListener('click', handleClick);
+                });
+            }
+            
+            function startTimer() {
+                // Reset timer
+                seconds = 0;
+                updateTimer();
+                
+                // Stop any existing timer
+                if (gameTimer) {
+                    clearInterval(gameTimer);
+                }
+                
+                // Start new timer
+                gameTimer = setInterval(() => {
+                    seconds++;
+                    updateTimer();
+                }, 1000);
+            }
+            
+            function updateTimer() {
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                timerDisplay.textContent = `Time: ${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+            }
+            
+            function updateProgress() {
+                progressLabel.textContent = `Progress: ${matchedPairs}/${totalPairs}`;
+                const progressPercentage = (matchedPairs / totalPairs) * 100;
+                progressBar.style.width = `${progressPercentage}%`;
+            }
+            
+            function updateRemainingCount() {
+                const remaining = gameQueue.length;
+                remainingDisplay.textContent = `Remaining: ${remaining}`;
+            }
+            
+            function handleDragStart(e) {
+                if (isShuffling) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                this.classList.add('dragging');
+                e.dataTransfer.setData('text/plain', this.dataset.id);
+                e.dataTransfer.effectAllowed = 'move';
+                selectedElement = this;
+                
+                // Remove any existing selection
+                document.querySelectorAll('.selected').forEach(el => {
+                    el.classList.remove('selected');
+                });
+            }
+            
+            function handleDragEnd() {
+                this.classList.remove('dragging');
+            }
+            
+            function handleDragOver(e) {
+                if (isShuffling) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            }
+            
+            function handleDrop(e) {
+                if (isShuffling) return;
+                e.preventDefault();
+                const draggedId = e.dataTransfer.getData('text/plain');
+                let dropTarget = e.target;
+                
+                // Only allow dropping on an item, not the container itself
+                if (dropTarget.classList.contains('term-card') || dropTarget.classList.contains('definition-card')) {
+                    // Check if match
+                    if (draggedId === dropTarget.dataset.id && 
+                        !dropTarget.classList.contains('matched') && 
+                        !selectedElement.classList.contains('matched')) {
+                        // Match found!
+                        handleMatch(dropTarget, selectedElement);
+                    } else if (!dropTarget.classList.contains('matched') && !selectedElement.classList.contains('matched')) {
+                        showFeedback('Not a match. Try again!', 'error');
+                    }
+                }
+            }
+            
+            function handleClick(e) {
+                if (isShuffling || this.classList.contains('matched')) {
+                    return;
+                }
+                
+                // If clicking already selected element, deselect it
+                if (this === selectedElement) {
+                    this.classList.remove('selected');
+                    selectedElement = null;
+                    return;
+                }
+                
+                // If no selection yet, select this element
+                if (selectedElement === null) {
+                    this.classList.add('selected');
+                    selectedElement = this;
+                    return;
+                }
+                
+                // If element already selected, check for match
+                if (this.dataset.id === selectedElement.dataset.id) {
+                    // Match found!
+                    handleMatch(this, selectedElement);
+                } else {
+                    showFeedback('Not a match. Try again!', 'error');
+                }
+                
+                // Reset selection
+                selectedElement.classList.remove('selected');
+                selectedElement = null;
+            }
+            
+            function handleMatch(element1, element2) {
+                // Mark as matched
+                element1.classList.add('matched', 'fade-out');
+                element2.classList.add('matched', 'fade-out');
+                matchedPairs++;
+                
+                // Show feedback
+                showFeedback('Correct match!', 'success');
+                
+                // Get the pair ID to remove from active pairs
+                const pairId = element1.dataset.id;
+                
+                // Remove this pair from activePairsData
+                activePairsData = activePairsData.filter(pair => pair.id !== parseInt(pairId));
+                
+                // Remove from DOM and active arrays after animation
+                setTimeout(() => {
+                    // Add new pair if available
+                    addActivePairs();
+                    
+                    // If no new pairs were added but we still have active pairs,
+                    // reshuffle the existing cards for a new arrangement
+                    if (activePairsData.length > 0 && gameQueue.length === 0) {
+                        rebuildGameBoard();
+                    }
+                    
+                    // Update progress
+                    updateProgress();
+                    
+                    // Check if game is complete
+                    if (matchedPairs === totalPairs) {
+                        // Stop the timer
+                        if (gameTimer) {
+                            clearInterval(gameTimer);
+                            gameTimer = null;
+                        }
+                        
+                        // Show celebration after a brief delay
+                        setTimeout(showCelebration, 500);
+                    }
+                }, 500);
+            }
+            
+            function showCelebration() {
+                // Set random celebration message
+                const randomMessage = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+                celebrationMessage.textContent = randomMessage;
+                
+                // Set final stats
+                const minutes = Math.floor(seconds / 60);
+                const remainingSeconds = seconds % 60;
+                finalTimeDisplay.textContent = `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+                finalMatchesDisplay.textContent = `${matchedPairs}/${totalPairs}`;
+                
+                // Show the modal
+                celebrationModal.classList.add('active');
+                
+                // Create confetti effect (simplified version)
+                createConfetti();
+            }
+            
+            function createConfetti() {
+                const confettiCount = 100;
+                const colors = ['#f94144', '#f3722c', '#f8961e', '#f9c74f', '#90be6d', '#43aa8b', '#577590'];
+                const modalContent = document.querySelector('.celebration-content');
+                
+                for (let i = 0; i < confettiCount; i++) {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.top = (Math.random() * 80 - 20) + '%';
+                    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.width = (Math.random() * 8 + 6) + 'px';
+                    confetti.style.height = (Math.random() * 6 + 4) + 'px';
+                    confetti.style.opacity = Math.random() * 0.7 + 0.3;
+                    confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+                    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+                    confetti.style.zIndex = -1; // Behind the content
+                    
+                    // Animation
+                    confetti.animate([
+                        { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+                        { transform: `translate(${Math.random() * 100 - 50}px, ${Math.random() * 100 + 50}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                    ], {
+                        duration: Math.random() * 3000 + 2000,
+                        iterations: 1,
+                        delay: Math.random() * 500,
+                        easing: 'cubic-bezier(0.21, 0.53, 0.29, 0.8)'
+                    });
+                    
+                    modalContent.appendChild(confetti);
+                    
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }
+            }
+            
+            function showFeedback(message, type) {
+                feedbackEl.textContent = message;
+                feedbackEl.className = `feedback ${type}`;
+                feedbackEl.classList.add('show');
+                
+                setTimeout(() => {
+                    feedbackEl.classList.remove('show');
+                }, 2000);
+            }
+            
+            // Play again button in celebration modal
+            playAgainBtn.addEventListener('click', () => {
+                celebrationModal.classList.remove('active');
+                initializeGame(gameData);
+                startTimer();
+            });
+            
+            // New terms button in celebration modal
+            newTermsBtn.addEventListener('click', () => {
+                celebrationModal.classList.remove('active');
+                gameContainer.style.display = 'none';
+                setupContainer.style.display = 'block';
+            });
+            
+            // Reset game button
+            resetBtn.addEventListener('click', () => {
+                initializeGame(gameData);
+                startTimer();
+                showFeedback('Game reset!', 'success');
+            });
+            
+            // New game button
+            newGameBtn.addEventListener('click', () => {
+                if (gameTimer) {
+                    clearInterval(gameTimer);
+                    gameTimer = null;
+                }
+                gameContainer.style.display = 'none';
+                setupContainer.style.display = 'block';
+            });
+            
+            // Add drop zone events
+            termsContainer.addEventListener('dragover', handleDragOver);
+            termsContainer.addEventListener('drop', handleDrop);
+            definitionsContainer.addEventListener('dragover', handleDragOver);
+            definitionsContainer.addEventListener('drop', handleDrop);
+        });
+    </script>
+
+
+</body></html>
