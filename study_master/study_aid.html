@@ -1,0 +1,561 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyAid - Course Materials to Study Tools</title>
+    <style>
+        :root {
+            --primary: #3a6ea5;
+            --secondary: #4a90e2;
+            --light: #f5f7fa;
+            --dark: #333;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo svg {
+            margin-right: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .role-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        
+        .toggle-btn {
+            padding: 0.5rem 1.5rem;
+            border: 1px solid var(--primary);
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .toggle-btn:first-child {
+            border-radius: 5px 0 0 5px;
+        }
+        
+        .toggle-btn:last-child {
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .toggle-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .card h2 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .upload-area {
+            border: 2px dashed #ccc;
+            border-radius: 5px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .upload-area:hover {
+            background-color: #f9f9f9;
+            border-color: var(--secondary);
+        }
+        
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .material-list {
+            list-style: none;
+        }
+        
+        .material-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .material-item:last-child {
+            border-bottom: none;
+        }
+        
+        .material-title {
+            font-weight: 500;
+        }
+        
+        .material-meta {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .material-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .tag {
+            background-color: #e9ecef;
+            padding: 0.3rem 0.6rem;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+        }
+        
+        .flashcard-container {
+            perspective: 1000px;
+            margin: 2rem 0;
+        }
+        
+        .flashcard {
+            width: 100%;
+            height: 200px;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .flashcard-front {
+            background-color: var(--primary);
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+        
+        .flashcard-back {
+            background-color: white;
+            color: var(--dark);
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-navigation {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .quiz-question {
+            margin-bottom: 2rem;
+        }
+        
+        .quiz-options {
+            list-style: none;
+            margin-top: 1rem;
+        }
+        
+        .quiz-option {
+            padding: 1rem;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background-color: #f0f0f0;
+        }
+        
+        .quiz-option.selected {
+            background-color: var(--secondary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        @media (max-width: 768px) {
+            .nav-links {
+                gap: 1rem;
+            }
+            
+            .material-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .material-actions {
+                margin-top: 1rem;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .flashcard {
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2 17L12 22L22 17" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <path d="M2 12L12 17L22 12" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+                <span>StudyAid</span>
+            </div>
+            <div class="nav-links">
+                <a href="#">Dashboard</a>
+                <a href="#">My Courses</a>
+                <a href="#">Profile</a>
+            </div>
+        </nav>
+    </header>
+    
+    <div class="container">
+        <div class="role-toggle">
+            <button class="toggle-btn active" id="faculty-btn">Faculty View</button>
+            <button class="toggle-btn" id="student-btn">Student View</button>
+        </div>
+        
+        <div class="tab-content active" id="faculty-content">
+            <div class="card">
+                <h2>Upload Course Materials</h2>
+                <div class="upload-area" id="upload-area">
+                    <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="#3a6ea5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M17 8L12 3L7 8" stroke="#3a6ea5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        <path d="M12 3V15" stroke="#3a6ea5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                    <h3>Drag and drop files here</h3>
+                    <p>or</p>
+                    <button class="btn btn-primary">Browse Files</button>
+                    <p class="upload-info">Supported formats: PDF, DOCX, PPTX (Max size: 25MB)</p>
+                </div>
+                
+                <div class="processing-options">
+                    <h3>Processing Options</h3>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" checked=""> Generate flashcards from key terms
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" checked=""> Create chapter summaries
+                        </label>
+                    </div>
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" checked=""> Generate practice quizzes
+                        </label>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success">Process Materials</button>
+            </div>
+            
+            <div class="card">
+                <h2>Uploaded Course Materials</h2>
+                <ul class="material-list">
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Introduction to Psychology - Chapter 1</div>
+                            <div class="material-meta">PDF • 2.4MB • Uploaded July 10, 2025</div>
+                            <div class="material-tags">
+                                <span class="tag">Flashcards</span>
+                                <span class="tag">Quiz</span>
+                            </div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn">Delete</button>
+                        </div>
+                    </li>
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Cognitive Science Lecture Notes</div>
+                            <div class="material-meta">DOCX • 1.8MB • Uploaded July 8, 2025</div>
+                            <div class="material-tags">
+                                <span class="tag">Flashcards</span>
+                                <span class="tag">Summary</span>
+                            </div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn">Delete</button>
+                        </div>
+                    </li>
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Research Methods - Week 3 Slides</div>
+                            <div class="material-meta">PPTX • 5.2MB • Uploaded July 5, 2025</div>
+                            <div class="material-tags">
+                                <span class="tag">Quiz</span>
+                                <span class="tag">Summary</span>
+                            </div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Edit</button>
+                            <button class="btn">Delete</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="student-content">
+            <div class="card">
+                <h2>Course Materials</h2>
+                <ul class="material-list">
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Introduction to Psychology - Chapter 1</div>
+                            <div class="material-meta">PDF • 2.4MB • Available since July 10, 2025</div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Read</button>
+                            <button class="btn">Study Aids</button>
+                        </div>
+                    </li>
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Cognitive Science Lecture Notes</div>
+                            <div class="material-meta">DOCX • 1.8MB • Available since July 8, 2025</div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Read</button>
+                            <button class="btn">Study Aids</button>
+                        </div>
+                    </li>
+                    <li class="material-item">
+                        <div>
+                            <div class="material-title">Research Methods - Week 3 Slides</div>
+                            <div class="material-meta">PPTX • 5.2MB • Available since July 5, 2025</div>
+                        </div>
+                        <div class="material-actions">
+                            <button class="btn btn-primary">Read</button>
+                            <button class="btn">Study Aids</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h2>Flashcards</h2>
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-front">
+                            <p>Classical Conditioning</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p>A learning process that occurs when two stimuli are repeatedly paired; a response that is at first elicited by the second stimulus is eventually elicited by the first stimulus alone.</p>
+                        </div>
+                    </div>
+                    <div class="flashcard-navigation">
+                        <button class="btn" id="prev-btn">Previous</button>
+                        <button class="btn" id="flip-btn">Flip Card</button>
+                        <button class="btn" id="next-btn">Next</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Practice Quiz</h2>
+                <div class="quiz-question">
+                    <h3>Which of the following best describes operant conditioning?</h3>
+                    <ul class="quiz-options">
+                        <li class="quiz-option">Learning through observation of others</li>
+                        <li class="quiz-option">Associating a neutral stimulus with an automatic response</li>
+                        <li class="quiz-option selected">Learning through the consequences of behavior</li>
+                        <li class="quiz-option">Developing understanding through cognitive processes</li>
+                    </ul>
+                </div>
+                <div class="quiz-question">
+                    <h3>Who is considered the founder of psychoanalysis?</h3>
+                    <ul class="quiz-options">
+                        <li class="quiz-option">B.F. Skinner</li>
+                        <li class="quiz-option">Carl Rogers</li>
+                        <li class="quiz-option selected">Sigmund Freud</li>
+                        <li class="quiz-option">Abraham Maslow</li>
+                    </ul>
+                </div>
+                <button class="btn btn-primary">Submit Answers</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Toggle between faculty and student views
+        const facultyBtn = document.getElementById('faculty-btn');
+        const studentBtn = document.getElementById('student-btn');
+        const facultyContent = document.getElementById('faculty-content');
+        const studentContent = document.getElementById('student-content');
+        
+        facultyBtn.addEventListener('click', () => {
+            facultyBtn.classList.add('active');
+            studentBtn.classList.remove('active');
+            facultyContent.classList.add('active');
+            studentContent.classList.remove('active');
+        });
+        
+        studentBtn.addEventListener('click', () => {
+            studentBtn.classList.add('active');
+            facultyBtn.classList.remove('active');
+            studentContent.classList.add('active');
+            facultyContent.classList.remove('active');
+        });
+        
+        // Flashcard flip functionality
+        const flashcard = document.getElementById('flashcard');
+        const flipBtn = document.getElementById('flip-btn');
+        
+        flipBtn.addEventListener('click', () => {
+            flashcard.classList.toggle('flipped');
+        });
+        
+        flashcard.addEventListener('click', () => {
+            flashcard.classList.toggle('flipped');
+        });
+        
+        // Quiz option selection
+        const quizOptions = document.querySelectorAll('.quiz-option');
+        
+        quizOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                // Deselect siblings
+                const siblings = Array.from(option.parentNode.children);
+                siblings.forEach(sib => sib.classList.remove('selected'));
+                
+                // Select clicked option
+                option.classList.add('selected');
+            });
+        });
+        
+        // File upload area interaction
+        const uploadArea = document.getElementById('upload-area');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#4a90e2';
+            uploadArea.style.backgroundColor = '#f0f7ff';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ccc';
+            uploadArea.style.backgroundColor = 'transparent';
+            // In a real app, you would process the files here
+            alert('Files dropped! In a real app, these would be uploaded and processed.');
+        });
+    </script>
+
+
+</body></html>
