@@ -1,0 +1,343 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QM Standards Checklist</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-container {
+            background-color: #e0e0e0;
+            border-radius: 8px;
+            margin: 20px 0;
+            height: 20px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .section {
+            background-color: white;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .section-header {
+            background-color: #2196F3;
+            color: white;
+            padding: 15px 20px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+
+        .section-header:hover {
+            background-color: #1976D2;
+        }
+
+        .section-header .toggle-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .section-header.active .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .section-content {
+            display: none;
+            padding: 0;
+        }
+
+        .section-content.active {
+            display: block;
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: auto auto 1fr;
+            gap: 15px;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            align-items: start;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .item-text {
+            line-height: 1.4;
+        }
+
+        .location {
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            .item {
+                grid-template-columns: auto auto 1fr;
+            }
+            
+            .location {
+                grid-column: 3;
+                margin-top: 8px;
+            }
+        }
+
+        .save-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .save-indicator.visible {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>QM Standards Checklist</h1>
+        <div class="progress-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div class="progress-text" id="progressText">0% Complete (0/0 items)</div>
+    </div>
+    
+    <div id="checklist"></div>
+    
+    <div class="save-indicator" id="saveIndicator">Progress updated!</div>
+
+    <script>
+        // In-memory storage
+        let checkedItems = {};
+
+        // Data Array
+        const data = [
+            {
+                title: "1. Course Overview and Introduction",
+                items: [
+                    { id: "1.1", text: "Provide a \"Getting Started\" module with clear instructions on navigating the course", location: "Course Homepage, Module 1" },
+                    { id: "1.2", text: "Include a detailed syllabus outlining the course purpose, structure, and key components", location: "Syllabus" },
+                    { id: "1.3", text: "State communication guidelines, including netiquette and response times for instructor feedback", location: "Syllabus" },
+                    { id: "1.4", text: "Link to institutional policies, such as academic integrity and grading", location: "Syllabus, Course Resources Page" },
+                    { id: "1.5", text: "Clearly list minimum technology requirements and access instructions", location: "Syllabus, Course Resources Page" },
+                    { id: "1.6", text: "Define technical and digital literacy skills learners need to succeed", location: "Syllabus, Course Resources Page" },
+                    { id: "1.7", text: "Describe prerequisite knowledge or skills required for the course", location: "Syllabus" },
+                    { id: "1.8", text: "Provide a welcoming instructor introduction with professional and personal details", location: "Instructor Introduction Page" },
+                    { id: "1.9", text: "Include an activity for learner introductions to build community", location: "Module 1, Discussion Board" }
+                ]
+            },
+            {
+                title: "2. Learning Objectives (Competencies)",
+                items: [
+                    { id: "2.1", text: "Write measurable course-level learning objectives using Bloom's Taxonomy", location: "Syllabus" },
+                    { id: "2.2", text: "Break down course objectives into specific, measurable module-level objectives", location: "Module Overviews" },
+                    { id: "2.3", text: "Display objectives prominently at the start of each module", location: "Module Overview Pages" },
+                    { id: "2.4", text: "Clearly explain how learning objectives align with activities and assessments", location: "Module Overview Pages, Syllabus" },
+                    { id: "2.5", text: "Verify that objectives reflect the appropriate cognitive level for the course", location: "Syllabus, Module Overview Pages" }
+                ]
+            },
+            {
+                title: "3. Assessment and Measurement",
+                items: [
+                    { id: "3.1", text: "Design assessments that directly measure the stated learning objectives", location: "Assignments, Quizzes, Discussions" },
+                    { id: "3.2", text: "Provide a clear grading policy and explain how grades will be calculated", location: "Syllabus" },
+                    { id: "3.3", text: "Develop detailed rubrics for assignments to clarify evaluation criteria", location: "Assignment Pages" },
+                    { id: "3.4", text: "Use a variety of assessment types, such as quizzes, essays, projects, and discussions", location: "Assignments, Quizzes, Discussions" },
+                    { id: "3.5", text: "Offer formative assessments and timely feedback to help learners track their progress", location: "Assignments, Module Activities" },
+                    { id: "3.6", text: "Include guidance on academic integrity and use tools to deter plagiarism", location: "Assignment Instructions, Syllabus" }
+                ]
+            },
+            {
+                title: "4. Instructional Materials",
+                items: [
+                    { id: "4.1", text: "Use instructional materials that align with and support the learning objectives", location: "Module Content Pages" },
+                    { id: "4.2", text: "Clearly describe the relationship between materials, activities, and assessments", location: "Module Overview Pages" },
+                    { id: "4.3", text: "Model academic integrity by properly citing all course materials", location: "Module Content Pages, Resources" },
+                    { id: "4.4", text: "Ensure materials reflect up-to-date theory and practice in the discipline", location: "Module Content Pages" },
+                    { id: "4.5", text: "Incorporate a variety of instructional formats, such as readings, videos, and interactive tools", location: "Module Content Pages" }
+                ]
+            },
+            {
+                title: "5. Learning Activities and Interaction",
+                items: [
+                    { id: "5.1", text: "Design activities that help learners achieve the stated objectives", location: "Module Activities" },
+                    { id: "5.2", text: "Include active learning opportunities, such as discussions or group work", location: "Module Activities" },
+                    { id: "5.3", text: "Clearly articulate the instructor's plan for regular interaction with learners", location: "Syllabus, Course Resources Page" },
+                    { id: "5.4", text: "Define requirements for learner participation in activities and discussions", location: "Syllabus, Module Activities" }
+                ]
+            },
+            {
+                title: "6. Course Technology",
+                items: [
+                    { id: "6.1", text: "Select tools that support the learning objectives", location: "Module Activities, Tools Section" },
+                    { id: "6.2", text: "Use technologies that promote learner engagement and active learning", location: "Module Activities" },
+                    { id: "6.3", text: "Incorporate a variety of technologies to enrich the learning experience", location: "Module Content Pages" },
+                    { id: "6.4", text: "Provide information about protecting learner data and privacy when using course tools", location: "Syllabus, Course Resources Page" }
+                ]
+            },
+            {
+                title: "7. Learner Support",
+                items: [
+                    { id: "7.1", text: "Provide links to technical support services for learners", location: "Syllabus, Course Resources Page" },
+                    { id: "7.2", text: "Include information on accessibility services and accommodations", location: "Syllabus, Course Resources Page" },
+                    { id: "7.3", text: "Link to academic support resources, such as tutoring or writing centers", location: "Syllabus, Course Resources Page" },
+                    { id: "7.4", text: "Provide information on institutional student support services", location: "Syllabus, Course Resources Page" }
+                ]
+            },
+            {
+                title: "8. Accessibility and Usability",
+                items: [
+                    { id: "8.1", text: "Ensure course navigation is intuitive and easy to use", location: "Course Homepage" },
+                    { id: "8.2", text: "Use accessible fonts, layouts, and consistent formatting", location: "Course-Wide" },
+                    { id: "8.3", text: "Ensure all text content is accessible to screen readers", location: "Course-Wide" },
+                    { id: "8.4", text: "Provide alt text for all images", location: "Course-Wide" },
+                    { id: "8.5", text: "Include captions or transcripts for video and audio content", location: "Course-Wide" },
+                    { id: "8.6", text: "Test multimedia content for usability and accessibility", location: "Course-Wide" },
+                    { id: "8.7", text: "Link to vendor accessibility statements for all third-party technologies", location: "Course Resources Page" }
+                ]
+            }
+        ];
+
+        function createChecklist() {
+            const container = document.getElementById('checklist');
+            
+            data.forEach((section, sectionIndex) => {
+                const sectionDiv = document.createElement('div');
+                sectionDiv.className = 'section';
+                
+                sectionDiv.innerHTML = `
+                    <div class="section-header" onclick="toggleSection(${sectionIndex})">
+                        ${section.title}
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div id="section${sectionIndex}" class="section-content">
+                        ${section.items.map(item => `
+                            <div class="item">
+                                <div style="color: #666; font-size: 0.9em; min-width: 45px;">QM ${item.id}</div>
+                                <input 
+                                    type="checkbox" 
+                                    id="${item.id}" 
+                                    ${isItemChecked(item.id) ? 'checked' : ''}
+                                    onchange="handleCheckboxChange('${item.id}')"
+                                >
+                                <div class="item-text">
+                                    ${item.text}
+                                    <div class="location">${item.location}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(sectionDiv);
+            });
+
+            document.getElementById('section0').classList.add('active');
+            updateProgress();
+        }
+
+        function toggleSection(index) {
+            const section = document.getElementById(`section${index}`);
+            const header = section.previousElementSibling;
+            section.classList.toggle('active');
+            header.classList.toggle('active');
+        }
+
+        function handleCheckboxChange(itemId) {
+            const checkbox = document.getElementById(itemId);
+            checkedItems[itemId] = checkbox.checked;
+            updateProgress();
+            showSaveIndicator();
+        }
+
+        function isItemChecked(itemId) {
+            return checkedItems[itemId] || false;
+        }
+
+        function updateProgress() {
+            const total = document.querySelectorAll('input[type="checkbox"]').length;
+            const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            const percentage = Math.round((checked / total) * 100);
+            
+            document.getElementById('progressBar').style.width = `${percentage}%`;
+            document.getElementById('progressText').textContent = 
+                `${percentage}% Complete (${checked}/${total} items)`;
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.classList.add('visible');
+            
+            setTimeout(() => {
+                indicator.classList.remove('visible');
+            }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', createChecklist);
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const activeSections = document.querySelectorAll('.section-content.active');
+                activeSections.forEach(section => {
+                    section.classList.remove('active');
+                    section.previousElementSibling.classList.remove('active');
+                });
+            }
+        });
+    </script>
+
+
+</body></html>
