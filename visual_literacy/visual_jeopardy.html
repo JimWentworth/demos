@@ -1,0 +1,375 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Communications Jeopardy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        jeopardy: '#060CE9'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .jeopardy-cell {
+            transition: all 0.3s ease;
+        }
+        .jeopardy-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(93, 92, 222, 0.3);
+        }
+        .modal-backdrop {
+            backdrop-filter: blur(5px);
+        }
+        .score-animation {
+            animation: scoreChange 0.5s ease-in-out;
+        }
+        @keyframes scoreChange {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen">
+    <!-- Header -->
+    <div class="bg-jeopardy text-white p-6 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-2">VISUAL COMMUNICATIONS</h1>
+        <h2 class="text-2xl md:text-3xl font-semibold">JEOPARDY</h2>
+        <div class="mt-4">
+            <span class="text-xl">Score: </span>
+            <span id="score" class="text-2xl font-bold">$0</span>
+        </div>
+    </div>
+
+    <!-- Game Board -->
+    <div class="container mx-auto p-4 max-w-6xl">
+        <div class="grid grid-cols-5 gap-2 md:gap-4">
+            <!-- Categories -->
+            <div class="bg-jeopardy text-white p-3 md:p-4 text-center font-bold text-sm md:text-lg rounded">
+                COLOR THEORY
+            </div>
+            <div class="bg-jeopardy text-white p-3 md:p-4 text-center font-bold text-sm md:text-lg rounded">
+                TYPOGRAPHY
+            </div>
+            <div class="bg-jeopardy text-white p-3 md:p-4 text-center font-bold text-sm md:text-lg rounded">
+                DESIGN PRINCIPLES
+            </div>
+            <div class="bg-jeopardy text-white p-3 md:p-4 text-center font-bold text-sm md:text-lg rounded">
+                BRANDING
+            </div>
+            <div class="bg-jeopardy text-white p-3 md:p-4 text-center font-bold text-sm md:text-lg rounded">
+                DESIGN HISTORY
+            </div>
+
+            <!-- Question cells -->
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="color" data-value="100" data-question="This color model uses Red, Green, and Blue values to create digital colors." data-answer="What is RGB?">
+                $100
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="typography" data-value="100" data-question="This refers to the spacing between individual letters in a word." data-answer="What is kerning?">
+                $100
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="principles" data-value="100" data-question="This principle uses different elements to create visual interest and avoid monotony." data-answer="What is contrast?">
+                $100
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="branding" data-value="100" data-question="This Nike slogan was created in 1988 and remains one of the most recognizable taglines." data-answer="What is 'Just Do It'?">
+                $100
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="history" data-value="100" data-question="This German art school, founded in 1919, revolutionized modern design education." data-answer="What is Bauhaus?">
+                $100
+            </div>
+
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="color" data-value="200" data-question="Colors that are opposite each other on the color wheel, like red and green." data-answer="What are complementary colors?">
+                $200
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="typography" data-value="200" data-question="This sans-serif font, designed by Max Miedinger in 1957, is one of the most popular fonts in the world." data-answer="What is Helvetica?">
+                $200
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="principles" data-value="200" data-question="This principle creates a sense of equilibrium in a design through equal visual weight." data-answer="What is balance?">
+                $200
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="branding" data-value="200" data-question="This fruit company's logo evolved from a rainbow apple to a monochrome version." data-answer="What is Apple?">
+                $200
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="history" data-value="200" data-question="This Swiss design movement emphasized cleanliness, readability, and objectivity." data-answer="What is Swiss Style or International Typographic Style?">
+                $200
+            </div>
+
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="color" data-value="300" data-question="This color property describes how pure or vivid a color appears." data-answer="What is saturation?">
+                $300
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="typography" data-value="300" data-question="This term describes the vertical spacing between lines of text." data-answer="What is leading or line spacing?">
+                $300
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="principles" data-value="300" data-question="This principle draws attention to the most important element in a design." data-answer="What is emphasis or focal point?">
+                $300
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="branding" data-value="300" data-question="This coffee chain's logo features a mythical sea creature." data-answer="What is Starbucks?">
+                $300
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="history" data-value="300" data-question="This poster style, popular in the 1960s, featured psychedelic colors and distorted lettering." data-answer="What is Psychedelic poster design?">
+                $300
+            </div>
+
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="color" data-value="400" data-question="This printing color model uses Cyan, Magenta, Yellow, and Black." data-answer="What is CMYK?">
+                $400
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="typography" data-value="400" data-question="This classification includes fonts with small strokes at the ends of letterforms." data-answer="What are serif fonts?">
+                $400
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="principles" data-value="400" data-question="This principle creates a path for the eye to follow through a design." data-answer="What is movement or flow?">
+                $400
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="branding" data-value="400" data-question="This social media platform's logo is a stylized camera." data-answer="What is Instagram?">
+                $400
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="history" data-value="400" data-question="This French poster artist is known for his Moulin Rouge and Toulouse-Lautrec posters." data-answer="Who is Henri de Toulouse-Lautrec?">
+                $400
+            </div>
+
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="color" data-value="500" data-question="This phenomenon occurs when staring at a color and then looking at white, seeing its complementary color." data-answer="What is an afterimage?">
+                $500
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="typography" data-value="500" data-question="This typographic term refers to a stroke that extends above the x-height of lowercase letters." data-answer="What is an ascender?">
+                $500
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="principles" data-value="500" data-question="This principle suggests that elements that are close together are perceived as related." data-answer="What is proximity?">
+                $500
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="branding" data-value="500" data-question="This luxury fashion brand's logo features interlocking letter Cs." data-answer="What is Chanel?">
+                $500
+            </div>
+            <div class="jeopardy-cell bg-blue-600 hover:bg-blue-700 text-white p-4 md:p-6 text-center font-bold text-lg md:text-2xl rounded cursor-pointer" data-category="history" data-value="500" data-question="This pioneer of modern graphic design created the 'I ❤ NY' logo in 1977." data-answer="Who is Milton Glaser?">
+                $500
+            </div>
+        </div>
+
+        <!-- Reset Game Button -->
+        <div class="text-center mt-8">
+            <button id="resetGame" class="bg-primary hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors">
+                Reset Game
+            </button>
+        </div>
+    </div>
+
+    <!-- Question Modal -->
+    <div id="questionModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden flex items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="p-6">
+                <div class="text-center mb-6">
+                    <div id="questionValue" class="text-3xl font-bold text-primary mb-4"></div>
+                    <div id="questionText" class="text-xl mb-6 dark:text-gray-200"></div>
+                </div>
+                
+                <div class="space-y-4">
+                    <input type="text" id="userAnswer" placeholder="What is...?" class="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-lg text-base dark:bg-gray-700 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent">
+                    
+                    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                        <button id="submitAnswer" class="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Submit Answer
+                        </button>
+                        <button id="revealAnswer" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Reveal Answer
+                        </button>
+                        <button id="closeModal" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                            Close
+                        </button>
+                    </div>
+                </div>
+
+                <div id="answerSection" class="hidden mt-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg">
+                    <div class="text-center">
+                        <div class="text-lg font-semibold mb-4 dark:text-gray-200">Correct Answer:</div>
+                        <div id="correctAnswer" class="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4"></div>
+                        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+                            <button id="correctBtn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                                I was correct! (+points)
+                            </button>
+                            <button id="incorrectBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded transition-colors">
+                                I was wrong (-points)
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        let currentScore = 0;
+        let currentCell = null;
+        let currentQuestionData = null;
+
+        const scoreElement = document.getElementById('score');
+        const questionModal = document.getElementById('questionModal');
+        const questionValue = document.getElementById('questionValue');
+        const questionText = document.getElementById('questionText');
+        const userAnswer = document.getElementById('userAnswer');
+        const submitAnswer = document.getElementById('submitAnswer');
+        const revealAnswer = document.getElementById('revealAnswer');
+        const closeModal = document.getElementById('closeModal');
+        const answerSection = document.getElementById('answerSection');
+        const correctAnswer = document.getElementById('correctAnswer');
+        const correctBtn = document.getElementById('correctBtn');
+        const incorrectBtn = document.getElementById('incorrectBtn');
+        const resetGame = document.getElementById('resetGame');
+
+        // Add click listeners to all question cells
+        document.querySelectorAll('.jeopardy-cell[data-question]').forEach(cell => {
+            cell.addEventListener('click', () => {
+                if (!cell.classList.contains('answered')) {
+                    openQuestion(cell);
+                }
+            });
+        });
+
+        function openQuestion(cell) {
+            currentCell = cell;
+            currentQuestionData = {
+                value: parseInt(cell.dataset.value),
+                question: cell.dataset.question,
+                answer: cell.dataset.answer
+            };
+
+            questionValue.textContent = `$${currentQuestionData.value}`;
+            questionText.textContent = currentQuestionData.question;
+            userAnswer.value = '';
+            answerSection.classList.add('hidden');
+            
+            questionModal.classList.remove('hidden');
+            userAnswer.focus();
+        }
+
+        function closeQuestionModal() {
+            questionModal.classList.add('hidden');
+            currentCell = null;
+            currentQuestionData = null;
+        }
+
+        function markCellAsAnswered() {
+            if (currentCell) {
+                currentCell.classList.add('answered');
+                currentCell.style.backgroundColor = '#6B7280';
+                currentCell.style.cursor = 'not-allowed';
+                currentCell.textContent = 'USED';
+            }
+        }
+
+        function updateScore(points) {
+            currentScore += points;
+            scoreElement.textContent = `$${currentScore}`;
+            scoreElement.classList.add('score-animation');
+            setTimeout(() => {
+                scoreElement.classList.remove('score-animation');
+            }, 500);
+        }
+
+        function checkAnswer() {
+            const userResponse = userAnswer.value.trim().toLowerCase();
+            const correctResponse = currentQuestionData.answer.toLowerCase();
+            
+            // Simple answer checking - could be made more sophisticated
+            const isCorrect = userResponse.includes(correctResponse.substring(8, correctResponse.length - 1).toLowerCase());
+            
+            if (isCorrect) {
+                updateScore(currentQuestionData.value);
+                showCustomAlert('Correct!', 'success');
+                markCellAsAnswered();
+                closeQuestionModal();
+            } else {
+                answerSection.classList.remove('hidden');
+                correctAnswer.textContent = currentQuestionData.answer;
+            }
+        }
+
+        function showCustomAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 z-50 p-4 rounded-lg text-white font-bold transition-opacity duration-300 ${
+                type === 'success' ? 'bg-green-500' : 
+                type === 'error' ? 'bg-red-500' : 
+                'bg-blue-500'
+            }`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(alertDiv);
+                }, 300);
+            }, 2000);
+        }
+
+        // Event listeners
+        submitAnswer.addEventListener('click', checkAnswer);
+        
+        userAnswer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        revealAnswer.addEventListener('click', () => {
+            answerSection.classList.remove('hidden');
+            correctAnswer.textContent = currentQuestionData.answer;
+        });
+
+        correctBtn.addEventListener('click', () => {
+            updateScore(currentQuestionData.value);
+            markCellAsAnswered();
+            closeQuestionModal();
+        });
+
+        incorrectBtn.addEventListener('click', () => {
+            updateScore(-currentQuestionData.value);
+            markCellAsAnswered();
+            closeQuestionModal();
+        });
+
+        closeModal.addEventListener('click', closeQuestionModal);
+
+        resetGame.addEventListener('click', () => {
+            // Reset score
+            currentScore = 0;
+            scoreElement.textContent = '$0';
+            
+            // Reset all cells
+            document.querySelectorAll('.jeopardy-cell[data-question]').forEach(cell => {
+                cell.classList.remove('answered');
+                cell.style.backgroundColor = '';
+                cell.style.cursor = 'pointer';
+                cell.textContent = `$${cell.dataset.value}`;
+            });
+            
+            closeQuestionModal();
+            showCustomAlert('Game Reset!', 'info');
+        });
+
+        // Close modal when clicking outside
+        questionModal.addEventListener('click', (e) => {
+            if (e.target === questionModal) {
+                closeQuestionModal();
+            }
+        });
+    </script>
+
+
+</body></html>
