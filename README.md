@@ -1,2 +1,2 @@
 # demos
-examples interactives created with AI
+example interactives created with GenAI
