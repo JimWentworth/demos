@@ -1,1 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloom's Taxonomy Verb Selector</title>
+    <script src="https://unpkg.com/react@17.0.2/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17.0.2/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.26.0/babel.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .app {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            text-align: center;
+            color: #333;
+        }
+        .verb-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+            min-height: 50px;
+        }
+        .verb, .dropped-verb {
+            padding: 5px 10px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: move;
+        }
+        .verb {
+            background-color: #007bff;
+            color: white;
+        }
+        .taxonomy-levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .level {
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            min-height: 100px;
+        }
+        .level h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        .correct {
+            background-color: #28a745;
+            color: white;
+        }
+        .incorrect {
+            background-color: #dc3545;
+            color: white;
+        }
+        .unchecked {
+            background-color: #ffc107;
+            color: black;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            color: white;
+        }
+        .check-button {
+            background-color: #28a745;
+        }
+        .reset-button {
+            background-color: #dc3545;
+        }
+        @media (max-width: 768px) {
+            .taxonomy-levels {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
 
+    <script type="text/babel">
+        const taxonomyLevels = [
+            "Remembering",
+            "Understanding",
+            "Applying",
+            "Analyzing",
+            "Evaluating",
+            "Creating"
+        ];
+
+        const verbsWithLevels = {
+            "List": "Remembering", "Define": "Remembering", "Recall": "Remembering", "Identify": "Remembering", "Name": "Remembering",
+            "Explain": "Understanding", "Summarize": "Understanding", "Interpret": "Understanding", "Describe": "Understanding", "Classify": "Understanding",
+            "Apply": "Applying", "Use": "Applying", "Implement": "Applying", "Solve": "Applying", "Demonstrate": "Applying",
+            "Analyze": "Analyzing", "Compare": "Analyzing", "Examine": "Analyzing", "Differentiate": "Analyzing", "Categorize": "Analyzing",
+            "Evaluate": "Evaluating", "Judge": "Evaluating", "Critique": "Evaluating", "Justify": "Evaluating", "Assess": "Evaluating",
+            "Create": "Creating", "Design": "Creating", "Develop": "Creating", "Compose": "Creating", "Formulate": "Creating"
+        };
+
+        function TaxonomyVerbSelector() {
+            const [availableVerbs, setAvailableVerbs] = React.useState(Object.keys(verbsWithLevels).sort());
+            const [sortedVerbs, setSortedVerbs] = React.useState({});
+            const [checkResults, setCheckResults] = React.useState({});
+            const [isChecked, setIsChecked] = React.useState(false);
+            const [correctCount, setCorrectCount] = React.useState(0);
+            const [incorrectCount, setIncorrectCount] = React.useState(0);
+
+            const onDragStart = (event, verb, sourceLevel) => {
+                event.dataTransfer.setData("text/plain", JSON.stringify({verb, sourceLevel}));
+            };
+
+            const onDragOver = (event) => {
+                event.preventDefault();
+            };
+
+            const onDrop = (event, targetLevel) => {
+                event.preventDefault();
+                const {verb, sourceLevel} = JSON.parse(event.dataTransfer.getData("text"));
+                
+                if (sourceLevel === "available") {
+                    setSortedVerbs(prev => ({
+                        ...prev,
+                        [targetLevel]: [...(prev[targetLevel] || []), verb]
+                    }));
+                    setAvailableVerbs(prev => prev.filter(v => v !== verb));
+                } else if (sourceLevel !== targetLevel) {
+                    setSortedVerbs(prev => ({
+                        ...prev,
+                        [sourceLevel]: prev[sourceLevel].filter(v => v !== verb),
+                        [targetLevel]: [...(prev[targetLevel] || []), verb]
+                    }));
+                }
+
+                setCheckResults(prev => ({
+                    ...prev,
+                    [verb]: 'unchecked'
+                }));
+            };
+
+            const checkAccuracy = () => {
+                const newResults = {};
+                let correct = 0;
+                let incorrect = 0;
+
+                Object.entries(sortedVerbs).forEach(([level, verbs]) => {
+                    verbs.forEach(verb => {
+                        const isCorrect = verbsWithLevels[verb] === level;
+                        newResults[verb] = isCorrect ? 'correct' : 'incorrect';
+                        if (isCorrect) correct++;
+                        else incorrect++;
+                    });
+                });
+
+                setCheckResults(newResults);
+                setIsChecked(true);
+                setCorrectCount(correct);
+                setIncorrectCount(incorrect);
+            };
+
+            const resetSorting = () => {
+                setSortedVerbs({});
+                setCheckResults({});
+                setAvailableVerbs(Object.keys(verbsWithLevels).sort());
+                setIsChecked(false);
+                setCorrectCount(0);
+                setIncorrectCount(0);
+            };
+
+            return (
+                <div className="app">
+                    <h1>Bloom's Taxonomy Verb Selector</h1>
+                    <div 
+                        className="verb-container" 
+                        onDragOver={onDragOver}
+                        onDrop={(e) => onDrop(e, "available")}
+                    >
+                        {availableVerbs.map(verb => (
+                            <div 
+                                key={verb} 
+                                className="verb" 
+                                draggable 
+                                onDragStart={(e) => onDragStart(e, verb, "available")}
+                            >
+                                {verb}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="taxonomy-levels">
+                        {taxonomyLevels.map(level => (
+                            <div 
+                                key={level} 
+                                className="level" 
+                                onDragOver={onDragOver}
+                                onDrop={(e) => onDrop(e, level)}
+                            >
+                                <h3>{level}</h3>
+                                {sortedVerbs[level] && sortedVerbs[level].map(verb => (
+                                    <div 
+                                        key={verb} 
+                                        className={`dropped-verb ${checkResults[verb]}`}
+                                        draggable
+                                        onDragStart={(e) => onDragStart(e, verb, level)}
+                                    >
+                                        {verb}
+                                    </div>
+                                ))}
+                            </div>
+                        ))}
+                    </div>
+                    <div className="button-container">
+                        <button className="check-button" onClick={checkAccuracy}>Check Accuracy</button>
+                        <button className="reset-button" onClick={resetSorting}>Reset</button>
+                    </div>
+                    {isChecked && (
+                        <h2>Results: {correctCount} Correct, {incorrectCount} Incorrect</h2>
+                    )}
+                </div>
+            );
+        }
+
+        ReactDOM.render(<TaxonomyVerbSelector />, document.getElementById('root'));
+    </script>
+</body>
+</html>
