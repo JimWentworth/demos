@@ -1,0 +1,152 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Cycle Exercise</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f8ff;
+            margin: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        h1 {
+            color: #2e8b57;
+            text-align: center;
+        }
+        .exercise {
+            margin: 20px 0;
+        }
+        .paragraph {
+            line-height: 1.6;
+            text-align: justify;
+        }
+        .word-bank {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .word-bank div {
+            padding: 8px 12px;
+            margin: 8px;
+            border: 1px solid #2e8b57;
+            background: #dff0d8;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .drop-zone {
+            display: inline-block;
+            width: 120px;
+            height: 24px;
+            border-bottom: 1px solid #999;
+            margin: 0 5px;
+            vertical-align: bottom;
+        }
+        .drop-zone div {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        #checkButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #2e8b57;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #checkButton:hover {
+            background-color: #3cb371;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Water Cycle "Drag the Words" Exercise</h1>
+    <p>Drag the correct words from the word bank to complete the paragraph below about the water cycle.</p>
+    <div class="exercise">
+        <h3>Complete the Paragraph</h3>
+        <p class="paragraph">
+            Water on Earth moves continuously through a complex cycle. It begins with <span class="drop-zone"></span></p><div></div> from oceans, lakes, and rivers, where the sun's heat turns water into vapor. This vapor <span class="drop-zone"><div></div></span> and cools in the atmosphere, leading to <span class="drop-zone"><div></div></span> into clouds. As the clouds <span class="drop-zone"><div></div></span> more vapor, they release moisture in the form of <span class="drop-zone"><div></div></span>, such as rain or snow. This water then <span class="drop-zone"><div></div></span> the soil, replenishing groundwater, or <span class="drop-zone"><div></div></span> into bodies of water, continuing the cycle. The water cycle is essential for <span class="drop-zone"><div></div></span> fresh water across the planet and <span class="drop-zone"><div></div></span> life.
+        <p></p>
+    </div>
+
+    <h3>Word Bank</h3>
+    <div class="word-bank">
+        <div draggable="true" data-word="evaporation">evaporation</div>
+        <div draggable="true" data-word="ascends">ascends</div>
+        <div draggable="true" data-word="condensation">condensation</div>
+        <div draggable="true" data-word="accumulate">accumulate</div>
+        <div draggable="true" data-word="precipitation">precipitation</div>
+        <div draggable="true" data-word="infiltrates">infiltrates</div>
+        <div draggable="true" data-word="runs off">runs off</div>
+        <div draggable="true" data-word="distributing">distributing</div>
+        <div draggable="true" data-word="supporting">supporting</div>
+    </div>
+
+    <button id="checkButton">Check My Response</button>
+</div>
+
+<script>
+    const words = document.querySelectorAll('.word-bank div');
+    const dropZones = document.querySelectorAll('.drop-zone div');
+    const checkButton = document.getElementById('checkButton');
+
+    const correctAnswers = [
+        "evaporation", "ascends", "condensation", "accumulate", "precipitation",
+        "infiltrates", "runs off", "distributing", "supporting"
+    ];
+
+    words.forEach(word => {
+        word.addEventListener('dragstart', event => {
+            event.dataTransfer.setData('text', event.target.getAttribute('data-word'));
+        });
+    });
+
+    dropZones.forEach(zone => {
+        zone.addEventListener('dragover', event => {
+            event.preventDefault();
+        });
+
+        zone.addEventListener('drop', event => {
+            const word = event.dataTransfer.getData('text');
+            event.target.textContent = word;
+            event.target.style.background = '#d0f0c0';
+        });
+    });
+
+    checkButton.addEventListener('click', () => {
+        let allCorrect = true;
+        dropZones.forEach((zone, index) => {
+            if (zone.textContent === correctAnswers[index]) {
+                zone.style.background = '#90EE90';
+            } else {
+                zone.style.background = '#FFB6C1';
+                allCorrect = false;
+            }
+        });
+        if (allCorrect) {
+            alert('Congratulations! All answers are correct!');
+        } else {
+            alert('Some answers are incorrect. Please try again!');
+        }
+    });
+</script>
+
+
+
+</body></html>
