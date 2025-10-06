@@ -1,0 +1,1367 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Jeopardy</title>
+    <style>
+        :root {
+            --main-bg: #0d1337;
+            --board-bg: #060b26;
+            --jeopardy-blue: #151e7b;
+            --jeopardy-gold: #d69f4c;
+            --card-hover: #1e2fa3;
+            --correct: #28a745;
+            --incorrect: #ffcccb;
+            --incorrect-text: #dc3545;
+            --editor-bg: #f8f9fa;
+            --editor-text: #212529;
+            --editor-border: #dee2e6;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--main-bg);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 1000px;
+        }
+        
+        h1 {
+            color: var(--jeopardy-gold);
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin-bottom: 10px;
+        }
+        
+        .score-display {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--jeopardy-gold);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+            width: 100%;
+            max-width: 1000px;
+            background-color: var(--board-bg);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .category {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-gold);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+        }
+        
+        .card {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-gold);
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            padding: 20px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .card:hover {
+            background-color: var(--card-hover);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: var(--jeopardy-blue);
+            width: 90%;
+            max-width: 600px;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+        
+        .question-text {
+            font-size: 1.3rem;
+            margin-bottom: 25px;
+            line-height: 1.4;
+            color: white;
+        }
+        
+        .answer-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .answer-input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 2px solid var(--jeopardy-gold);
+            background-color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            font-weight: bold;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .submit-btn {
+            background-color: var(--jeopardy-gold);
+            color: var(--main-bg);
+        }
+        
+        .close-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .completed {
+            cursor: default;
+            font-size: 0.9rem;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .completed-correct {
+            background-color: var(--correct);
+            color: white;
+        }
+        
+        .completed-incorrect {
+            background-color: var(--incorrect);
+            color: var(--incorrect-text);
+        }
+        
+        .final-score {
+            text-align: center;
+            font-size: 1.8rem;
+            margin-top: 20px;
+            color: var(--jeopardy-gold);
+        }
+        
+        .restart-btn {
+            background-color: var(--jeopardy-gold);
+            color: var(--main-bg);
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+        }
+        
+        /* Result overlay */
+        .result-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .result-content {
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+        }
+        
+        .result-correct {
+            background-color: var(--correct);
+        }
+        
+        .result-incorrect {
+            background-color: var(--incorrect);
+        }
+        
+        .result-message {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .result-answer {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+        }
+        
+        .result-score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .result-correct .result-message {
+            color: white;
+        }
+        
+        .result-incorrect .result-message,
+        .result-incorrect .result-answer,
+        .result-incorrect .result-score {
+            color: var(--incorrect-text);
+        }
+        
+        /* Confirmation Modal */
+        .confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 300;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .confirm-content {
+            background-color: white;
+            color: #212529;
+            width: 90%;
+            max-width: 400px;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .confirm-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .confirm-message {
+            margin-bottom: 20px;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        /* Header controls for buttons */
+        .header-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 10px;
+        }
+        
+        .title-container {
+            flex-grow: 1;
+            text-align: center;
+        }
+        
+        .buttons-container {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .reset-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            font-weight: bold;
+        }
+        
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            font-weight: bold;
+        }
+        
+        .reset-btn:hover, .edit-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* Editor Panel Styles */
+        .editor-panel {
+            display: none;
+            background-color: var(--editor-bg);
+            color: var(--editor-text);
+            border-radius: 10px;
+            padding: 20px;
+            width: 100%;
+            max-width: 1000px;
+            margin-bottom: 20px;
+        }
+        
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--editor-border);
+            padding-bottom: 10px;
+        }
+        
+        .editor-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--jeopardy-blue);
+        }
+        
+        .editor-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--editor-border);
+        }
+        
+        .editor-tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            background-color: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-right: 5px;
+            font-weight: bold;
+        }
+        
+        .editor-tab.active {
+            border-bottom: 2px solid var(--jeopardy-gold);
+            color: var(--jeopardy-blue);
+        }
+        
+        .editor-tab:hover {
+            background-color: #e9ecef;
+        }
+        
+        .editor-content {
+            display: none;
+        }
+        
+        .editor-content.active {
+            display: block;
+        }
+        
+        .editor-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .editor-category {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-gold);
+            text-align: center;
+            padding: 10px;
+            font-weight: bold;
+            border-radius: 5px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .editor-cell {
+            background-color: var(--jeopardy-blue);
+            color: var(--jeopardy-gold);
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+        
+        .editor-cell.selected {
+            background-color: var(--jeopardy-gold);
+            color: var(--jeopardy-blue);
+        }
+        
+        .editor-form {
+            background-color: white;
+            border: 1px solid var(--editor-border);
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--editor-border);
+            border-radius: 4px;
+        }
+        
+        .form-textarea {
+            height: 100px;
+            resize: vertical;
+        }
+        
+        .import-export {
+            margin-top: 20px;
+        }
+        
+        .import-export-textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid var(--editor-border);
+            border-radius: 4px;
+            font-family: monospace;
+            resize: vertical;
+        }
+        
+        .alert {
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .game-board, .editor-grid {
+                grid-gap: 5px;
+            }
+            
+            .category, .card, .editor-category, .editor-cell {
+                height: 70px;
+                padding: 5px;
+                font-size: 0.8rem;
+            }
+            
+            .category, .editor-category {
+                font-size: 0.7rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            .question-text {
+                font-size: 1.1rem;
+            }
+            
+            .completed {
+                font-size: 0.7rem;
+            }
+            
+            .result-message {
+                font-size: 1.7rem;
+            }
+            
+            .result-answer,
+            .result-score {
+                font-size: 1.1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .category, .card, .editor-category, .editor-cell {
+                height: 60px;
+                font-size: 0.7rem;
+            }
+            
+            .category, .editor-category {
+                font-size: 0.6rem;
+            }
+            
+            .completed {
+                font-size: 0.6rem;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .result-message {
+                font-size: 1.5rem;
+            }
+            
+            .result-answer,
+            .result-score {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-controls">
+            <div class="title-container">
+                <h1>DESIGN JEOPARDY</h1>
+            </div>
+            <div class="buttons-container">
+                <button class="edit-btn" id="editBtn">Edit Questions</button>
+                <button class="reset-btn" id="resetBtn">Reset Game</button>
+            </div>
+        </div>
+        <div class="score-display">Score: <span id="score">0</span></div>
+    </header>
+    
+    <!-- Editor Panel -->
+    <div class="editor-panel" id="editorPanel">
+        <div class="editor-header">
+            <div class="editor-title">Question Editor</div>
+            <button class="btn close-btn" id="closeEditorBtn">Close Editor</button>
+        </div>
+        
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-danger" id="errorAlert"></div>
+        
+        <div class="editor-tabs">
+            <button class="editor-tab active" data-tab="edit">Edit Questions</button>
+            <button class="editor-tab" data-tab="import-export">Import/Export</button>
+        </div>
+        
+        <div class="editor-content active" id="edit-tab">
+            <div class="editor-grid" id="editorGrid">
+                <!-- Will be populated with categories and value cells -->
+            </div>
+            
+            <div class="editor-form">
+                <div class="form-group">
+                    <label class="form-label" for="editorCategory">Category</label>
+                    <select class="form-control" id="editorCategory">
+                        <!-- Will be populated with categories -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editorValue">Value</label>
+                    <select class="form-control" id="editorValue">
+                        <option value="100">$100</option>
+                        <option value="200">$200</option>
+                        <option value="300">$300</option>
+                        <option value="400">$400</option>
+                        <option value="500">$500</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editorQuestion">Question</label>
+                    <textarea class="form-control form-textarea" id="editorQuestion" placeholder="Enter the question"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editorAnswer">Answer</label>
+                    <input type="text" class="form-control" id="editorAnswer" placeholder="Enter the answer">
+                </div>
+                <button type="button" class="btn submit-btn" id="saveQuestionBtn">Save Question</button>
+            </div>
+        </div>
+        
+        <div class="editor-content" id="import-export-tab">
+            <h3>Export Questions</h3>
+            <p>Copy this data to save your current questions:</p>
+            <textarea class="import-export-textarea" id="exportData" readonly=""></textarea>
+            
+            <h3>Import Questions</h3>
+            <p>Paste question data below and click Import:</p>
+            <textarea class="import-export-textarea" id="importData" placeholder="Paste JSON data here..."></textarea>
+            <button type="button" class="btn submit-btn" id="importBtn">Import Questions</button>
+        </div>
+    </div>
+    
+    <div class="game-board" id="gameBoard"></div>
+    
+    <div class="modal" id="questionModal">
+        <div class="modal-content">
+            <h2 class="question-text" id="questionText"></h2>
+            <form class="answer-form" id="answerForm">
+                <input type="text" class="answer-input" id="answerInput" placeholder="What is...">
+                <div>
+                    <button type="submit" class="btn submit-btn">Submit Answer</button>
+                    <button type="button" class="btn close-btn" id="closeBtn">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-content" id="resultContent">
+            <div class="result-message" id="resultMessage"></div>
+            <div class="result-answer" id="resultAnswer"></div>
+            <div class="result-score" id="resultScore"></div>
+            <button class="btn submit-btn" id="continueBtn">Continue</button>
+        </div>
+    </div>
+    
+    <!-- Confirmation Modal for Reset -->
+    <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-content">
+            <div class="confirm-title">Reset Game</div>
+            <div class="confirm-message">Are you sure you want to reset the game? This will clear your current score and reset all answered questions.</div>
+            <div class="confirm-buttons">
+                <button class="btn submit-btn" id="confirmYesBtn">Yes, Reset</button>
+                <button class="btn close-btn" id="confirmNoBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Game data
+        let jeopardyData = {
+            categories: [
+                "Semiotics",
+                "Design Elements",
+                "Design Principles",
+                "Gestalt Psychology",
+                "Color Theory"
+            ],
+            questions: [
+                // Semiotics
+                [
+                    {
+                        value: 100,
+                        question: "This type of sign has a direct resemblance to what it represents, like a photograph",
+                        answer: "icon"
+                    },
+                    {
+                        value: 200,
+                        question: "In semiotics, this term refers to the study of how meaning is created and communicated through signs and symbols",
+                        answer: "semiotics"
+                    },
+                    {
+                        value: 300,
+                        question: "This term refers to the actual meaning or interpretation of a sign",
+                        answer: "signified"
+                    },
+                    {
+                        value: 400,
+                        question: "This term describes a sign that has an arbitrary relationship to what it represents, like most words",
+                        answer: "symbol"
+                    },
+                    {
+                        value: 500,
+                        question: "This semiotician's model divided signs into three categories: icon, index, and symbol",
+                        answer: "peirce"
+                    }
+                ],
+                // Design Elements
+                [
+                    {
+                        value: 100,
+                        question: "This design element is the path that the eye follows when looking at a design",
+                        answer: "line"
+                    },
+                    {
+                        value: 200,
+                        question: "This refers to the arrangement of dark and light elements in a design",
+                        answer: "value"
+                    },
+                    {
+                        value: 300,
+                        question: "This design element refers to the perceived surface quality of an object",
+                        answer: "texture"
+                    },
+                    {
+                        value: 400,
+                        question: "This design element is defined as positive areas surrounded by negative space",
+                        answer: "shape"
+                    },
+                    {
+                        value: 500,
+                        question: "This term describes the three-dimensional equivalent of shape in design",
+                        answer: "form"
+                    }
+                ],
+                // Design Principles
+                [
+                    {
+                        value: 100,
+                        question: "This principle refers to the arrangement of elements to create a sense of visual equality",
+                        answer: "balance"
+                    },
+                    {
+                        value: 200,
+                        question: "This principle involves creating a visual sequence or hierarchy in a design",
+                        answer: "rhythm"
+                    },
+                    {
+                        value: 300,
+                        question: "This principle refers to the relative visual weight of elements in a design",
+                        answer: "emphasis"
+                    },
+                    {
+                        value: 400,
+                        question: "This principle describes the logical and visual connection between elements in a design",
+                        answer: "unity"
+                    },
+                    {
+                        value: 500,
+                        question: "This principle describes the relationship between elements based on their similarities or differences",
+                        answer: "contrast"
+                    }
+                ],
+                // Gestalt Psychology
+                [
+                    {
+                        value: 100,
+                        question: "This Gestalt principle states that elements that are close together are perceived as belonging together",
+                        answer: "proximity"
+                    },
+                    {
+                        value: 200,
+                        question: "This Gestalt principle states that the mind will attempt to fill in gaps in information",
+                        answer: "closure"
+                    },
+                    {
+                        value: 300,
+                        question: "This Gestalt principle states that elements with similar characteristics are perceived as belonging together",
+                        answer: "similarity"
+                    },
+                    {
+                        value: 400,
+                        question: "This Gestalt principle states that elements tend to be perceived as belonging to simple, continuous figures",
+                        answer: "continuity"
+                    },
+                    {
+                        value: 500,
+                        question: "German word that is central to Gestalt psychology, roughly meaning 'shape' or 'form'",
+                        answer: "gestalt"
+                    }
+                ],
+                // Color Theory
+                [
+                    {
+                        value: 100,
+                        question: "These three colors cannot be created by mixing other colors",
+                        answer: "primary colors"
+                    },
+                    {
+                        value: 200,
+                        question: "This color model is based on light and used for digital displays, using Red, Green, and Blue",
+                        answer: "rgb"
+                    },
+                    {
+                        value: 300,
+                        question: "This term describes the purity or intensity of a color",
+                        answer: "saturation"
+                    },
+                    {
+                        value: 400,
+                        question: "Colors that are opposite each other on the color wheel, like red and green",
+                        answer: "complementary colors"
+                    },
+                    {
+                        value: 500,
+                        question: "This color model used in printing consists of Cyan, Magenta, Yellow, and Key (black)",
+                        answer: "cmyk"
+                    }
+                ]
+            ]
+        };
+        
+        // Game state
+        let score = 0;
+        let currentQuestion = null;
+        let currentCard = null;
+        let completedQuestions = 0;
+        const totalQuestions = 25;
+        
+        // Editor state
+        let selectedCategoryIndex = 0;
+        let selectedValueIndex = 0;
+        let currentEditorTab = 'edit';
+        
+        // DOM elements - Game
+        const gameBoard = document.getElementById('gameBoard');
+        const scoreDisplay = document.getElementById('score');
+        const questionModal = document.getElementById('questionModal');
+        const questionText = document.getElementById('questionText');
+        const answerForm = document.getElementById('answerForm');
+        const answerInput = document.getElementById('answerInput');
+        const closeBtn = document.getElementById('closeBtn');
+        
+        // Result overlay elements
+        const resultOverlay = document.getElementById('resultOverlay');
+        const resultContent = document.getElementById('resultContent');
+        const resultMessage = document.getElementById('resultMessage');
+        const resultAnswer = document.getElementById('resultAnswer');
+        const resultScore = document.getElementById('resultScore');
+        const continueBtn = document.getElementById('continueBtn');
+        
+        // Reset button and confirmation modal
+        const resetBtn = document.getElementById('resetBtn');
+        const confirmModal = document.getElementById('confirmModal');
+        const confirmYesBtn = document.getElementById('confirmYesBtn');
+        const confirmNoBtn = document.getElementById('confirmNoBtn');
+        
+        // Editor elements
+        const editBtn = document.getElementById('editBtn');
+        const editorPanel = document.getElementById('editorPanel');
+        const closeEditorBtn = document.getElementById('closeEditorBtn');
+        const editorTabs = document.querySelectorAll('.editor-tab');
+        const editorContents = document.querySelectorAll('.editor-content');
+        const editorGrid = document.getElementById('editorGrid');
+        const editorCategory = document.getElementById('editorCategory');
+        const editorValue = document.getElementById('editorValue');
+        const editorQuestion = document.getElementById('editorQuestion');
+        const editorAnswer = document.getElementById('editorAnswer');
+        const saveQuestionBtn = document.getElementById('saveQuestionBtn');
+        const exportData = document.getElementById('exportData');
+        const importData = document.getElementById('importData');
+        const importBtn = document.getElementById('importBtn');
+        const successAlert = document.getElementById('successAlert');
+        const errorAlert = document.getElementById('errorAlert');
+        
+        // Initialize the game board
+        function initializeGameBoard() {
+            // Clear the game board first
+            gameBoard.innerHTML = '';
+            
+            // Add categories
+            jeopardyData.categories.forEach(category => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'category';
+                categoryElement.textContent = category;
+                gameBoard.appendChild(categoryElement);
+            });
+            
+            // Add cards for each category
+            for (let i = 0; i < 5; i++) { // 5 value levels
+                for (let j = 0; j < jeopardyData.categories.length; j++) { // Use dynamic length
+                    const value = (i + 1) * 100;
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.textContent = '$' + value;
+                    card.dataset.category = j;
+                    card.dataset.value = i;
+                    card.addEventListener('click', handleCardClick);
+                    gameBoard.appendChild(card);
+                }
+            }
+        }
+        
+        // Reset game
+        function resetGame() {
+            // Reset game state
+            score = 0;
+            scoreDisplay.textContent = score;
+            completedQuestions = 0;
+            
+            // Re-initialize the game board
+            initializeGameBoard();
+        }
+        
+        // Handle card click
+        function handleCardClick(event) {
+            const card = event.target;
+            
+            // Check if card is already played
+            if (card.classList.contains('completed')) {
+                return;
+            }
+            
+            const categoryIndex = parseInt(card.dataset.category);
+            const valueIndex = parseInt(card.dataset.value);
+            
+            // Make sure we have valid indices
+            if (categoryIndex >= 0 && categoryIndex < jeopardyData.questions.length &&
+                valueIndex >= 0 && valueIndex < jeopardyData.questions[categoryIndex].length) {
+                
+                currentQuestion = jeopardyData.questions[categoryIndex][valueIndex];
+                currentCard = card;
+                
+                console.log("Question:", currentQuestion.question); // Debug log
+                
+                // Set the question text explicitly
+                questionText.innerHTML = currentQuestion.question;
+                
+                // Clear the answer input and show the modal
+                answerInput.value = '';
+                questionModal.style.display = 'flex';
+                answerInput.focus();
+            }
+        }
+        
+        // Handle answer submission
+        answerForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const userAnswer = answerInput.value.trim().toLowerCase();
+            const correctAnswer = currentQuestion.answer.toLowerCase();
+            
+            // Close question modal
+            questionModal.style.display = 'none';
+            
+            // Check answer
+            let isCorrect = false;
+            let scoreChange = 0;
+            
+            if (userAnswer === correctAnswer || 
+                (correctAnswer.includes(userAnswer) && userAnswer.length > 2) ||
+                (userAnswer.includes(correctAnswer) && correctAnswer.length > 2)) {
+                
+                // Correct answer
+                scoreChange = currentQuestion.value;
+                score += scoreChange;
+                isCorrect = true;
+            } else {
+                // Incorrect answer
+                scoreChange = -currentQuestion.value;
+                score += scoreChange;
+                isCorrect = false;
+            }
+            
+            // Update score display
+            scoreDisplay.textContent = score;
+            
+            // Show result overlay
+            showResultOverlay(isCorrect, currentQuestion.answer, scoreChange);
+            
+            // Update card appearance
+            currentCard.classList.add('completed');
+            if (isCorrect) {
+                currentCard.classList.add('completed-correct');
+            } else {
+                currentCard.classList.add('completed-incorrect');
+            }
+            
+            // Show the answer on the card
+            currentCard.textContent = currentQuestion.answer;
+            
+            completedQuestions++;
+            
+            // Check if game is over
+            if (completedQuestions === totalQuestions) {
+                setTimeout(showFinalScore, 2000);
+            }
+        });
+        
+        // Show result overlay
+        function showResultOverlay(isCorrect, correctAnswer, scoreChange) {
+            if (isCorrect) {
+                resultContent.className = 'result-content result-correct';
+                resultMessage.textContent = 'CORRECT!';
+            } else {
+                resultContent.className = 'result-content result-incorrect';
+                resultMessage.textContent = 'INCORRECT';
+            }
+            
+            resultAnswer.textContent = `The answer is: ${correctAnswer}`;
+            
+            const scoreChangeText = scoreChange > 0 ? `+$${scoreChange}` : `-$${Math.abs(scoreChange)}`;
+            resultScore.textContent = `Score change: ${scoreChangeText}`;
+            
+            resultOverlay.style.display = 'flex';
+        }
+        
+        // Continue button
+        continueBtn.addEventListener('click', function() {
+            resultOverlay.style.display = 'none';
+        });
+        
+        // Close modal
+        closeBtn.addEventListener('click', function() {
+            questionModal.style.display = 'none';
+        });
+        
+        // Show final score
+        function showFinalScore() {
+            gameBoard.innerHTML = '';
+            
+            const finalScoreElement = document.createElement('div');
+            finalScoreElement.className = 'final-score';
+            finalScoreElement.innerHTML = `
+                <h2>Game Over!</h2>
+                <p>Your final score is: $${score}</p>
+                <button class="btn restart-btn" id="playAgainBtn">Play Again</button>
+            `;
+            
+            gameBoard.appendChild(finalScoreElement);
+            
+            // Add event listener to the play again button
+            document.getElementById('playAgainBtn').addEventListener('click', resetGame);
+        }
+        
+        // Reset button click handler
+        resetBtn.addEventListener('click', function() {
+            confirmModal.style.display = 'flex';
+        });
+        
+        // Confirm reset
+        confirmYesBtn.addEventListener('click', function() {
+            confirmModal.style.display = 'none';
+            resetGame();
+        });
+        
+        // Cancel reset
+        confirmNoBtn.addEventListener('click', function() {
+            confirmModal.style.display = 'none';
+        });
+        
+        // EDITOR FUNCTIONALITY
+        
+        // Tab switching
+        editorTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs and contents
+                editorTabs.forEach(t => t.classList.remove('active'));
+                editorContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Get tab name from data attribute
+                currentEditorTab = tab.dataset.tab;
+                
+                // Show corresponding content
+                document.getElementById(currentEditorTab + '-tab').classList.add('active');
+                
+                // Update tab content
+                updateTabContent();
+            });
+        });
+        
+        // Update tab content based on current tab
+        function updateTabContent() {
+            if (currentEditorTab === 'edit') {
+                initializeEditorGrid();
+                updateEditorForm();
+            } else if (currentEditorTab === 'import-export') {
+                // Update export data
+                exportData.value = JSON.stringify(jeopardyData, null, 2);
+            }
+        }
+        
+        // Initialize the editor grid
+        function initializeEditorGrid() {
+            editorGrid.innerHTML = '';
+            
+            // Add categories
+            jeopardyData.categories.forEach((category, index) => {
+                const categoryElement = document.createElement('div');
+                categoryElement.className = 'editor-category';
+                categoryElement.textContent = category;
+                categoryElement.dataset.index = index;
+                editorGrid.appendChild(categoryElement);
+            });
+            
+            // Add value cells for each category
+            for (let i = 0; i < 5; i++) { // 5 value levels
+                for (let j = 0; j < jeopardyData.categories.length; j++) {
+                    const value = (i + 1) * 100;
+                    const cell = document.createElement('div');
+                    cell.className = 'editor-cell';
+                    cell.textContent = '$' + value;
+                    
+                    // Highlight the currently selected cell
+                    if (j === selectedCategoryIndex && i === selectedValueIndex) {
+                        cell.classList.add('selected');
+                    }
+                    
+                    cell.dataset.category = j;
+                    cell.dataset.value = i;
+                    
+                    // Add click event to select this cell
+                    cell.addEventListener('click', function() {
+                        // Update selected indices
+                        selectedCategoryIndex = parseInt(this.dataset.category);
+                        selectedValueIndex = parseInt(this.dataset.value);
+                        
+                        // Update the form with the current question data
+                        updateEditorForm();
+                        
+                        // Update the grid to show the selected cell
+                        const cells = document.querySelectorAll('.editor-cell');
+                        cells.forEach(c => c.classList.remove('selected'));
+                        this.classList.add('selected');
+                    });
+                    
+                    editorGrid.appendChild(cell);
+                }
+            }
+            
+            // Update the category dropdown
+            editorCategory.innerHTML = '';
+            jeopardyData.categories.forEach((category, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = category;
+                editorCategory.appendChild(option);
+            });
+            
+            // Set the selected category and value
+            editorCategory.value = selectedCategoryIndex;
+            editorValue.value = (selectedValueIndex + 1) * 100;
+        }
+        
+        // Update the editor form with the current selection
+        function updateEditorForm() {
+            // Set the form category and value dropdowns
+            editorCategory.value = selectedCategoryIndex;
+            editorValue.value = (selectedValueIndex + 1) * 100;
+            
+            // Find the question with the matching value
+            const questionList = jeopardyData.questions[selectedCategoryIndex];
+            const value = (selectedValueIndex + 1) * 100;
+            
+            let question = null;
+            if (questionList) {
+                question = questionList.find(q => q.value === value);
+            }
+            
+            // If a question is found, populate the form
+            if (question) {
+                editorQuestion.value = question.question;
+                editorAnswer.value = question.answer;
+            } else {
+                // Otherwise, clear the form
+                editorQuestion.value = '';
+                editorAnswer.value = '';
+            }
+        }
+        
+        // Save question from the editor form
+        function saveQuestion() {
+            const categoryIndex = parseInt(editorCategory.value);
+            const value = parseInt(editorValue.value);
+            const questionText = editorQuestion.value.trim();
+            const answer = editorAnswer.value.trim();
+            
+            // Validate inputs
+            if (!questionText || !answer) {
+                showError('Please fill in both question and answer');
+                return;
+            }
+            
+            // Make sure the category exists in the questions array
+            if (!jeopardyData.questions[categoryIndex]) {
+                jeopardyData.questions[categoryIndex] = [];
+            }
+            
+            // Find if a question with this value already exists
+            const valueIndex = jeopardyData.questions[categoryIndex].findIndex(q => q.value === value);
+            
+            if (valueIndex !== -1) {
+                // Update existing question
+                jeopardyData.questions[categoryIndex][valueIndex].question = questionText;
+                jeopardyData.questions[categoryIndex][valueIndex].answer = answer;
+            } else {
+                // Add new question
+                jeopardyData.questions[categoryIndex].push({
+                    value,
+                    question: questionText,
+                    answer
+                });
+                
+                // Sort questions by value
+                jeopardyData.questions[categoryIndex].sort((a, b) => a.value - b.value);
+            }
+            
+            // Update the editor grid
+            initializeEditorGrid();
+            
+            // Update the game board
+            resetGame();
+            
+            // Update export data if on that tab
+            if (currentEditorTab === 'import-export') {
+                exportData.value = JSON.stringify(jeopardyData, null, 2);
+            }
+            
+            // Show success message
+            showSuccess('Question saved successfully');
+        }
+        
+        // Import questions from JSON
+        function importQuestions() {
+            const jsonData = importData.value.trim();
+            
+            if (!jsonData) {
+                showError('Please enter JSON data to import');
+                return;
+            }
+            
+            try {
+                const importedData = JSON.parse(jsonData);
+                
+                // Validate the imported data structure
+                if (!importedData.categories || !Array.isArray(importedData.categories) ||
+                    !importedData.questions || !Array.isArray(importedData.questions)) {
+                    throw new Error('Invalid data structure. Must include categories and questions arrays.');
+                }
+                
+                // Import the data
+                jeopardyData = importedData;
+                
+                // Update editor and game
+                updateTabContent();
+                resetGame();
+                
+                // Show success message
+                showSuccess('Questions imported successfully');
+                
+                // Clear the import textarea
+                importData.value = '';
+            } catch (error) {
+                showError('Error importing data: ' + error.message);
+            }
+        }
+        
+        // Show success message
+        function showSuccess(message) {
+            successAlert.textContent = message;
+            successAlert.style.display = 'block';
+            errorAlert.style.display = 'none';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                successAlert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Show error message
+        function showError(message) {
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            successAlert.style.display = 'none';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                errorAlert.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Edit button click handler
+        editBtn.addEventListener('click', function() {
+            // Update the editor content
+            updateTabContent();
+            
+            // Show the editor panel
+            editorPanel.style.display = 'block';
+        });
+        
+        // Close editor button
+        closeEditorBtn.addEventListener('click', function() {
+            editorPanel.style.display = 'none';
+        });
+        
+        // Save question button
+        saveQuestionBtn.addEventListener('click', saveQuestion);
+        
+        // Import button
+        importBtn.addEventListener('click', importQuestions);
+        
+        // Category dropdown change
+        editorCategory.addEventListener('change', function() {
+            selectedCategoryIndex = parseInt(this.value);
+            updateEditorForm();
+            initializeEditorGrid(); // Update grid to show new selection
+        });
+        
+        // Value dropdown change
+        editorValue.addEventListener('change', function() {
+            selectedValueIndex = (parseInt(this.value) / 100) - 1;
+            updateEditorForm();
+            initializeEditorGrid(); // Update grid to show new selection
+        });
+        
+        // Initialize the game
+        initializeGameBoard();
+    </script>
+
+
+</body></html>
