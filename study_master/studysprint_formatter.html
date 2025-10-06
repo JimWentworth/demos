@@ -1,0 +1,379 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySprint Question Formatter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">StudySprint Question Formatter</h1>
+            <p class="text-gray-600 dark:text-gray-400">Create properly formatted questions for any subject</p>
+        </div>
+
+        <!-- Main Content -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Input Form -->
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Create Question</h2>
+                
+                <form id="question-form" class="space-y-4">
+                    <!-- Category -->
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Category/Subject</label>
+                        <input type="text" id="category" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="e.g., Anesthesia Drugs, Psychology, Biology">
+                    </div>
+
+                    <!-- Definition -->
+                    <div>
+                        <label for="definition" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Definition/Question</label>
+                        <textarea id="definition" rows="3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="Enter the definition or question text here..."></textarea>
+                    </div>
+
+                    <!-- Correct Answer -->
+                    <div>
+                        <label for="correct" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Correct Answer</label>
+                        <input type="text" id="correct" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="The correct answer">
+                    </div>
+
+                    <!-- Incorrect Options -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label for="option1" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distractor 1</label>
+                            <input type="text" id="option1" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="Wrong answer">
+                        </div>
+                        <div>
+                            <label for="option2" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distractor 2</label>
+                            <input type="text" id="option2" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="Wrong answer">
+                        </div>
+                        <div>
+                            <label for="option3" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distractor 3</label>
+                            <input type="text" id="option3" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent dark:bg-gray-700 dark:text-white text-base" placeholder="Wrong answer">
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="flex space-x-3 pt-4">
+                        <button type="button" id="add-question" class="bg-primary hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300">
+                            Add Question
+                        </button>
+                        <button type="button" id="clear-form" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Quick Template Generator -->
+                <div class="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 rounded">
+                    <h3 class="font-bold text-blue-800 dark:text-blue-300 mb-2">💡 AI Prompt Template</h3>
+                    <p class="text-blue-700 dark:text-blue-400 text-sm mb-3">Copy this prompt to ChatGPT/Claude to generate questions quickly:</p>
+                    <div class="bg-blue-100 dark:bg-blue-800 p-3 rounded text-sm font-mono">
+                        <button id="copy-prompt" class="float-right text-blue-600 hover:text-blue-800 dark:text-blue-300">📋 Copy</button>
+                        <div id="ai-prompt">Create 10 multiple choice questions for <span class="text-blue-600 dark:text-blue-300">[SUBJECT]</span> in CSV format with headers: category,definition,correct,option1,option2,option3,option4. Make definitions clear and concise. Include plausible distractors. Focus on key terminology and concepts.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Panel -->
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">CSV Output</h2>
+                    <span class="text-sm text-gray-600 dark:text-gray-400" id="question-count">0 questions</span>
+                </div>
+
+                <!-- CSV Preview -->
+                <div class="mb-4">
+                    <textarea id="csv-output" rows="15" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg dark:bg-gray-700 dark:text-white font-mono text-sm" placeholder="CSV output will appear here..." readonly=""></textarea>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex space-x-3">
+                    <button id="download-csv" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                        📥 Download CSV
+                    </button>
+                    <button id="copy-csv" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                        📋 Copy
+                    </button>
+                    <button id="clear-csv" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                        🗑️ Clear
+                    </button>
+                </div>
+
+                <!-- Instructions -->
+                <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                    <h3 class="font-bold text-gray-800 dark:text-gray-200 mb-2">📝 Instructions:</h3>
+                    <ol class="text-sm text-gray-700 dark:text-gray-300 space-y-1 list-decimal list-inside">
+                        <li>Fill out the form above to create individual questions</li>
+                        <li>Click "Add Question" to append to CSV</li>
+                        <li>Use the AI prompt template for bulk generation</li>
+                        <li>Download or copy the CSV when ready</li>
+                        <li>Upload to StudySprint in the "Select Question Set" section</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sample Questions -->
+        <div class="mt-8 bg-gray-50 dark:bg-gray-800 rounded-2xl p-6 shadow-lg">
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">📚 Sample Questions for Different Subjects</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Medical -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-green-600 dark:text-green-400 mb-2">Medical/Nursing</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="Pharmacology" data-definition="A medication that blocks beta-adrenergic receptors, commonly used to treat hypertension and heart conditions." data-correct="Beta-blocker" data-options="ACE inhibitor,Calcium channel blocker,Diuretic">
+                        Load Sample →
+                    </button>
+                </div>
+
+                <!-- Psychology -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-blue-600 dark:text-blue-400 mb-2">Psychology</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="Cognitive Psychology" data-definition="The mental process of acquiring knowledge and understanding through thought, experience, and the senses." data-correct="Cognition" data-options="Perception,Memory,Attention">
+                        Load Sample →
+                    </button>
+                </div>
+
+                <!-- Biology -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-purple-600 dark:text-purple-400 mb-2">Biology</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="Cell Biology" data-definition="The powerhouse of the cell, responsible for producing ATP through cellular respiration." data-correct="Mitochondria" data-options="Nucleus,Ribosome,Endoplasmic reticulum">
+                        Load Sample →
+                    </button>
+                </div>
+
+                <!-- Chemistry -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-red-600 dark:text-red-400 mb-2">Chemistry</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="Organic Chemistry" data-definition="A hydrocarbon with the general formula CnH2n, containing one or more carbon-carbon double bonds." data-correct="Alkene" data-options="Alkane,Alkyne,Aromatic">
+                        Load Sample →
+                    </button>
+                </div>
+
+                <!-- Business -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-orange-600 dark:text-orange-400 mb-2">Business</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="Marketing" data-definition="The four key elements of marketing strategy: Product, Price, Place, and Promotion." data-correct="Marketing Mix" data-options="SWOT Analysis,Market Segmentation,Brand Positioning">
+                        Load Sample →
+                    </button>
+                </div>
+
+                <!-- History -->
+                <div class="p-4 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
+                    <h3 class="font-bold text-yellow-600 dark:text-yellow-400 mb-2">History</h3>
+                    <button class="load-sample text-sm text-gray-600 dark:text-gray-400 hover:text-primary cursor-pointer" data-category="World War II" data-definition="The systematic, state-sponsored persecution and murder of six million Jews by Nazi Germany and its collaborators." data-correct="Holocaust" data-options="Blitzkrieg,Operation Barbarossa,D-Day">
+                        Load Sample →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // CSV data storage
+        let csvData = [["category", "definition", "correct", "option1", "option2", "option3", "option4"]];
+
+        // DOM elements
+        const questionForm = document.getElementById('question-form');
+        const csvOutput = document.getElementById('csv-output');
+        const questionCount = document.getElementById('question-count');
+        const addQuestionBtn = document.getElementById('add-question');
+        const clearFormBtn = document.getElementById('clear-form');
+        const downloadCsvBtn = document.getElementById('download-csv');
+        const copyCsvBtn = document.getElementById('copy-csv');
+        const clearCsvBtn = document.getElementById('clear-csv');
+        const copyPromptBtn = document.getElementById('copy-prompt');
+        const aiPrompt = document.getElementById('ai-prompt');
+
+        // Form inputs
+        const categoryInput = document.getElementById('category');
+        const definitionInput = document.getElementById('definition');
+        const correctInput = document.getElementById('correct');
+        const option1Input = document.getElementById('option1');
+        const option2Input = document.getElementById('option2');
+        const option3Input = document.getElementById('option3');
+
+        // Update CSV display
+        function updateCsvDisplay() {
+            const csvText = csvData.map(row => 
+                row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(',')
+            ).join('\n');
+            
+            csvOutput.value = csvText;
+            
+            const questionTotal = csvData.length - 1; // Subtract header row
+            questionCount.textContent = `${questionTotal} question${questionTotal !== 1 ? 's' : ''}`;
+            
+            // Enable/disable buttons
+            const hasQuestions = questionTotal > 0;
+            downloadCsvBtn.disabled = !hasQuestions;
+            copyCsvBtn.disabled = !hasQuestions;
+            clearCsvBtn.disabled = !hasQuestions;
+        }
+
+        // Add question to CSV
+        function addQuestion() {
+            const category = categoryInput.value.trim();
+            const definition = definitionInput.value.trim();
+            const correct = correctInput.value.trim();
+            const option1 = option1Input.value.trim();
+            const option2 = option2Input.value.trim();
+            const option3 = option3Input.value.trim();
+
+            // Validation
+            if (!category || !definition || !correct || !option1 || !option2 || !option3) {
+                showAlert('Please fill in all fields before adding the question.', 'error');
+                return;
+            }
+
+            // Create options array with correct answer randomly placed
+            const options = [correct, option1, option2, option3];
+            
+            // Add to CSV data
+            csvData.push([category, definition, correct, option1, option2, option3, options[3]]);
+            
+            updateCsvDisplay();
+            clearForm();
+            showAlert('Question added successfully!', 'success');
+        }
+
+        // Clear form
+        function clearForm() {
+            questionForm.reset();
+        }
+
+        // Show alert message
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 transition-all duration-300 ${
+                type === 'success' ? 'bg-green-100 border border-green-200 text-green-800' :
+                type === 'error' ? 'bg-red-100 border border-red-200 text-red-800' :
+                'bg-blue-100 border border-blue-200 text-blue-800'
+            }`;
+            alertDiv.textContent = message;
+            
+            document.body.appendChild(alertDiv);
+            
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                alertDiv.style.transform = 'translateX(100%)';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 3000);
+        }
+
+        // Download CSV
+        function downloadCsv() {
+            const csvText = csvOutput.value;
+            const blob = new Blob([csvText], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'studysprint-questions.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            showAlert('CSV file downloaded successfully!', 'success');
+        }
+
+        // Copy CSV to clipboard
+        async function copyCsv() {
+            try {
+                await navigator.clipboard.writeText(csvOutput.value);
+                showAlert('CSV copied to clipboard!', 'success');
+            } catch (err) {
+                csvOutput.select();
+                document.execCommand('copy');
+                showAlert('CSV copied to clipboard!', 'success');
+            }
+        }
+
+        // Copy AI prompt to clipboard
+        async function copyPrompt() {
+            try {
+                await navigator.clipboard.writeText(aiPrompt.textContent);
+                showAlert('AI prompt copied to clipboard!', 'success');
+            } catch (err) {
+                showAlert('Could not copy prompt. Please copy manually.', 'error');
+            }
+        }
+
+        // Clear CSV data
+        function clearCsv() {
+            csvData = [["category", "definition", "correct", "option1", "option2", "option3", "option4"]];
+            updateCsvDisplay();
+            showAlert('CSV data cleared.', 'info');
+        }
+
+        // Load sample question
+        function loadSample(category, definition, correct, options) {
+            const optionsArray = options.split(',');
+            categoryInput.value = category;
+            definitionInput.value = definition;
+            correctInput.value = correct;
+            option1Input.value = optionsArray[0] || '';
+            option2Input.value = optionsArray[1] || '';
+            option3Input.value = optionsArray[2] || '';
+            
+            showAlert('Sample question loaded! Modify as needed and click "Add Question".', 'info');
+        }
+
+        // Event listeners
+        addQuestionBtn.addEventListener('click', addQuestion);
+        clearFormBtn.addEventListener('click', clearForm);
+        downloadCsvBtn.addEventListener('click', downloadCsv);
+        copyCsvBtn.addEventListener('click', copyCsv);
+        copyPromptBtn.addEventListener('click', copyPrompt);
+        clearCsvBtn.addEventListener('click', clearCsv);
+
+        // Sample question loaders
+        document.querySelectorAll('.load-sample').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const button = e.target;
+                loadSample(
+                    button.dataset.category,
+                    button.dataset.definition,
+                    button.dataset.correct,
+                    button.dataset.options
+                );
+            });
+        });
+
+        // Enter key submission
+        questionForm.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                e.preventDefault();
+                addQuestion();
+            }
+        });
+
+        // Initialize display
+        updateCsvDisplay();
+    </script>
+
+
+</body></html>
