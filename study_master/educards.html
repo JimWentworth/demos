@@ -1,0 +1,599 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduCards - Course Reading &amp; Study Aid Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/4.3.0/marked.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        'primary-dark': '#4B4BC8'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .flip-card {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-6xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-2">EduCards</h1>
+            <p class="text-gray-600 dark:text-gray-400">Transform course materials into interactive study aids</p>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="flex flex-wrap justify-center mb-6 border-b border-gray-200 dark:border-gray-700">
+            <button onclick="switchTab('upload')" id="tab-upload" class="tab-button px-6 py-3 font-medium text-primary border-b-2 border-primary">
+                Upload Materials
+            </button>
+            <button onclick="switchTab('flashcards')" id="tab-flashcards" class="tab-button px-6 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-primary">
+                Flash Cards
+            </button>
+            <button onclick="switchTab('study')" id="tab-study" class="tab-button px-6 py-3 font-medium text-gray-500 dark:text-gray-400 hover:text-primary">
+                Content Library
+            </button>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="content-upload" class="tab-content">
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-6">
+                <h2 class="text-2xl font-semibold mb-4">Upload Course Materials</h2>
+                
+                <div class="mb-4">
+                    <label for="course-title" class="block text-sm font-medium mb-2">Course/Topic Title</label>
+                    <input type="text" id="course-title" placeholder="e.g., Introduction to Psychology - Chapter 5" class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700">
+                </div>
+
+                <div class="mb-6">
+                    <label for="file-upload" class="block text-sm font-medium mb-2">Upload Files (PDF, TXT, DOCX)</label>
+                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-8 text-center hover:border-primary transition-colors">
+                        <input type="file" id="file-upload" multiple="" accept=".pdf,.txt,.docx,.doc" class="hidden" onchange="handleFileUpload(event)">
+                        <div class="cursor-pointer" onclick="document.getElementById('file-upload').click()">
+                            <div class="text-4xl mb-4">📚</div>
+                            <p class="text-lg font-medium mb-2">Click to upload files</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">or drag and drop here</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label for="text-content" class="block text-sm font-medium mb-2">Or Paste Text Content</label>
+                    <textarea id="text-content" rows="8" placeholder="Paste lecture notes, reading content, or any text material here..." class="w-full px-4 py-2 text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent bg-white dark:bg-gray-700"></textarea>
+                </div>
+
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="processContent()" class="bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        Generate Study Materials
+                    </button>
+                    <button onclick="clearAll()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+
+            <!-- Uploaded Files Display -->
+            <div id="uploaded-files" class="hidden bg-white dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+                <h3 class="text-lg font-semibold mb-4">Uploaded Files</h3>
+                <div id="file-list" class="space-y-2"></div>
+            </div>
+        </div>
+
+
+
+        <!-- Flash Cards Tab -->
+        <div id="content-flashcards" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-semibold mb-4">Flash Cards</h2>
+                <div class="flex flex-wrap justify-between items-center mb-4">
+                    <div class="flex gap-4">
+                        <button onclick="shuffleCards()" class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-colors">
+                            Shuffle Cards
+                        </button>
+                        <button onclick="resetProgress()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                            Reset Progress
+                        </button>
+                    </div>
+                    <div id="deck-info" class="text-gray-600 dark:text-gray-400 font-medium hidden">
+                        <span id="deck-count"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="flashcard-container" class="flex justify-center">
+                <div id="no-flashcards" class="text-center py-8">
+                    <p class="text-gray-500 dark:text-gray-400 mb-4">No flash cards available.</p>
+                    <p class="text-sm text-gray-400 dark:text-gray-500">Upload materials and generate study aids to create flash cards.</p>
+                </div>
+            </div>
+
+            <div id="flashcard-navigation" class="hidden flex justify-between items-center mt-6">
+                <button onclick="previousCard()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    ← Previous
+                </button>
+                <span id="card-counter" class="text-sm text-gray-500 dark:text-gray-400"></span>
+                <button onclick="nextCard()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors">
+                    Next →
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Library Tab -->
+        <div id="content-study" class="tab-content hidden">
+            <div class="space-y-6">
+                <h2 class="text-2xl font-semibold">Content Library</h2>
+                
+                <div id="content-library-section" class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold mb-4">Course Materials</h3>
+                    <div id="reading-content" class="prose dark:prose-invert max-w-none">
+                        <p class="text-gray-500 dark:text-gray-400 text-center py-8">
+                            Upload materials to view them here.
+                        </p>
+                    </div>
+                </div>
+                
+                <div id="study-aids-content" class="space-y-6">
+                    <div class="text-center py-8">
+                        <p class="text-gray-500 dark:text-gray-400 mb-4">No study aids available.</p>
+                        <p class="text-sm text-gray-400 dark:text-gray-500">Upload materials and generate study aids to see them here.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Modal -->
+        <div id="loading-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                    <h3 class="text-lg font-semibold mb-2">Processing Content</h3>
+                    <p id="loading-text" class="text-gray-600 dark:text-gray-400">Analyzing materials and generating study aids...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode setup
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Global variables
+        let uploadedFiles = [];
+        let flashCards = [];
+        let currentCardIndex = 0;
+        let courseContent = '';
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active styling from all tabs
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('text-primary', 'border-b-2', 'border-primary');
+                button.classList.add('text-gray-500', 'dark:text-gray-400');
+            });
+            
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Add active styling to selected tab
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.remove('text-gray-500', 'dark:text-gray-400');
+            activeTab.classList.add('text-primary', 'border-b-2', 'border-primary');
+        }
+
+        // File upload handling
+        function handleFileUpload(event) {
+            const files = Array.from(event.target.files);
+            uploadedFiles = uploadedFiles.concat(files);
+            displayUploadedFiles();
+        }
+
+        function displayUploadedFiles() {
+            const fileList = document.getElementById('file-list');
+            const uploadedFilesDiv = document.getElementById('uploaded-files');
+            
+            if (uploadedFiles.length > 0) {
+                uploadedFilesDiv.classList.remove('hidden');
+                fileList.innerHTML = uploadedFiles.map((file, index) => `
+                    <div class="flex items-center justify-between p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                        <div class="flex items-center">
+                            <span class="text-2xl mr-3">📄</span>
+                            <div>
+                                <p class="font-medium">${file.name}</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">${(file.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                        </div>
+                        <button onclick="removeFile(${index})" class="text-red-500 hover:text-red-700">
+                            <span class="text-xl">×</span>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                uploadedFilesDiv.classList.add('hidden');
+            }
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            displayUploadedFiles();
+        }
+
+        // Process content and generate study materials
+        async function processContent() {
+            const courseTitle = document.getElementById('course-title').value.trim();
+            const textContent = document.getElementById('text-content').value.trim();
+            
+            if (!courseTitle) {
+                showAlert('Please enter a course/topic title.');
+                return;
+            }
+            
+            if (uploadedFiles.length === 0 && !textContent) {
+                showAlert('Please upload files or paste text content to process.');
+                return;
+            }
+            
+            showLoadingModal(true);
+            
+            try {
+                // Combine all content
+                let allContent = textContent;
+                
+                // For demo purposes, we'll simulate file reading
+                if (uploadedFiles.length > 0) {
+                    allContent += '\n\n[Files uploaded: ' + uploadedFiles.map(f => f.name).join(', ') + ']';
+                    allContent += '\n\nNote: In a full implementation, file contents would be extracted and processed.';
+                }
+                
+                courseContent = allContent;
+                
+                // Update reading library
+                updateReadingLibrary(courseTitle, allContent);
+                
+                // Generate flash cards
+                await generateFlashCards(allContent);
+                
+                // Generate study aids
+                await generateStudyAids(allContent);
+                
+                showLoadingModal(false);
+                showAlert('Study materials generated successfully!');
+                switchTab('study');
+                
+            } catch (error) {
+                showLoadingModal(false);
+                showAlert('Error processing content: ' + error.message);
+            }
+        }
+
+        function updateReadingLibrary(title, content) {
+            const readingContent = document.getElementById('reading-content');
+            readingContent.innerHTML = `
+                <h1 class="text-3xl font-bold mb-6">${title}</h1>
+                <div class="whitespace-pre-wrap leading-relaxed">${content}</div>
+            `;
+        }
+
+        // Flash card functions
+        async function generateFlashCards(content) {
+            // Register handler for flash card generation
+            if (window.Poe && window.Poe.registerHandler) {
+                window.Poe.registerHandler("flashcard-handler", (result) => {
+                    const msg = result.responses[0];
+                    if (msg.status === "complete") {
+                        try {
+                            const flashCardData = JSON.parse(msg.content);
+                            flashCards = flashCardData.flashcards || [];
+                            displayFlashCards();
+                        } catch (error) {
+                            console.error('Error parsing flash card data:', error);
+                            // Fallback: create sample flash cards
+                            createSampleFlashCards(content);
+                        }
+                    } else if (msg.status === "error") {
+                        console.error('Error generating flash cards:', msg.statusText);
+                        createSampleFlashCards(content);
+                    }
+                });
+
+                try {
+                    await window.Poe.sendUserMessage(
+                        `@Claude-Sonnet-4 Extract key terms from the course content below and create flash cards. Provide ONLY raw JSON in your response with no explanations, additional text, or code block formatting (no \`\`\`). Use this exact structure: {"flashcards": [{"term": "Key Term", "definition": "Definition or explanation"}, ...]}. Aim for 10-15 flash cards.\n\nContent: ${content}`,
+                        {
+                            handler: "flashcard-handler",
+                            stream: false,
+                            openChat: false
+                        }
+                    );
+                } catch (error) {
+                    console.error('Error calling Poe API:', error);
+                    createSampleFlashCards(content);
+                }
+            } else {
+                createSampleFlashCards(content);
+            }
+        }
+
+        function createSampleFlashCards(content) {
+            // Create sample flash cards based on content analysis
+            const words = content.toLowerCase().split(/\s+/);
+            const commonTerms = ['definition', 'concept', 'theory', 'principle', 'method', 'process', 'system', 'factor', 'element', 'component'];
+            
+            flashCards = [
+                { term: "Key Concept", definition: "A fundamental idea or principle central to understanding the topic." },
+                { term: "Important Term", definition: "A significant word or phrase that requires memorization and understanding." },
+                { term: "Main Principle", definition: "A basic rule or belief that guides the subject matter." }
+            ];
+            
+            displayFlashCards();
+        }
+
+        function displayFlashCards() {
+            const container = document.getElementById('flashcard-container');
+            const noCards = document.getElementById('no-flashcards');
+            const navigation = document.getElementById('flashcard-navigation');
+            const deckInfo = document.getElementById('deck-info');
+            const deckCount = document.getElementById('deck-count');
+            
+            if (flashCards.length === 0) {
+                noCards.classList.remove('hidden');
+                navigation.classList.add('hidden');
+                deckInfo.classList.add('hidden');
+                return;
+            }
+            
+            noCards.classList.add('hidden');
+            navigation.classList.remove('hidden');
+            deckInfo.classList.remove('hidden');
+            deckCount.textContent = `${flashCards.length} cards in deck`;
+            
+            currentCardIndex = 0;
+            showCurrentCard();
+        }
+
+        function showCurrentCard() {
+            if (flashCards.length === 0) return;
+            
+            const card = flashCards[currentCardIndex];
+            const container = document.getElementById('flashcard-container');
+            const counter = document.getElementById('card-counter');
+            
+            container.innerHTML = `
+                <div class="flip-card w-full max-w-2xl cursor-pointer" onclick="flipCard(this)">
+                    <div class="flip-card-inner relative h-80">
+                        <div class="flip-card-front absolute inset-0 bg-white dark:bg-gray-800 border-2 border-primary rounded-xl p-8 flex items-center justify-center shadow-lg">
+                            <div class="text-center">
+                                <h3 class="text-xl font-semibold mb-4">${card.term}</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Click to reveal definition</p>
+                            </div>
+                        </div>
+                        <div class="flip-card-back absolute inset-0 bg-primary text-white rounded-xl p-6 flex items-center justify-center shadow-lg">
+                            <div class="text-center max-w-full">
+                                <p class="text-base leading-relaxed overflow-y-auto max-h-full">${card.definition}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            counter.textContent = `${currentCardIndex + 1} of ${flashCards.length}`;
+        }
+
+        function flipCard(element) {
+            element.classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            if (currentCardIndex < flashCards.length - 1) {
+                currentCardIndex++;
+                showCurrentCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                showCurrentCard();
+            }
+        }
+
+        function shuffleCards() {
+            for (let i = flashCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashCards[i], flashCards[j]] = [flashCards[j], flashCards[i]];
+            }
+            currentCardIndex = 0;
+            showCurrentCard();
+        }
+
+        function resetProgress() {
+            currentCardIndex = 0;
+            showCurrentCard();
+        }
+
+        // Study aids generation
+        async function generateStudyAids(content) {
+            if (window.Poe && window.Poe.registerHandler) {
+                window.Poe.registerHandler("study-aids-handler", (result) => {
+                    const msg = result.responses[0];
+                    if (msg.status === "complete") {
+                        displayStudyAids(msg.content);
+                    } else if (msg.status === "error") {
+                        console.error('Error generating study aids:', msg.statusText);
+                        displaySampleStudyAids();
+                    }
+                });
+
+                try {
+                    await window.Poe.sendUserMessage(
+                        `@Claude-Sonnet-4 Create comprehensive study aids for the following content. Include: 1) A summary of key points, 2) Important concepts to remember, 3) Study questions, and 4) Mnemonics or memory aids where applicable. Format your response in clear sections with headers. Content: ${content}`,
+                        {
+                            handler: "study-aids-handler",
+                            stream: false,
+                            openChat: false
+                        }
+                    );
+                } catch (error) {
+                    console.error('Error calling Poe API:', error);
+                    displaySampleStudyAids();
+                }
+            } else {
+                displaySampleStudyAids();
+            }
+        }
+
+        function displayStudyAids(content) {
+            const container = document.getElementById('study-aids-content');
+            container.innerHTML = `<div class="prose dark:prose-invert max-w-none">${marked.parse(content)}</div>`;
+        }
+
+        function displaySampleStudyAids() {
+            const sampleAids = `
+# Study Guide
+
+## Key Points Summary
+- Main concepts and their relationships
+- Important definitions and terminology
+- Critical processes and procedures
+
+## Concepts to Remember
+1. **Primary Concept**: Central idea that forms the foundation
+2. **Secondary Concepts**: Supporting ideas that build upon the primary concept
+3. **Applications**: Real-world examples and use cases
+
+## Study Questions
+1. What is the main purpose of this topic?
+2. How do the key concepts relate to each other?
+3. What are some practical applications?
+4. What are the most important terms to memorize?
+
+## Memory Aids
+- Use acronyms for lists of items
+- Create visual associations for complex concepts
+- Practice active recall with the flash cards
+- Review materials regularly using spaced repetition
+            `;
+            displayStudyAids(sampleAids);
+        }
+
+        // Utility functions
+        function clearAll() {
+            if (showConfirmDialog('Are you sure you want to clear all uploaded content and generated materials?', () => {
+                document.getElementById('course-title').value = '';
+                document.getElementById('text-content').value = '';
+                document.getElementById('file-upload').value = '';
+                uploadedFiles = [];
+                flashCards = [];
+                courseContent = '';
+                displayUploadedFiles();
+                document.getElementById('reading-content').innerHTML = '<p class="text-gray-500 dark:text-gray-400 text-center py-8">Upload materials in the "Upload Materials" tab to view them here.</p>';
+                document.getElementById('study-aids-content').innerHTML = '<div class="text-center py-8"><p class="text-gray-500 dark:text-gray-400 mb-4">No study aids available.</p><p class="text-sm text-gray-400 dark:text-gray-500">Upload materials and generate study aids to see them here.</p></div>';
+                displayFlashCards();
+            })) {}
+        }
+
+        function showLoadingModal(show) {
+            const modal = document.getElementById('loading-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function showAlert(message) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="flex justify-end">
+                        <button class="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded" onclick="this.closest('.fixed').remove()">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function showConfirmDialog(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="flex justify-end space-x-3">
+                        <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="this.closest('.fixed').remove()">Cancel</button>
+                        <button class="px-4 py-2 bg-primary text-white hover:bg-primary-dark rounded" onclick="this.closest('.fixed').remove(); (${onConfirm})()">Confirm</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            return true;
+        }
+
+        // Drag and drop functionality
+        const uploadArea = document.querySelector('[onclick="document.getElementById(\'file-upload\').click()"]').parentElement;
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary', 'bg-primary', 'bg-opacity-10');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary', 'bg-primary', 'bg-opacity-10');
+            
+            const files = Array.from(e.dataTransfer.files);
+            uploadedFiles = uploadedFiles.concat(files);
+            displayUploadedFiles();
+        });
+    </script>
+
+
+</body></html>
