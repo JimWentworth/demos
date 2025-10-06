@@ -1,0 +1,1740 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudySprint</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-white dark:bg-gray-900 min-h-screen transition-colors duration-300">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 dark:text-white mb-2">StudySprint</h1>
+            <p class="text-gray-600 dark:text-gray-400">Quick, intensive learning sessions for any subject</p>
+            
+            <!-- Mode Toggle -->
+            <div class="flex justify-center mt-4">
+                <div class="bg-gray-200 dark:bg-gray-700 rounded-lg p-1">
+                    <button id="quiz-mode-btn" class="px-4 py-2 rounded-md text-sm font-medium transition-colors bg-primary text-white">
+                        Quiz Mode
+                    </button>
+                    <button id="settings-mode-btn" class="px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white">
+                        Select Question Set
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Area -->
+        <div id="quiz-area" class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 shadow-lg">
+            <!-- Timer and Score -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8">
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-primary mb-1" id="timer">15</div>
+                    <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">seconds</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1" id="score">0</div>
+                    <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">score</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-red-600 dark:text-red-400 mb-1" id="missed-count">0</div>
+                    <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">missed</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400 mb-1" id="progress-count">0/0</div>
+                    <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">mastered</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1" id="streak-count">0</div>
+                    <div class="text-xs md:text-sm text-gray-600 dark:text-gray-400">streak</div>
+                </div>
+            </div>
+
+            <!-- Scoring Info (shown before game starts) -->
+            <div id="scoring-info" class="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 rounded text-sm">
+                <div class="font-medium text-blue-800 dark:text-blue-300 mb-2">📊 How Scoring Works:</div>
+                <div class="text-blue-700 dark:text-blue-400 space-y-1">
+                    <div>• <strong>Correct Answer:</strong> Earn points equal to seconds remaining (1-15 points)</div>
+                    <div>• <strong>Wrong Answer:</strong> Lose 5 points</div>
+                    <div>• <strong>Fast &amp; Accurate:</strong> Answer correctly with 2+ seconds left to master the question</div>
+                </div>
+            </div>
+
+            <!-- Definition Display -->
+            <div class="mb-8">
+                <div class="text-sm font-semibold text-primary mb-2" id="category">Loading...</div>
+                <div class="text-xl text-gray-900 dark:text-white leading-relaxed p-6 bg-white dark:bg-gray-700 rounded-xl shadow-sm" id="definition">
+                    Loading question...
+                </div>
+            </div>
+
+            <!-- Answer Options -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8" id="options-container">
+                <button class="option-btn p-4 text-left bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 text-gray-900 dark:text-white text-base" data-index="0">
+                    Option 1
+                </button>
+                <button class="option-btn p-4 text-left bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 text-gray-900 dark:text-white text-base" data-index="1">
+                    Option 2
+                </button>
+                <button class="option-btn p-4 text-left bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 text-gray-900 dark:text-white text-base" data-index="2">
+                    Option 3
+                </button>
+                <button class="option-btn p-4 text-left bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 text-gray-900 dark:text-white text-base" data-index="3">
+                    Option 4
+                </button>
+            </div>
+
+            <!-- Game Controls -->
+            <div class="text-center space-y-3">
+                <button id="start-btn" class="bg-primary hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors duration-300 text-base">
+                    Start Quiz
+                </button>
+                <button id="next-btn" class="bg-primary hover:bg-purple-700 text-white font-semibold py-3 px-8 rounded-xl transition-colors duration-300 text-base hidden">
+                    Next Question
+                </button>
+                
+
+            </div>
+
+            <!-- Result Message -->
+            <div id="result-message" class="mt-6 p-4 rounded-xl text-center hidden"></div>
+        </div>
+
+        <!-- Settings Area -->
+        <div id="settings-area" class="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 shadow-lg hidden">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Quiz Settings &amp; Upload</h2>
+                <p class="text-gray-600 dark:text-gray-400">Customize your learning experience</p>
+            </div>
+
+            <div class="max-w-2xl mx-auto space-y-8">
+                <!-- Category Selection -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Select Categories to Study</h3>
+                    <div class="space-y-3" id="category-checkboxes">
+                        <!-- Categories will be populated by JavaScript -->
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex justify-between">
+                        <button id="select-all-btn" class="text-primary hover:text-purple-700 text-sm font-medium">
+                            Select All
+                        </button>
+                        <button id="deselect-all-btn" class="text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-300 text-sm font-medium">
+                            Deselect All
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                        <button id="start-quiz-mode-btn" class="bg-primary hover:bg-purple-700 text-white font-semibold py-2 px-6 rounded-lg transition-colors duration-300 text-sm">
+                            Start Quiz Mode
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Current Question Bank -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Current Question Bank</h3>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <span id="question-count-display">50</span> questions available (<span id="active-count-display">50</span> active)
+                    </div>
+                    <div class="space-y-2 max-h-48 overflow-y-auto">
+                        <div id="question-list"></div>
+                    </div>
+
+                </div>
+
+                <!-- Missed Questions Review -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Review Missed Questions</h3>
+                    <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        <span id="missed-count-display">0</span> questions missed (incorrect or timed out)
+                    </div>
+                    <div class="space-y-3 max-h-48 overflow-y-auto" id="missed-questions-list">
+                        <!-- Missed questions will be populated here -->
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-600 flex justify-between">
+                        <button id="practice-missed-btn" class="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors duration-300 text-sm disabled:opacity-50 disabled:cursor-not-allowed" disabled="">
+                            Practice Missed Questions
+                        </button>
+                        <button id="clear-missed-btn" class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium">
+                            Clear Missed Questions
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CSV Upload -->
+                <div class="bg-white dark:bg-gray-700 rounded-xl p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Upload Custom Questions</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Upload a CSV file with your own terminology questions. Required format:
+                    </p>
+                    <div class="bg-gray-100 dark:bg-gray-600 rounded-lg p-3 mb-4 text-sm font-mono">
+                        category,definition,correct,option1,option2,option3,option4
+                    </div>
+                    
+                    <div class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-primary transition-colors duration-300" id="upload-area">
+                        <input type="file" id="csv-file-input" accept=".csv" class="hidden">
+                        <div class="space-y-2">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                                <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 515.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                            </svg>
+                            <p class="text-gray-600 dark:text-gray-400">
+                                <button type="button" class="text-primary hover:text-purple-700 font-medium">Click to upload</button>
+                                or drag and drop your CSV file here
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Upload Status -->
+                    <div id="upload-status" class="hidden mt-4 p-3 rounded-lg text-sm"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quit Game Button (Fixed at bottom right during game) -->
+        <div id="quit-button-container" class="fixed bottom-8 right-8 z-40 hidden">
+            <button id="quit-btn" class="bg-gray-800 hover:bg-gray-900 text-white font-medium py-3 px-6 rounded-full shadow-lg transition-all duration-300 text-sm border border-gray-600">
+                ❌ Quit Game
+            </button>
+        </div>
+
+        <!-- Badges & Daily Goals Panel -->
+        <div id="achievements-panel" class="fixed top-4 right-4 bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 max-w-sm hidden z-30">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Achievements</h3>
+                <button id="close-achievements-btn" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">✕</button>
+            </div>
+            
+            <!-- Daily Goal -->
+            <div class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-blue-800 dark:text-blue-300">Daily Goal</span>
+                    <span class="text-xs text-blue-600 dark:text-blue-400" id="daily-progress-text">0/15</span>
+                </div>
+                <div class="w-full bg-blue-200 dark:bg-blue-700 rounded-full h-2">
+                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-500" style="width: 0%" id="daily-progress-bar"></div>
+                </div>
+                <div class="text-xs text-blue-700 dark:text-blue-400 mt-1">Practice 15 questions today</div>
+            </div>
+
+            <!-- Badges -->
+            <div class="space-y-2" id="badges-container">
+                <!-- Badges will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Achievements Button -->
+        <button id="achievements-btn" class="fixed top-4 right-4 bg-primary hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all duration-300 z-20">
+            🏆
+        </button>
+    </div>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Comprehensive question database
+        const allQuestionsData = [
+            // Semiotics (8 questions)
+            {
+                category: "Semiotics",
+                definition: "The basic element of a sign that indicates or refers to something beyond itself, conveying meaning in communication.",
+                correct: "Signifier",
+                options: ["Signified", "Signifier", "Symbol", "Icon"]
+            },
+            {
+                category: "Semiotics",
+                definition: "The concept or meaning that a sign represents or points to in the mind of the interpreter.",
+                correct: "Signified",
+                options: ["Signifier", "Signified", "Denotation", "Connotation"]
+            },
+            {
+                category: "Semiotics",
+                definition: "The literal, explicit, or surface meaning of a sign, without cultural or personal associations.",
+                correct: "Denotation",
+                options: ["Connotation", "Denotation", "Symbolism", "Metaphor"]
+            },
+            {
+                category: "Semiotics",
+                definition: "The cultural, emotional, or implied meanings associated with a sign beyond its literal definition.",
+                correct: "Connotation",
+                options: ["Denotation", "Indexical", "Connotation", "Iconic"]
+            },
+            {
+                category: "Semiotics",
+                definition: "A sign that physically resembles or imitates the object it represents, like a photograph or realistic drawing.",
+                correct: "Icon",
+                options: ["Index", "Icon", "Symbol", "Signifier"]
+            },
+            {
+                category: "Semiotics",
+                definition: "A sign that has a direct physical or causal connection to what it represents, like smoke indicating fire.",
+                correct: "Index",
+                options: ["Icon", "Index", "Symbol", "Denotation"]
+            },
+            {
+                category: "Semiotics",
+                definition: "A sign where the relationship between signifier and signified is arbitrary and learned through cultural convention.",
+                correct: "Symbol",
+                options: ["Icon", "Index", "Symbol", "Metaphor"]
+            },
+            {
+                category: "Semiotics",
+                definition: "The study of signs and sign processes, including how meaning is created and communicated.",
+                correct: "Semiotics",
+                options: ["Semantics", "Semiotics", "Syntax", "Pragmatics"]
+            },
+
+            // Gestalt Psychology (10 questions)
+            {
+                category: "Gestalt Psychology",
+                definition: "The principle that elements positioned close to each other are perceived as belonging together or forming a group.",
+                correct: "Proximity",
+                options: ["Similarity", "Proximity", "Closure", "Continuity"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The tendency to perceive incomplete shapes or forms as complete by mentally filling in missing information.",
+                correct: "Closure",
+                options: ["Proximity", "Figure-Ground", "Closure", "Symmetry"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The principle that elements sharing similar visual characteristics are perceived as related or grouped together.",
+                correct: "Similarity",
+                options: ["Similarity", "Proximity", "Continuity", "Common Fate"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The perceptual ability to distinguish an object from its surrounding environment or background.",
+                correct: "Figure-Ground",
+                options: ["Closure", "Figure-Ground", "Symmetry", "Prägnanz"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The tendency to perceive smooth, continuous paths rather than broken or jagged ones.",
+                correct: "Continuity",
+                options: ["Proximity", "Continuity", "Closure", "Common Fate"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The principle that elements moving in the same direction are perceived as belonging together.",
+                correct: "Common Fate",
+                options: ["Similarity", "Common Fate", "Symmetry", "Proximity"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The law of simplicity - we tend to organize visual elements into the simplest, most stable form possible.",
+                correct: "Prägnanz",
+                options: ["Prägnanz", "Closure", "Continuity", "Emergence"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The principle that balanced, symmetrical compositions are perceived as more stable and pleasing.",
+                correct: "Symmetry",
+                options: ["Balance", "Symmetry", "Harmony", "Proportion"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The tendency to perceive the whole as greater than the sum of its individual parts.",
+                correct: "Emergence",
+                options: ["Emergence", "Holism", "Synthesis", "Integration"]
+            },
+            {
+                category: "Gestalt Psychology",
+                definition: "The psychological school that emphasizes the mind's ability to organize sensory information into meaningful wholes.",
+                correct: "Gestalt Psychology",
+                options: ["Behaviorism", "Gestalt Psychology", "Cognitive Psychology", "Structuralism"]
+            },
+
+            // Visual Perception (8 questions)
+            {
+                category: "Visual Perception",
+                definition: "The use of varying degrees of lightness and darkness to create the illusion of depth and three-dimensional form.",
+                correct: "Chiaroscuro",
+                options: ["Perspective", "Chiaroscuro", "Sfumato", "Atmospheric Perspective"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The phenomenon where colors appear different depending on their surrounding colors or context.",
+                correct: "Simultaneous Contrast",
+                options: ["Color Temperature", "Simultaneous Contrast", "Chromatic Aberration", "Color Harmony"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The gradual change in color intensity and clarity as objects recede into the distance.",
+                correct: "Atmospheric Perspective",
+                options: ["Linear Perspective", "Atmospheric Perspective", "Aerial View", "Depth of Field"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The technique of creating the illusion of depth using converging lines that meet at vanishing points.",
+                correct: "Linear Perspective",
+                options: ["Linear Perspective", "Atmospheric Perspective", "Isometric Projection", "Orthographic Projection"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The smooth blending and subtle gradation of colors and tones without harsh lines or borders.",
+                correct: "Sfumato",
+                options: ["Chiaroscuro", "Sfumato", "Impasto", "Glazing"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The apparent movement of objects relative to each other when the observer's position changes.",
+                correct: "Parallax",
+                options: ["Parallax", "Perspective", "Convergence", "Disparity"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The visual effect where parallel lines appear to bend outward when intersected by radiating lines.",
+                correct: "Optical Illusion",
+                options: ["Moiré Pattern", "Optical Illusion", "Visual Distortion", "Perceptual Error"]
+            },
+            {
+                category: "Visual Perception",
+                definition: "The ability to perceive and understand spatial relationships between objects in three-dimensional space.",
+                correct: "Depth Perception",
+                options: ["Spatial Awareness", "Depth Perception", "Distance Judgment", "Volume Recognition"]
+            },
+
+            // Design Elements (12 questions)
+            {
+                category: "Design Elements",
+                definition: "A mark connecting two points, which can vary in weight, direction, and character to create visual movement and define shapes.",
+                correct: "Line",
+                options: ["Shape", "Line", "Form", "Texture"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The surface quality or tactile appearance of an object, whether actual or implied through visual techniques.",
+                correct: "Texture",
+                options: ["Pattern", "Texture", "Value", "Color"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The lightness or darkness of a hue, crucial for creating contrast, emphasis, and visual hierarchy.",
+                correct: "Value",
+                options: ["Saturation", "Hue", "Value", "Luminance"]
+            },
+            {
+                category: "Design Elements",
+                definition: "A two-dimensional area defined by boundaries such as lines, color, or texture changes.",
+                correct: "Shape",
+                options: ["Shape", "Form", "Mass", "Volume"]
+            },
+            {
+                category: "Design Elements",
+                definition: "A three-dimensional object with height, width, and depth, creating the illusion of volume and mass.",
+                correct: "Form",
+                options: ["Shape", "Form", "Structure", "Dimension"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The visual property of objects created by the reflection of specific wavelengths of light.",
+                correct: "Color",
+                options: ["Hue", "Color", "Tint", "Shade"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The area around, between, or within objects, which can be positive (filled) or negative (empty).",
+                correct: "Space",
+                options: ["Space", "Void", "Area", "Volume"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The pure color without any white, black, or gray added to it.",
+                correct: "Hue",
+                options: ["Hue", "Tint", "Shade", "Tone"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The intensity or purity of a color, determining how vivid or dull it appears.",
+                correct: "Saturation",
+                options: ["Saturation", "Brightness", "Intensity", "Chroma"]
+            },
+            {
+                category: "Design Elements",
+                definition: "A regular, repeated decorative design or sequence of elements.",
+                correct: "Pattern",
+                options: ["Pattern", "Rhythm", "Texture", "Motif"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The relative size, scale, or degree of prominence of visual elements within a composition.",
+                correct: "Proportion",
+                options: ["Scale", "Proportion", "Size", "Dimension"]
+            },
+            {
+                category: "Design Elements",
+                definition: "The physical dimensions or perceived size of objects in relation to their surroundings.",
+                correct: "Scale",
+                options: ["Scale", "Proportion", "Size", "Measurement"]
+            },
+
+            // Design Principles (12 questions)
+            {
+                category: "Design Principles",
+                definition: "The distribution of visual weight in a composition to create stability and equilibrium.",
+                correct: "Balance",
+                options: ["Rhythm", "Balance", "Unity", "Movement"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The difference between elements that makes them stand out from each other, creating visual interest and hierarchy.",
+                correct: "Contrast",
+                options: ["Contrast", "Harmony", "Repetition", "Proportion"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The repetition of visual elements to create a sense of organized movement or pattern throughout a design.",
+                correct: "Rhythm",
+                options: ["Balance", "Emphasis", "Rhythm", "Scale"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The principle used to create a focal point or draw attention to the most important element in a composition.",
+                correct: "Emphasis",
+                options: ["Contrast", "Emphasis", "Focus", "Dominance"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The sense of cohesion and completeness in a design where all elements work together harmoniously.",
+                correct: "Unity",
+                options: ["Unity", "Harmony", "Cohesion", "Consistency"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The arrangement of elements to create the illusion or sense of motion and flow within a static composition.",
+                correct: "Movement",
+                options: ["Movement", "Flow", "Direction", "Dynamics"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The pleasing combination of elements that creates a sense of order and beauty in a design.",
+                correct: "Harmony",
+                options: ["Harmony", "Unity", "Balance", "Consonance"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The relative importance or prominence given to different elements within a composition.",
+                correct: "Hierarchy",
+                options: ["Hierarchy", "Order", "Priority", "Sequence"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The use of recurring elements to create consistency and reinforce design themes.",
+                correct: "Repetition",
+                options: ["Repetition", "Pattern", "Rhythm", "Echo"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The relationship in size between different elements within a composition.",
+                correct: "Proportion",
+                options: ["Scale", "Proportion", "Ratio", "Relationship"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The strategic use of empty or unoccupied areas to create breathing room and focus attention.",
+                correct: "White Space",
+                options: ["Negative Space", "White Space", "Void", "Margin"]
+            },
+            {
+                category: "Design Principles",
+                definition: "The state of equilibrium between opposing forces or elements in a design composition.",
+                correct: "Tension",
+                options: ["Tension", "Conflict", "Opposition", "Dynamic"]
+            }
+        ];
+
+        // Available categories for filtering
+        const categories = [
+            "Semiotics",
+            "Gestalt Psychology", 
+            "Visual Perception",
+            "Design Elements",
+            "Design Principles"
+        ];
+
+        // Active categories (all enabled by default)
+        let activeCategories = [...categories];
+        
+        // Current filtered questions
+        let questionsData = [];
+
+        // Game state
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 15;
+        let gameTimer = null;
+        let gameActive = false;
+        let answerSelected = false;
+        let currentCorrectIndex = 0;
+        let fadedOptions = [];
+        
+        // Statistics tracking
+        let gameStartTime = null;
+        let correctResponsesCount = 0;
+        let initialQuestionCount = 0; // Track original question count
+        let masteredQuestions = []; // Track unique mastered questions
+        let currentStreak = 0; // Current consecutive correct answers
+        let bestStreak = 0; // Best streak this session
+
+        // DOM elements
+        const timerEl = document.getElementById('timer');
+        const scoreEl = document.getElementById('score');
+        const missedCountEl = document.getElementById('missed-count');
+        const progressCountEl = document.getElementById('progress-count');
+        const streakCountEl = document.getElementById('streak-count');
+        const categoryEl = document.getElementById('category');
+        const definitionEl = document.getElementById('definition');
+        const optionsContainer = document.getElementById('options-container');
+        const startBtn = document.getElementById('start-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const quitBtn = document.getElementById('quit-btn');
+        const quitButtonContainer = document.getElementById('quit-button-container');
+        const resultMessage = document.getElementById('result-message');
+        const optionBtns = document.querySelectorAll('.option-btn');
+
+        // Achievements system elements
+        const achievementsBtn = document.getElementById('achievements-btn');
+        const achievementsPanel = document.getElementById('achievements-panel');
+        const closeAchievementsBtn = document.getElementById('close-achievements-btn');
+        const dailyProgressText = document.getElementById('daily-progress-text');
+        const dailyProgressBar = document.getElementById('daily-progress-bar');
+        const badgesContainer = document.getElementById('badges-container');
+
+        // Shuffle array function
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        // Load question
+        function loadQuestion() {
+            // Check if all questions have been mastered
+            if (questionsData.length === 0) {
+                endGame();
+                return;
+            }
+
+            // If we've reached the end of the array, cycle back to the beginning
+            if (currentQuestion >= questionsData.length) {
+                currentQuestion = 0;
+            }
+
+            const question = questionsData[currentQuestion];
+            const shuffledOptions = shuffleArray(question.options);
+            currentCorrectIndex = shuffledOptions.indexOf(question.correct);
+            
+            categoryEl.textContent = question.category;
+            definitionEl.textContent = question.definition;
+
+            // Reset options
+            optionBtns.forEach((btn, index) => {
+                btn.textContent = shuffledOptions[index];
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+                btn.className = 'option-btn p-4 text-left bg-white dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 border-2 border-gray-200 dark:border-gray-600 rounded-xl transition-all duration-300 text-gray-900 dark:text-white text-base';
+            });
+
+            // Reset game state
+            timeLeft = 15;
+            answerSelected = false;
+            fadedOptions = [];
+            updateTimer();
+        }
+
+        // Update timer display
+        function updateTimer() {
+            timerEl.textContent = timeLeft;
+            
+            if (timeLeft <= 5 && timeLeft > 3) {
+                timerEl.className = 'text-3xl font-bold text-yellow-500 mb-1';
+            } else if (timeLeft <= 3 && timeLeft > 1) {
+                timerEl.className = 'text-3xl font-bold text-orange-500 mb-1';
+            } else if (timeLeft <= 1) {
+                timerEl.className = 'text-3xl font-bold text-red-500 mb-1';
+            } else {
+                timerEl.className = 'text-3xl font-bold text-primary mb-1';
+            }
+        }
+
+        // Fade option
+        function fadeOption() {
+            const availableOptions = [];
+            optionBtns.forEach((btn, index) => {
+                if (index !== currentCorrectIndex && !fadedOptions.includes(index)) {
+                    availableOptions.push(index);
+                }
+            });
+
+            if (availableOptions.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableOptions.length);
+                const optionToFade = availableOptions[randomIndex];
+                
+                optionBtns[optionToFade].style.opacity = '0.3';
+                optionBtns[optionToFade].style.pointerEvents = 'none';
+                fadedOptions.push(optionToFade);
+            }
+        }
+
+        // Start timer
+        function startTimer() {
+            gameTimer = setInterval(() => {
+                timeLeft--;
+                updateTimer();
+
+                if (timeLeft === 11) {
+                    fadeOption();
+                } else if (timeLeft === 6) {
+                    fadeOption();
+                } else if (timeLeft === 1) {
+                    // Fade all incorrect options, leave only correct one
+                    optionBtns.forEach((btn, index) => {
+                        if (index !== currentCorrectIndex) {
+                            btn.style.opacity = '0.3';
+                            btn.style.pointerEvents = 'none';
+                        }
+                    });
+                } else if (timeLeft === 0) {
+                    // Time's up
+                    if (!answerSelected) {
+                        currentStreak = 0; // Reset streak on timeout
+                        updateStreakDisplay(); // Update streak display
+                        
+                        // Add to missed questions if not already there
+                        const currentQuestionData = questionsData[currentQuestion];
+                        if (!missedQuestions.some(q => q.definition === currentQuestionData.definition)) {
+                            missedQuestions.push({...currentQuestionData});
+                            missedCountEl.textContent = missedQuestions.length;
+                        }
+                        
+                        // Keep the question in rotation by adding it to the end of the current question set
+                        questionsData.push({...currentQuestionData});
+                        
+                        showResult(false, "Time's up! (Question will return)");
+                    }
+                    clearInterval(gameTimer);
+                }
+            }, 1000);
+        }
+
+        // Handle answer selection
+        function selectAnswer(selectedIndex) {
+            if (!gameActive || answerSelected) return;
+
+            answerSelected = true;
+            clearInterval(gameTimer);
+
+            const isCorrect = selectedIndex === currentCorrectIndex;
+            let questionRemoved = false;
+            
+            if (isCorrect) {
+                score += Math.max(1, timeLeft); // Bonus points for faster answers
+                correctResponsesCount++; // Track correct responses
+                currentStreak++; // Increment streak for correct answer
+                if (currentStreak > bestStreak) {
+                    bestStreak = currentStreak;
+                }
+                updateStreakDisplay(); // Update streak display
+                updateSessionStats(true, timeLeft, questionsData[currentQuestion].category); // Update achievements
+                scoreEl.textContent = score;
+                optionBtns[selectedIndex].className = 'option-btn p-4 text-left bg-green-500 border-2 border-green-600 rounded-xl transition-all duration-300 text-white text-base';
+                
+                // Remove question if answered correctly with at least 2 seconds left
+                if (timeLeft >= 2) {
+                    const currentQuestionData = questionsData[currentQuestion];
+                    // Track unique mastered questions using definition as unique key
+                    if (!masteredQuestions.some(q => q.definition === currentQuestionData.definition)) {
+                        masteredQuestions.push({...currentQuestionData});
+                    }
+                    questionsData.splice(currentQuestion, 1);
+                    questionRemoved = true;
+                    updateProgressDisplay(); // Update progress when question mastered
+                    
+                    // Add streak milestone messaging
+                    let streakMessage = '';
+                    if (currentStreak >= 10) {
+                        streakMessage = ` 🔥${currentStreak} streak!`;
+                    } else if (currentStreak >= 5) {
+                        streakMessage = ` 🔥${currentStreak} streak!`;
+                    }
+                    
+                    showResult(true, `Correct! +${Math.max(1, timeLeft)} points (Question mastered!)${streakMessage}`);
+                } else {
+                    // Add streak milestone messaging for non-mastered correct answers too
+                    let streakMessage = '';
+                    if (currentStreak >= 10) {
+                        streakMessage = ` 🔥${currentStreak} streak!`;
+                    } else if (currentStreak >= 5) {
+                        streakMessage = ` 🔥${currentStreak} streak!`;
+                    }
+                    
+                    showResult(true, `Correct! +${Math.max(1, timeLeft)} points${streakMessage}`);
+                }
+            } else {
+                currentStreak = 0; // Reset streak on incorrect answer
+                updateStreakDisplay(); // Update streak display
+                score -= 5; // Deduct 5 points for wrong answer
+                scoreEl.textContent = score;
+                optionBtns[selectedIndex].className = 'option-btn p-4 text-left bg-red-500 border-2 border-red-600 rounded-xl transition-all duration-300 text-white text-base';
+                optionBtns[currentCorrectIndex].className = 'option-btn p-4 text-left bg-green-500 border-2 border-green-600 rounded-xl transition-all duration-300 text-white text-base';
+                
+                // Add to missed questions if not already there
+                const currentQuestionData = questionsData[currentQuestion];
+                if (!missedQuestions.some(q => q.definition === currentQuestionData.definition)) {
+                    missedQuestions.push({...currentQuestionData});
+                    missedCountEl.textContent = missedQuestions.length;
+                }
+                
+                // Keep the question in rotation by adding it to the end of the current question set
+                questionsData.push({...currentQuestionData});
+                
+                showResult(false, 'Incorrect! -5 points (Question will return)');
+            }
+
+            // Note: Question removed, so next question is at same index
+        }
+
+        // Show result
+        function showResult(isCorrect, message) {
+            resultMessage.textContent = message;
+            resultMessage.className = `mt-6 p-4 rounded-xl text-center ${isCorrect ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' : 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200'}`;
+            resultMessage.classList.remove('hidden');
+            
+            nextBtn.classList.remove('hidden');
+            startBtn.classList.add('hidden');
+        }
+
+        // Update progress display
+        function updateProgressDisplay() {
+            progressCountEl.textContent = `${masteredQuestions.length}/${initialQuestionCount}`;
+        }
+
+        // Update streak display
+        function updateStreakDisplay() {
+            streakCountEl.textContent = currentStreak;
+            
+            // Add visual effects for milestones
+            if (currentStreak >= 10) {
+                streakCountEl.className = 'text-2xl md:text-3xl font-bold text-yellow-500 mb-1';
+            } else if (currentStreak >= 5) {
+                streakCountEl.className = 'text-2xl md:text-3xl font-bold text-orange-500 mb-1';
+            } else if (currentStreak > 0) {
+                streakCountEl.className = 'text-2xl md:text-3xl font-bold text-orange-600 dark:text-orange-400 mb-1';
+            } else {
+                streakCountEl.className = 'text-2xl md:text-3xl font-bold text-gray-400 dark:text-gray-500 mb-1';
+            }
+        }
+
+        // Start game
+        function startGame() {
+            gameActive = true;
+            startBtn.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            
+            // Record start time and reset stats
+            gameStartTime = Date.now();
+            correctResponsesCount = 0;
+            currentStreak = 0; // Reset current streak
+            bestStreak = 0; // Reset best streak for new session
+            updateStreakDisplay(); // Initialize streak display
+            missedCountEl.textContent = 0; // Reset missed count display
+            initialQuestionCount = questionsData.length; // Record starting question count
+            updateProgressDisplay(); // Initialize progress display
+            
+            // Hide scoring info when game starts
+            const scoringInfo = document.getElementById('scoring-info');
+            scoringInfo.classList.add('hidden');
+            
+            loadQuestion();
+            startTimer();
+        }
+
+        // Next question
+        function nextQuestion() {
+            // Check if the last question was removed (mastered)
+            const lastResultText = resultMessage.textContent;
+            const questionWasRemoved = lastResultText.includes('Question mastered!');
+            
+            // Only increment if question wasn't removed
+            if (!questionWasRemoved) {
+                currentQuestion++;
+            }
+            
+            nextBtn.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            
+            if (currentQuestion < questionsData.length) {
+                loadQuestion();
+                startTimer();
+            } else {
+                endGame();
+            }
+        }
+
+        // Format time duration
+        function formatTime(milliseconds) {
+            const totalSeconds = Math.floor(milliseconds / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            
+            if (minutes > 0) {
+                return `${minutes}m ${seconds}s`;
+            } else {
+                return `${seconds}s`;
+            }
+        }
+
+        // Pause game
+        function pauseGame() {
+            if (!gameActive) return;
+            
+            clearInterval(gameTimer);
+            pauseBtn.textContent = '▶️ Resume';
+            
+            // Disable answer buttons and show pause message
+            optionBtns.forEach(btn => {
+                btn.style.pointerEvents = 'none';
+                btn.style.opacity = '0.5';
+            });
+            
+            resultMessage.textContent = 'Game Paused - Click Resume to continue';
+            resultMessage.className = 'mt-6 p-4 rounded-xl text-center bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
+            resultMessage.classList.remove('hidden');
+        }
+
+        // Resume game
+        function resumeGame() {
+            if (!gameActive) return;
+            
+            pauseBtn.textContent = '⏸️ Pause';
+            
+            // Re-enable answer buttons
+            optionBtns.forEach(btn => {
+                if (!fadedOptions.includes(parseInt(btn.dataset.index))) {
+                    btn.style.pointerEvents = 'auto';
+                    btn.style.opacity = '1';
+                }
+            });
+            
+            resultMessage.classList.add('hidden');
+            
+            // Restart timer if question hasn't been answered
+            if (!answerSelected) {
+                startTimer();
+            }
+        }
+
+        // Restart game with confirmation
+        function restartGame() {
+            if (!gameActive) return;
+            
+            // Create custom confirmation modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Restart Quiz?</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6">This will reset your progress and start over. Your current streak and score will be lost.</p>
+                    <div class="flex justify-end space-x-3">
+                        <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="this.closest('.fixed').remove()">Cancel</button>
+                        <button class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded" onclick="this.closest('.fixed').remove(); confirmRestart()">Restart</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Confirm restart (called from modal)
+        function confirmRestart() {
+            // Stop current game
+            gameActive = false;
+            clearInterval(gameTimer);
+            
+            // Reset all game state
+            currentQuestion = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            currentStreak = 0;
+            updateStreakDisplay();
+            
+            // Hide game controls and show start button
+            gameControlsEl.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+            startBtn.textContent = 'Start Quiz';
+            
+            // Show scoring info again
+            const scoringInfo = document.getElementById('scoring-info');
+            scoringInfo.classList.remove('hidden');
+            
+            // Reload the question set
+            filterQuestions();
+        }
+
+        // End game
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameTimer);
+            quitButtonContainer.classList.add('hidden'); // Hide quit button
+            
+            // Calculate session duration
+            const gameEndTime = Date.now();
+            const sessionDuration = gameEndTime - gameStartTime;
+            
+            categoryEl.textContent = "🎉 Mastery Complete!";
+            definitionEl.textContent = `Congratulations! You've mastered all questions in this session.`;
+            
+            // Update missed count to show completion
+            missedCountEl.textContent = "✓";
+            
+            // Include best streak in completion stats
+            const statsHtml = `
+                <div class="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 border border-green-200 dark:border-green-700 rounded-xl p-6">
+                    <div class="text-center mb-4">
+                        <h3 class="text-lg font-bold text-green-800 dark:text-green-300 mb-2">🏆 Session Complete!</h3>
+                        ${bestStreak >= 5 ? `<div class="text-sm text-orange-600 dark:text-orange-400 font-medium">🔥 Best Streak: ${bestStreak}</div>` : ''}
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                            <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">${score}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">Final Score</div>
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200" onclick="viewMissedQuestions()">
+                            <div class="text-2xl font-bold ${missedQuestions.length > 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400'}">${missedQuestions.length}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">Questions Missed</div>
+                            ${missedQuestions.length > 0 ? '<div class="text-xs text-blue-600 dark:text-blue-400 mt-1">Click to Review →</div>' : '<div class="text-xs text-green-600 dark:text-green-400 mt-1">Perfect Session!</div>'}
+                        </div>
+                        <div class="bg-white dark:bg-gray-800 rounded-lg p-3 shadow-sm">
+                            <div class="text-2xl font-bold text-purple-600 dark:text-purple-400">${formatTime(sessionDuration)}</div>
+                            <div class="text-xs text-gray-600 dark:text-gray-400">Total Time</div>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-center text-sm text-gray-700 dark:text-gray-300">
+                        ${missedQuestions.length > 0 ? `Review ${missedQuestions.length} missed question${missedQuestions.length === 1 ? '' : 's'} to improve your mastery!` : 'Perfect session - no questions missed!'}
+                    </div>
+                </div>
+            `;
+            
+            resultMessage.innerHTML = statsHtml;
+            resultMessage.className = 'mt-6';
+            resultMessage.classList.remove('hidden');
+            
+            startBtn.textContent = 'Play Again';
+            startBtn.classList.remove('hidden');
+            
+            // Reset for new game
+            currentQuestion = 0;
+            score = 0;
+            scoreEl.textContent = score;
+        }
+
+        // Mode switching variables
+        const quizModeBtn = document.getElementById('quiz-mode-btn');
+        const settingsModeBtn = document.getElementById('settings-mode-btn');
+        const quizArea = document.getElementById('quiz-area');
+        const settingsArea = document.getElementById('settings-area');
+        
+        // Settings variables
+        const categoryCheckboxes = document.getElementById('category-checkboxes');
+        const selectAllBtn = document.getElementById('select-all-btn');
+        const deselectAllBtn = document.getElementById('deselect-all-btn');
+        const startQuizModeBtn = document.getElementById('start-quiz-mode-btn');
+        const uploadArea = document.getElementById('upload-area');
+        const csvFileInput = document.getElementById('csv-file-input');
+        const uploadStatus = document.getElementById('upload-status');
+        const questionCountDisplay = document.getElementById('question-count-display');
+        const activeCountDisplay = document.getElementById('active-count-display');
+        const questionList = document.getElementById('question-list');
+        const missedCountDisplay = document.getElementById('missed-count-display');
+        const missedQuestionsList = document.getElementById('missed-questions-list');
+        const practiceMissedBtn = document.getElementById('practice-missed-btn');
+        const clearMissedBtn = document.getElementById('clear-missed-btn');
+
+
+        // Custom questions array (uploaded via CSV)
+        let customQuestions = [];
+        
+        // Missed questions tracking
+        let missedQuestions = [];
+
+        // Achievements and daily goals system
+        let questionsAnsweredToday = 0;
+        const dailyGoal = 15;
+        let sessionStats = {
+            fastAnswers: 0, // Answers with 7+ seconds remaining
+            perfectSession: false, // No missed questions
+            categoriesMastered: new Set(),
+            highestStreak: 0
+        };
+
+        // Badge definitions
+        const badges = [
+            {
+                id: 'speed_demon',
+                name: 'Speed Demon',
+                description: 'Answer 5 questions with 11+ seconds remaining',
+                emoji: '⚡',
+                unlocked: false,
+                progress: 0,
+                target: 5
+            },
+            {
+                id: 'perfectionist',
+                name: 'Perfectionist',
+                description: 'Complete a session with zero missed questions',
+                emoji: '💎',
+                unlocked: false,
+                progress: 0,
+                target: 1
+            },
+            {
+                id: 'scholar',
+                name: 'Scholar',
+                description: 'Master questions from all 5 categories in one session',
+                emoji: '📚',
+                unlocked: false,
+                progress: 0,
+                target: 5
+            },
+            {
+                id: 'streak_master',
+                name: 'Streak Master',
+                description: 'Achieve a 10+ answer streak',
+                emoji: '🔥',
+                unlocked: false,
+                progress: 0,
+                target: 10
+            },
+            {
+                id: 'daily_dedicated',
+                name: 'Daily Dedicated',
+                description: 'Complete your daily goal',
+                emoji: '🎯',
+                unlocked: false,
+                progress: 0,
+                target: dailyGoal
+            }
+        ];
+
+        // Switch to quiz mode
+        function switchToQuizMode() {
+            quizModeBtn.className = 'px-4 py-2 rounded-md text-sm font-medium transition-colors bg-primary text-white';
+            settingsModeBtn.className = 'px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+            quizArea.classList.remove('hidden');
+            settingsArea.classList.add('hidden');
+        }
+
+        // Switch to settings mode
+        function switchToSettingsMode() {
+            settingsModeBtn.className = 'px-4 py-2 rounded-md text-sm font-medium transition-colors bg-primary text-white';
+            quizModeBtn.className = 'px-4 py-2 rounded-md text-sm font-medium transition-colors text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white';
+            settingsArea.classList.remove('hidden');
+            quizArea.classList.add('hidden');
+            updateQuestionDisplay();
+        }
+
+        // Filter questions based on active categories
+        function filterQuestions() {
+            const allQuestions = [...allQuestionsData, ...customQuestions];
+            questionsData = allQuestions.filter(q => activeCategories.includes(q.category));
+            
+            // Reset game if questions changed
+            if (gameActive) {
+                gameActive = false;
+                clearInterval(gameTimer);
+                startBtn.textContent = 'Start Quiz';
+                startBtn.classList.remove('hidden');
+                nextBtn.classList.add('hidden');
+                resultMessage.classList.add('hidden');
+            }
+            
+            currentQuestion = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            
+            // Shuffle the filtered questions
+            questionsData = shuffleArray(questionsData);
+            
+            if (questionsData.length > 0) {
+                loadQuestion();
+            } else {
+                categoryEl.textContent = "No Questions Available";
+                definitionEl.textContent = "Please select at least one category or upload custom questions to begin.";
+            }
+        }
+
+        // Initialize category checkboxes
+        function initializeCategoryCheckboxes() {
+            categoryCheckboxes.innerHTML = '';
+            
+            categories.forEach(category => {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'flex items-center';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `cat-${category.replace(/\s+/g, '-')}`;
+                checkbox.checked = activeCategories.includes(category);
+                checkbox.className = 'w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2 dark:bg-gray-700 dark:border-gray-600';
+                
+                const label = document.createElement('label');
+                label.htmlFor = checkbox.id;
+                label.className = 'ml-3 text-sm text-gray-700 dark:text-gray-300 cursor-pointer';
+                label.textContent = category;
+                
+                checkbox.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        if (!activeCategories.includes(category)) {
+                            activeCategories.push(category);
+                        }
+                    } else {
+                        activeCategories = activeCategories.filter(cat => cat !== category);
+                    }
+                    filterQuestions();
+                    updateQuestionDisplay();
+                });
+                
+                wrapper.appendChild(checkbox);
+                wrapper.appendChild(label);
+                categoryCheckboxes.appendChild(wrapper);
+            });
+        }
+
+        // Select all categories
+        function selectAllCategories() {
+            activeCategories = [...categories];
+            initializeCategoryCheckboxes();
+            filterQuestions();
+            updateQuestionDisplay();
+        }
+
+        // Deselect all categories
+        function deselectAllCategories() {
+            activeCategories = [];
+            initializeCategoryCheckboxes();
+            filterQuestions();
+            updateQuestionDisplay();
+        }
+
+        // Parse CSV content
+        function parseCSV(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            const questions = [];
+            
+            // Skip header row
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Simple CSV parsing - handles quoted fields
+                const fields = [];
+                let current = '';
+                let inQuotes = false;
+                
+                for (let j = 0; j < line.length; j++) {
+                    const char = line[j];
+                    if (char === '"') {
+                        inQuotes = !inQuotes;
+                    } else if (char === ',' && !inQuotes) {
+                        fields.push(current.trim());
+                        current = '';
+                    } else {
+                        current += char;
+                    }
+                }
+                fields.push(current.trim());
+                
+                if (fields.length >= 7) {
+                    const [category, definition, correct, option1, option2, option3, option4] = fields;
+                    const options = [option1, option2, option3, option4];
+                    
+                    if (category && definition && correct && options.every(opt => opt)) {
+                        questions.push({
+                            category: category.replace(/^"|"$/g, ''),
+                            definition: definition.replace(/^"|"$/g, ''),
+                            correct: correct.replace(/^"|"$/g, ''),
+                            options: options.map(opt => opt.replace(/^"|"$/g, ''))
+                        });
+                    }
+                }
+            }
+            
+            return questions;
+        }
+
+        // Show upload status
+        function showUploadStatus(message, isError = false) {
+            uploadStatus.textContent = message;
+            uploadStatus.className = `mt-4 p-3 rounded-lg text-sm ${isError ? 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200' : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'}`;
+            uploadStatus.classList.remove('hidden');
+            
+            setTimeout(() => {
+                uploadStatus.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Handle file upload
+        function handleFileUpload(file) {
+            if (!file || !file.name.endsWith('.csv')) {
+                showUploadStatus('Please select a valid CSV file.', true);
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const content = e.target.result;
+                    const newQuestions = parseCSV(content);
+                    
+                    if (newQuestions.length === 0) {
+                        showUploadStatus('No valid questions found in the CSV file.', true);
+                        return;
+                    }
+                    
+                    customQuestions.push(...newQuestions);
+                    
+                    // Add new categories to the list if they don't exist
+                    const newCategories = [...new Set(newQuestions.map(q => q.category))];
+                    newCategories.forEach(cat => {
+                        if (!categories.includes(cat)) {
+                            categories.push(cat);
+                            activeCategories.push(cat);
+                        }
+                    });
+                    
+                    initializeCategoryCheckboxes();
+                    filterQuestions();
+                    updateQuestionDisplay();
+                    showUploadStatus(`Successfully uploaded ${newQuestions.length} questions!`);
+                } catch (error) {
+                    console.error('CSV parsing error:', error);
+                    showUploadStatus('Error parsing CSV file. Please check the format.', true);
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Update question display
+        function updateQuestionDisplay() {
+            const totalQuestions = allQuestionsData.length + customQuestions.length;
+            const activeQuestions = questionsData.length;
+            
+            questionCountDisplay.textContent = totalQuestions;
+            activeCountDisplay.textContent = activeQuestions;
+            
+            const categoryCounts = {};
+            questionsData.forEach(q => {
+                categoryCounts[q.category] = (categoryCounts[q.category] || 0) + 1;
+            });
+
+            questionList.innerHTML = '';
+            Object.entries(categoryCounts).forEach(([category, count]) => {
+                const item = document.createElement('div');
+                item.className = 'flex justify-between items-center py-2 px-3 bg-gray-100 dark:bg-gray-600 rounded text-sm';
+                item.innerHTML = `
+                    <span class="text-gray-700 dark:text-gray-300">${category}</span>
+                    <span class="text-gray-500 dark:text-gray-400">${count} questions</span>
+                `;
+                questionList.appendChild(item);
+            });
+
+            updateMissedQuestionsDisplay();
+        }
+
+        // Update missed questions display
+        function updateMissedQuestionsDisplay() {
+            missedCountDisplay.textContent = missedQuestions.length;
+            
+            missedQuestionsList.innerHTML = '';
+            if (missedQuestions.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4 text-sm';
+                emptyMessage.textContent = 'No missed questions yet. Keep practicing!';
+                missedQuestionsList.appendChild(emptyMessage);
+                practiceMissedBtn.disabled = true;
+            } else {
+                practiceMissedBtn.disabled = false;
+                missedQuestions.forEach(question => {
+                    const item = document.createElement('div');
+                    item.className = 'p-3 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-400 rounded text-sm';
+                    item.innerHTML = `
+                        <div class="font-medium text-red-800 dark:text-red-300">${question.category}</div>
+                        <div class="text-red-700 dark:text-red-400 text-xs mt-1">${question.definition.length > 80 ? question.definition.substring(0, 80) + '...' : question.definition}</div>
+                        <div class="text-red-600 dark:text-red-500 text-xs mt-1 font-medium">Answer: ${question.correct}</div>
+                    `;
+                    missedQuestionsList.appendChild(item);
+                });
+            }
+        }
+
+        // Practice missed questions
+        function practiceMissedQuestions() {
+            if (missedQuestions.length === 0) return;
+            
+            // Set missed questions as the active question set
+            questionsData = [...missedQuestions];
+            questionsData = shuffleArray(questionsData);
+            
+            // Reset game state and progress tracking for missed questions practice
+            gameActive = false;
+            clearInterval(gameTimer);
+            currentQuestion = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            currentStreak = 0;
+            updateStreakDisplay();
+            masteredQuestions = []; // Reset mastered questions for this practice session
+            missedCountEl.textContent = 0; // Reset missed count for this practice session
+            initialQuestionCount = questionsData.length; // Set to number of missed questions
+            updateProgressDisplay(); // Update progress display
+            
+            // Reset UI elements
+            nextBtn.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            quitButtonContainer.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+            startBtn.textContent = 'Start Quiz';
+            
+            // Show scoring info
+            const scoringInfo = document.getElementById('scoring-info');
+            scoringInfo.classList.remove('hidden');
+            
+            // Switch to quiz mode and load the first question
+            switchToQuizMode();
+            loadQuestion();
+        }
+
+        // Clear missed questions
+        function clearMissedQuestions() {
+            missedQuestions = [];
+            updateMissedQuestionsDisplay();
+            showUploadStatus('Missed questions cleared.');
+        }
+
+        // View missed questions (called from session complete stats)
+        function viewMissedQuestions() {
+            if (missedQuestions.length === 0) return;
+            
+            // Switch to settings mode to show missed questions review
+            switchToSettingsMode();
+            
+            // Scroll to missed questions section
+            setTimeout(() => {
+                const missedSection = document.querySelector('#missed-questions-list').closest('.bg-white');
+                if (missedSection) {
+                    missedSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    // Add a subtle highlight effect
+                    missedSection.style.transition = 'box-shadow 0.3s ease';
+                    missedSection.style.boxShadow = '0 0 0 3px rgba(93, 92, 222, 0.3)';
+                    setTimeout(() => {
+                        missedSection.style.boxShadow = '';
+                    }, 2000);
+                }
+            }, 100);
+        }
+
+        // Clear custom questions
+        function clearCustomQuestions() {
+            customQuestions = [];
+            // Remove custom categories that are no longer needed
+            const originalCategories = ["Semiotics", "Gestalt Psychology", "Visual Perception", "Design Elements", "Design Principles"];
+            categories.splice(0, categories.length, ...originalCategories);
+            activeCategories = activeCategories.filter(cat => originalCategories.includes(cat));
+            
+            initializeCategoryCheckboxes();
+            filterQuestions();
+            updateQuestionDisplay();
+            showUploadStatus('Custom questions cleared.');
+        }
+
+        // Start quiz mode directly from settings
+        function startQuizModeFromSettings() {
+            if (questionsData.length === 0) {
+                showUploadStatus('Please select at least one category before starting the quiz.', true);
+                return;
+            }
+            
+            // Switch to quiz mode
+            switchToQuizMode();
+        }
+
+        // Achievements and daily goals functions
+        function updateDailyProgress() {
+            questionsAnsweredToday++;
+            const progress = Math.min(questionsAnsweredToday / dailyGoal, 1);
+            dailyProgressBar.style.width = `${progress * 100}%`;
+            dailyProgressText.textContent = `${questionsAnsweredToday}/${dailyGoal}`;
+            
+            // Update daily dedicated badge
+            const dailyBadge = badges.find(b => b.id === 'daily_dedicated');
+            dailyBadge.progress = questionsAnsweredToday;
+            if (!dailyBadge.unlocked && questionsAnsweredToday >= dailyGoal) {
+                unlockBadge('daily_dedicated');
+            }
+        }
+
+        function updateSessionStats(isCorrect, timeLeft, category) {
+            if (isCorrect) {
+                updateDailyProgress();
+                
+                // Track fast answers (11+ seconds remaining)
+                if (timeLeft >= 11) {
+                    sessionStats.fastAnswers++;
+                    const speedBadge = badges.find(b => b.id === 'speed_demon');
+                    speedBadge.progress = sessionStats.fastAnswers;
+                    if (!speedBadge.unlocked && sessionStats.fastAnswers >= 5) {
+                        unlockBadge('speed_demon');
+                    }
+                }
+                
+                // Track categories mastered
+                sessionStats.categoriesMastered.add(category);
+                const scholarBadge = badges.find(b => b.id === 'scholar');
+                scholarBadge.progress = sessionStats.categoriesMastered.size;
+                if (!scholarBadge.unlocked && sessionStats.categoriesMastered.size >= 5) {
+                    unlockBadge('scholar');
+                }
+                
+                // Track highest streak
+                if (currentStreak > sessionStats.highestStreak) {
+                    sessionStats.highestStreak = currentStreak;
+                    const streakBadge = badges.find(b => b.id === 'streak_master');
+                    streakBadge.progress = sessionStats.highestStreak;
+                    if (!streakBadge.unlocked && sessionStats.highestStreak >= 10) {
+                        unlockBadge('streak_master');
+                    }
+                }
+            }
+        }
+
+        function unlockBadge(badgeId) {
+            const badge = badges.find(b => b.id === badgeId);
+            if (badge && !badge.unlocked) {
+                badge.unlocked = true;
+                showBadgeUnlockNotification(badge);
+                updateBadgesDisplay();
+            }
+        }
+
+        function showBadgeUnlockNotification(badge) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-4 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-500';
+            notification.innerHTML = `
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">${badge.emoji}</span>
+                    <div>
+                        <div class="font-bold">Badge Unlocked!</div>
+                        <div class="text-sm">${badge.name}</div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.style.transform = 'translateX(0)';
+            }, 100);
+            
+            // Animate out and remove
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+
+        function updateBadgesDisplay() {
+            badgesContainer.innerHTML = '';
+            badges.forEach(badge => {
+                const badgeEl = document.createElement('div');
+                const progressPercent = Math.min((badge.progress / badge.target) * 100, 100);
+                badgeEl.className = `p-3 rounded-lg border-2 ${badge.unlocked ? 'bg-green-50 dark:bg-green-900/20 border-green-300 dark:border-green-700' : 'bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-600'}`;
+                
+                badgeEl.innerHTML = `
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-lg ${badge.unlocked ? '' : 'grayscale opacity-50'}">${badge.emoji}</span>
+                            <span class="font-medium text-sm ${badge.unlocked ? 'text-green-800 dark:text-green-300' : 'text-gray-700 dark:text-gray-300'}">${badge.name}</span>
+                        </div>
+                        ${badge.unlocked ? '<span class="text-xs text-green-600 dark:text-green-400">✓</span>' : ''}
+                    </div>
+                    <div class="text-xs text-gray-600 dark:text-gray-400 mb-2">${badge.description}</div>
+                    ${!badge.unlocked ? `
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                            <div class="bg-primary h-1.5 rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                        </div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">${badge.progress}/${badge.target}</div>
+                    ` : ''}
+                `;
+                badgesContainer.appendChild(badgeEl);
+            });
+        }
+
+        function quitGame() {
+            if (!gameActive) return;
+            
+            // Create custom confirmation modal
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quit Game?</h3>
+                    <p class="text-gray-700 dark:text-gray-300 mb-6">Are you sure you want to quit? Your progress in this session will be lost.</p>
+                    <div class="flex justify-end space-x-3">
+                        <button class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" onclick="this.closest('.fixed').remove()">Cancel</button>
+                        <button class="px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded" onclick="this.closest('.fixed').remove(); confirmQuit()">Quit</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        function confirmQuit() {
+            // Stop current game
+            gameActive = false;
+            clearInterval(gameTimer);
+            
+            // Hide quit button and other controls
+            quitButtonContainer.classList.add('hidden');
+            nextBtn.classList.add('hidden');
+            resultMessage.classList.add('hidden');
+            startBtn.classList.remove('hidden');
+            startBtn.textContent = 'Start Quiz';
+            
+            // Show scoring info again
+            const scoringInfo = document.getElementById('scoring-info');
+            scoringInfo.classList.remove('hidden');
+            
+            // Reset session stats
+            sessionStats = {
+                fastAnswers: 0,
+                perfectSession: false,
+                categoriesMastered: new Set(),
+                highestStreak: 0
+            };
+            
+            // Reset score and streak
+            currentQuestion = 0;
+            score = 0;
+            scoreEl.textContent = score;
+            currentStreak = 0;
+            updateStreakDisplay();
+            
+            // Reload the question set
+            filterQuestions();
+            
+            // Switch to settings mode for easy question selection
+            switchToSettingsMode();
+        }
+
+        // Event listeners
+        startBtn.addEventListener('click', () => {
+            // Check if this is a "Play Again" scenario by checking if questions are empty
+            if (questionsData.length === 0) {
+                // Reload the full question set for a new game
+                filterQuestions();
+                // Reset mastered questions for new session
+                masteredQuestions = [];
+                missedCountEl.textContent = 0; // Reset missed count display
+            }
+            
+            // Reset session stats when starting new game
+            sessionStats = {
+                fastAnswers: 0,
+                perfectSession: true, // Assume perfect until proven otherwise
+                categoriesMastered: new Set(),
+                highestStreak: 0
+            };
+            
+            // Show quit button during game
+            quitButtonContainer.classList.remove('hidden');
+            
+            startGame();
+        });
+        nextBtn.addEventListener('click', nextQuestion);
+        quitBtn.addEventListener('click', quitGame);
+        
+        // Achievements panel event listeners
+        achievementsBtn.addEventListener('click', () => {
+            achievementsPanel.classList.toggle('hidden');
+            updateBadgesDisplay();
+        });
+        closeAchievementsBtn.addEventListener('click', () => {
+            achievementsPanel.classList.add('hidden');
+        });
+        quizModeBtn.addEventListener('click', switchToQuizMode);
+        settingsModeBtn.addEventListener('click', switchToSettingsMode);
+        selectAllBtn.addEventListener('click', selectAllCategories);
+        deselectAllBtn.addEventListener('click', deselectAllCategories);
+        startQuizModeBtn.addEventListener('click', startQuizModeFromSettings);
+        practiceMissedBtn.addEventListener('click', practiceMissedQuestions);
+        clearMissedBtn.addEventListener('click', clearMissedQuestions);
+
+        optionBtns.forEach((btn, index) => {
+            btn.addEventListener('click', () => selectAnswer(index));
+        });
+
+        // File upload event listeners
+        uploadArea.addEventListener('click', () => {
+            csvFileInput.click();
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary');
+        });
+
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileUpload(files[0]);
+            }
+        });
+
+        csvFileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileUpload(e.target.files[0]);
+            }
+        });
+
+        // Initialize
+        initializeCategoryCheckboxes();
+        filterQuestions();
+        updateQuestionDisplay();
+    </script>
+
+
+</body></html>
