@@ -1,0 +1,1687 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Frameworks for Higher Education - Interactive Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            /* University of Illinois Official Colors */
+            --illinois-orange: #E84A27;
+            --illinois-blue: #13294B;
+            --illinois-altgeld: #C84113;
+            --industrial-blue: #00467F;
+            --cloud: #E8E9EA;
+            --alma-orange: #F47F20;
+            --heritage-orange: #FF5F05;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fff;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--illinois-blue);
+            color: white;
+            padding: 60px 20px;
+            border-bottom: 4px solid var(--illinois-orange);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .nav-tabs {
+            display: flex;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            overflow-x: auto;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-tab {
+            padding: 16px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #666;
+            transition: all 0.2s;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .nav-tab:hover {
+            color: var(--illinois-blue);
+            background: #f8f9fa;
+        }
+
+        .nav-tab.active {
+            color: var(--illinois-blue);
+            border-bottom-color: var(--illinois-orange);
+            font-weight: 500;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 40px 20px;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Overview Styles */
+        .overview-section {
+            margin-bottom: 60px;
+        }
+
+        .overview-section h2 {
+            color: var(--illinois-blue);
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--illinois-orange);
+        }
+
+        .overview-intro {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .glance-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .glance-box {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 30px;
+        }
+
+        .glance-box h3 {
+            color: var(--illinois-blue);
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--illinois-orange);
+        }
+
+        .framework-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .framework-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .framework-list li:last-child {
+            border-bottom: none;
+        }
+
+        .framework-list-link {
+            color: var(--illinois-blue);
+            text-decoration: none;
+            font-weight: 500;
+            flex: 1;
+            transition: color 0.2s;
+        }
+
+        .framework-list-link:hover {
+            color: var(--illinois-orange);
+        }
+
+        .framework-list-meta {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .year-badge {
+            background: var(--cloud);
+            color: #666;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .category-badge {
+            background: var(--illinois-blue);
+            color: white;
+            padding: 2px 8px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .external-link-icon {
+            color: var(--illinois-orange);
+            font-size: 0.9rem;
+        }
+
+        .recent-item {
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .recent-item:last-child {
+            border-bottom: none;
+        }
+
+        .recent-item-title {
+            color: var(--illinois-blue);
+            font-weight: 500;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+        }
+
+        .recent-item-title a {
+            color: var(--illinois-blue);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .recent-item-title a:hover {
+            color: var(--illinois-orange);
+        }
+
+        .recent-item-meta {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .recent-item-desc {
+            color: #666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            padding-left: 30px;
+            position: relative;
+            font-size: 1.05rem;
+            color: #555;
+        }
+
+        .feature-list li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--illinois-orange);
+            font-size: 1.2rem;
+        }
+
+        /* Card Styles */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .framework-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            padding: 24px;
+            transition: all 0.2s;
+        }
+
+        .framework-card:hover {
+            border-color: var(--illinois-orange);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .framework-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--illinois-blue);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+
+        .framework-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid;
+        }
+
+        .badge-category {
+            background: var(--illinois-blue);
+            color: white;
+            border-color: var(--illinois-blue);
+        }
+
+        .badge-year {
+            background: white;
+            color: var(--illinois-orange);
+            border-color: var(--illinois-orange);
+        }
+
+        .badge-feature {
+            background: white;
+            color: #666;
+            border-color: #ddd;
+        }
+
+        .framework-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .framework-focus {
+            font-weight: 500;
+            color: var(--illinois-blue);
+            margin-bottom: 12px;
+        }
+
+        .framework-description {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 16px;
+        }
+
+        .framework-details h4 {
+            color: var(--illinois-blue);
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .framework-details ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 12px;
+        }
+
+        .framework-details li {
+            padding: 4px 0;
+            padding-left: 20px;
+            position: relative;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .framework-details li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: var(--illinois-orange);
+        }
+
+        .card-footer {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 16px;
+            margin-top: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: var(--illinois-orange);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--illinois-altgeld);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--illinois-blue);
+            border: 1px solid var(--illinois-blue);
+        }
+
+        .btn-secondary:hover {
+            background: var(--illinois-blue);
+            color: white;
+        }
+
+        .btn-link {
+            background: transparent;
+            color: var(--illinois-blue);
+            padding: 4px 8px;
+            font-size: 0.85rem;
+            text-decoration: underline;
+        }
+
+        /* Filter Controls */
+        .filter-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-left: 4px solid var(--illinois-orange);
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--illinois-blue);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--illinois-orange);
+        }
+
+        /* Search */
+        .search-box {
+            margin-bottom: 24px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 1rem;
+            border: 1px solid #ddd;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--illinois-orange);
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline:before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--cloud);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            flex-direction: row;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-content {
+            width: 45%;
+            background: white;
+            padding: 24px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .timeline-date {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--illinois-orange);
+            color: white;
+            padding: 8px 16px;
+            font-weight: 500;
+            z-index: 10;
+        }
+
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th {
+            background: var(--illinois-blue);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .comparison-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        /* Matrix View */
+        .matrix-container {
+            overflow-x: auto;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: 200px repeat(10, minmax(120px, 1fr));
+            gap: 1px;
+            background: #e0e0e0;
+        }
+
+        .matrix-cell {
+            background: white;
+            padding: 16px 10px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        .matrix-header {
+            background: var(--illinois-blue);
+            color: white;
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+        }
+
+        .matrix-row-header {
+            background: #f8f9fa;
+            font-weight: 500;
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .matrix-cell.has-feature {
+            background: #fff3e0;
+        }
+
+        .matrix-cell.has-feature:after {
+            content: "✓";
+            color: var(--illinois-orange);
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        /* Form Styles */
+        .contribute-section {
+            background: #f8f9fa;
+            padding: 40px;
+            border-left: 4px solid var(--illinois-orange);
+            margin-top: 40px;
+        }
+
+        .contribute-section h3 {
+            color: var(--illinois-blue);
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--illinois-blue);
+            font-size: 0.9rem;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--illinois-orange);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 4px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alert {
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+
+        .alert-success {
+            background: #f0f8f0;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #0d47a1;
+        }
+
+        .category-section {
+            margin-bottom: 50px;
+        }
+
+        .category-section h2 {
+            color: var(--illinois-blue);
+            font-size: 1.6rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid var(--illinois-orange);
+        }
+
+        .category-card {
+            background: white;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .category-card h3 {
+            color: var(--illinois-blue);
+            margin-bottom: 12px;
+            font-size: 1.2rem;
+            font-weight: 500;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .glance-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .timeline:before {
+                left: 30px;
+            }
+
+            .timeline-item {
+                flex-direction: column !important;
+                padding-left: 60px;
+            }
+
+            .timeline-content {
+                width: 100%;
+            }
+
+            .timeline-date {
+                left: 30px;
+            }
+
+            .nav-tabs {
+                overflow-x: scroll;
+            }
+
+            .matrix {
+                grid-template-columns: 150px repeat(10, minmax(100px, 1fr));
+            }
+
+            .contribute-section {
+                padding: 24px;
+            }
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Frameworks for Higher Education</h1>
+            <p>An Interactive Resource for Educators and Administrators</p>
+        </header>
+
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="overview">Overview</button>
+            <button class="nav-tab" data-tab="cards">Browse Frameworks</button>
+            <button class="nav-tab" data-tab="timeline">Timeline</button>
+            <button class="nav-tab" data-tab="comparison">Compare</button>
+            <button class="nav-tab" data-tab="matrix">Features</button>
+            <button class="nav-tab" data-tab="category">By Category</button>
+        </nav>
+
+        <!-- Overview Tab -->
+        <div class="tab-content active" id="overview">
+            <div class="overview-section">
+                <h2>About This Resource</h2>
+                <p class="overview-intro">
+                    This interactive database provides a comprehensive overview of frameworks designed to guide the integration of artificial intelligence in higher education. As institutions navigate the rapid evolution of AI technologies—from generative AI tools like ChatGPT to comprehensive institutional AI strategies—these frameworks offer evidence-based guidance for responsible, effective, and ethical implementation.
+                </p>
+                <p class="overview-intro">
+                    The frameworks collected here address diverse aspects of AI integration: from institutional policy and governance to pedagogical design, from assessment strategies to AI literacy development. Whether you're developing institutional policy, redesigning curriculum, or planning professional development, these resources can inform your approach.
+                </p>
+            </div>
+
+            <div class="overview-section">
+                <h2>At a Glance</h2>
+                <div class="glance-grid">
+                    <div class="glance-box">
+                        <h3>All Frameworks (<span id="totalCountDisplay">13</span>)</h3>
+                        <ul class="framework-list" id="allFrameworksList"></ul>
+                    </div>
+                    <div class="glance-box">
+                        <h3>Recent Publications (2023-2025)</h3>
+                        <div id="recentPublications"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overview-section">
+                <h2>Framework Categories</h2>
+                <ul class="feature-list">
+                    <li><strong>Policy &amp; Governance:</strong> Institutional-level frameworks for developing AI policies, ensuring ethical use, and establishing governance structures</li>
+                    <li><strong>Readiness &amp; Implementation:</strong> Tools for assessing institutional readiness and planning strategic AI integration across systems</li>
+                    <li><strong>Pedagogical &amp; Learning Design:</strong> Frameworks focused on course design, assessment strategies, and AI-augmented teaching practices</li>
+                    <li><strong>Literacy &amp; Competency:</strong> Resources for developing AI literacy among students, faculty, and staff</li>
+                    <li><strong>Conceptual &amp; Ethical:</strong> Theoretical frameworks addressing the philosophical and ethical dimensions of AI in education</li>
+                </ul>
+            </div>
+
+            <div class="overview-section">
+                <h2>Key Themes Across Frameworks</h2>
+                <ul class="feature-list">
+                    <li><strong>Human-Centeredness:</strong> Consistent emphasis on AI as augmentation rather than replacement of human teaching and learning</li>
+                    <li><strong>Ethics &amp; Governance:</strong> Attention to transparency, fairness, accountability, and data privacy</li>
+                    <li><strong>Academic Integrity:</strong> Strategies for maintaining integrity while integrating AI into assessment and learning</li>
+                    <li><strong>Equity &amp; Access:</strong> Commitment to universal access and mitigation of algorithmic bias</li>
+                    <li><strong>Continuous Learning:</strong> Recognition that AI integration requires ongoing development and adaptation</li>
+                </ul>
+            </div>
+
+            <div class="overview-section">
+                <h2>How to Use This Resource</h2>
+                <ul class="feature-list">
+                    <li><strong>Browse Frameworks:</strong> Explore all frameworks with filtering and search capabilities</li>
+                    <li><strong>Timeline View:</strong> See how frameworks have evolved from 2019 to 2025</li>
+                    <li><strong>Compare:</strong> Side-by-side comparison of framework characteristics</li>
+                    <li><strong>Feature Matrix:</strong> Visual overview of which frameworks address specific features</li>
+                    <li><strong>By Category:</strong> Frameworks organized by their primary focus area</li>
+                </ul>
+            </div>
+
+            <!-- Contribute Section -->
+            <div class="contribute-section">
+                <h3>Contribute to This Resource</h3>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Know of a framework that should be included? Help us keep this resource comprehensive and current by submitting new frameworks for consideration.
+                </p>
+                
+                <div id="successMessage" class="alert alert-success" style="display: none;">
+                    ✓ Framework submitted successfully! Your contribution has been added to the database.
+                </div>
+
+                <div id="storageWarning" class="alert alert-info" style="display: none;">
+                    ℹ️ Note: Contributions are stored locally in your browser. Use the export function to save your additions.
+                </div>
+
+                <form id="addFrameworkForm">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label>Framework Name *</label>
+                            <input type="text" id="newName" required="" placeholder="Full framework name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Author(s)/Organization *</label>
+                            <input type="text" id="newAuthor" required="" placeholder="Smith, J. (University Name)">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Publication Year *</label>
+                            <input type="number" id="newYear" min="2019" max="2030" required="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select id="newCategory" required="">
+                                <option value="">Select category</option>
+                                <option value="policy">Policy &amp; Governance</option>
+                                <option value="readiness">Readiness &amp; Implementation</option>
+                                <option value="pedagogical">Pedagogical &amp; Learning</option>
+                                <option value="literacy">Literacy &amp; Competency</option>
+                                <option value="conceptual">Conceptual &amp; Ethical</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Primary Focus *</label>
+                        <input type="text" id="newFocus" required="" placeholder="Brief description of main purpose">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="newDescription" required="" placeholder="Comprehensive description of the framework..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label>Key Strength</label>
+                            <input type="text" id="newStrength" placeholder="What makes this framework unique?">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Best For</label>
+                            <input type="text" id="newBestFor" placeholder="Ideal use cases">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label>Link to Framework</label>
+                            <input type="url" id="newLink" placeholder="https://...">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>DOI (if available)</label>
+                            <input type="text" id="newDOI" placeholder="10.xxxx/xxxxx">
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label>Key Areas</label>
+                            <input type="text" id="newKeyAreas" placeholder="Comma-separated list">
+                            <small>e.g., Assessment design, Academic integrity, Training</small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Features</label>
+                            <input type="text" id="newFeatures" placeholder="Comma-separated list">
+                            <small>e.g., Ethics, Assessment, Human-centered</small>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Submit Framework</button>
+                        <button type="reset" class="btn btn-secondary">Clear Form</button>
+                        <button type="button" class="btn btn-secondary" id="exportJSON">Export Data (JSON)</button>
+                        <button type="button" class="btn btn-secondary" id="exportCSV">Export Data (CSV)</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Browse Frameworks Tab -->
+        <div class="tab-content" id="cards">
+            <div class="search-box">
+                <input type="text" id="cardSearch" placeholder="Search frameworks...">
+            </div>
+            
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label>Category</label>
+                    <select id="categoryFilter">
+                        <option value="">All Categories</option>
+                        <option value="policy">Policy &amp; Governance</option>
+                        <option value="readiness">Readiness &amp; Implementation</option>
+                        <option value="pedagogical">Pedagogical &amp; Learning</option>
+                        <option value="literacy">Literacy &amp; Competency</option>
+                        <option value="conceptual">Conceptual &amp; Ethical</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Year</label>
+                    <select id="yearFilter">
+                        <option value="">All Years</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2019-2020">2019-2020</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Sort By</label>
+                    <select id="sortFilter">
+                        <option value="year-desc">Newest First</option>
+                        <option value="year-asc">Oldest First</option>
+                        <option value="name">Name (A-Z)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="cards-grid" id="cardsGrid"></div>
+        </div>
+
+        <!-- Timeline Tab -->
+        <div class="tab-content" id="timeline">
+            <h2 style="color: var(--illinois-blue); font-weight: 400; margin-bottom: 30px; text-align: center;">Framework Development Timeline</h2>
+            <div class="timeline" id="timelineContent"></div>
+        </div>
+
+        <!-- Comparison Table Tab -->
+        <div class="tab-content" id="comparison">
+            <div class="search-box">
+                <input type="text" id="tableSearch" placeholder="Search table...">
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th>Framework</th>
+                            <th>Year</th>
+                            <th>Category</th>
+                            <th>Primary Focus</th>
+                            <th>Key Strength</th>
+                            <th>Best For</th>
+                            <th>Links</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Feature Matrix Tab -->
+        <div class="tab-content" id="matrix">
+            <h2 style="color: var(--illinois-blue); font-weight: 400; margin-bottom: 20px;">Feature Coverage Matrix</h2>
+            <p style="margin-bottom: 20px; color: #666;">Checkmarks indicate which frameworks address specific features</p>
+            <div class="matrix-container">
+                <div class="matrix" id="featureMatrix"></div>
+            </div>
+        </div>
+
+        <!-- Category View Tab -->
+        <div class="tab-content" id="category">
+            <div id="categoryView"></div>
+        </div>
+    </div>
+
+    <script>
+        // Framework Data
+        const defaultFrameworks = [
+            {
+                name: "AI Ecological Education Policy Framework",
+                year: 2023,
+                author: "Chan, C.K.Y.",
+                category: "policy",
+                focus: "Comprehensive institutional policy with three dimensions",
+                description: "Evidence-based framework from 457 students and 180 faculty/staff in Hong Kong universities. Organizes AI policy into Pedagogical (teacher-led), Governance (senior management-led), and Operational (IT/staff-led) dimensions.",
+                keyAreas: ["Academic misconduct prevention", "Data governance", "Equity in access", "Assessment redesign", "Training & support"],
+                strength: "Most comprehensive, evidence-based with clear responsibility assignments across stakeholder groups",
+                bestFor: "Institutional policy development with stakeholder buy-in",
+                features: ["Ethics", "Assessment", "Training", "Governance", "Equity", "Evidence-based"],
+                link: "https://educationaltechnologyjournal.springeropen.com/articles/10.1186/s41239-023-00408-3",
+                doi: "10.1186/s41239-023-00408-3"
+            },
+            {
+                name: "ETHICAL Principles Framework",
+                year: 2025,
+                author: "Wynants, Childers, De La Torre, Budar-Turner, Vasquez (CSU Fullerton)",
+                category: "policy",
+                focus: "Seven guiding principles for responsible AI use",
+                description: "Flexible framework with seven pillars: Exploration & Evaluation, Transparency & Accountability, Human-Centered Approach, Integrity & Academic Honesty, Continuous Learning, Accessibility & Inclusivity, Legal & Ethical Compliance.",
+                keyAreas: ["Critical assessment", "Open communication", "Human judgment", "Academic honesty", "AI literacy"],
+                strength: "Highly adaptable with practical application strategies for different stakeholders",
+                bestFor: "Departmental adaptation with customization needs",
+                features: ["Ethics", "Transparency", "Human-centered", "Accessibility", "Training"],
+                link: "https://genai.calstate.edu/communities/faculty/ethical-and-responsible-use-ai/ethical-principles-ai-framework-higher-education"
+            },
+            {
+                name: "UNESCO AI & Education Guidelines",
+                year: 2021,
+                author: "UNESCO",
+                category: "policy",
+                focus: "Humanistic approach to AI in education globally",
+                description: "High-level guidance for policymakers focusing on human rights, sustainable development (SDG 4), and ethical AI use. Five key recommendations for interdisciplinary planning, equitable policies, master planning, pilot testing, and local innovation.",
+                keyAreas: ["Human rights", "Sustainable development", "Interdisciplinary planning", "Equity", "Local innovation"],
+                strength: "International scope with SDG alignment; authoritative source",
+                bestFor: "High-level policy direction and international alignment",
+                features: ["Ethics", "Equity", "Human-centered", "Policy"],
+                link: "https://unesdoc.unesco.org/ark:/48223/pf0000376709"
+            },
+            {
+                name: "AI Readiness Framework",
+                year: 2025,
+                author: "DEC AI Working Group",
+                category: "readiness",
+                focus: "Ten dimensions for institutional AI readiness assessment",
+                description: "Comprehensive readiness assessment with ten dimensions, four guiding principles, and maturity levels. Designed for both short-term (18-20 months) and long-term strategic planning.",
+                keyAreas: ["Maturity assessment", "Strategic roadmapping", "Capability building", "Infrastructure planning"],
+                strength: "Structured benchmarking and roadmap development with clear progression levels",
+                bestFor: "Institutional self-assessment and strategic planning",
+                features: ["Assessment", "Planning", "Infrastructure", "Training"],
+                link: "https://www.digitaleducationcouncil.com/executive-briefings-event/getting-ready-for-ai-ai-readiness-framework-by-the-dec-ai-working-group-dec-executive-briefing-017"
+            },
+            {
+                name: "AI Integration Framework",
+                year: 2021,
+                author: "Workforce EdTech",
+                category: "readiness",
+                focus: "Six dimensions for AI in adult education and training",
+                description: "Framework spanning higher education and professional learning contexts. Six dimensions: AI capabilities & learning goals, mitigating biases, ethics & data use, human oversight, evidence of impact, ease of use.",
+                keyAreas: ["Learning alignment", "Bias mitigation", "Human oversight", "Impact evidence", "Usability"],
+                strength: "Cross-sector applicability (higher ed and workforce development)",
+                bestFor: "Adult education and professional learning contexts",
+                features: ["Ethics", "Assessment", "Human-centered", "Bias mitigation"],
+                link: "https://workforceedtech.org/ai-integration-framework/"
+            },
+            {
+                name: "Framework for AI-Powered Learning Environments",
+                year: 2024,
+                author: "NCEE",
+                category: "readiness",
+                focus: "Strategic approach from other sectors' best practices",
+                description: "Draws on successful AI implementation in other sectors to inform education strategy. Focuses on system-level transformation and learning environment design.",
+                keyAreas: ["System transformation", "Learning design", "Technology integration", "Strategic planning"],
+                strength: "Cross-industry insights applied to education contexts",
+                bestFor: "System-level transformation planning",
+                features: ["Planning", "Innovation", "Infrastructure"],
+                link: "https://ncee.org/framework-for-ai-powered-learning-environments/"
+            },
+            {
+                name: "AI-ALOE (AI-Augmented Learning Outcome Evaluation)",
+                year: 2024,
+                author: "Darvishi, F., Khosravi, H., Sadiq, S., Weber, B., Gasevic, D.",
+                category: "pedagogical",
+                focus: "AI-augmented framework for learning outcome evaluation and alignment",
+                description: "Comprehensive framework designed to support educators in aligning learning outcomes with assessment and pedagogical activities using AI assistance. Provides structured guidance for outcome definition, activity design, and assessment alignment while maintaining human oversight.",
+                keyAreas: ["Learning outcome alignment", "Assessment design", "Pedagogical activities", "AI-assisted evaluation", "Curriculum mapping"],
+                strength: "Systematic approach to learning outcome alignment with AI augmentation",
+                bestFor: "Course design, curriculum alignment, and assessment planning",
+                features: ["Assessment", "AI augmentation", "Learning outcomes", "Human-centered"],
+                link: "https://arxiv.org/abs/2404.01738"
+            },
+            {
+                name: "AI Assessment Scale (AIAS)",
+                year: 2024,
+                author: "Furze, L., Perkins, M., Roe, J., MacVaugh, J.",
+                category: "pedagogical",
+                focus: "Five-level scale for AI use in assessments",
+                description: "Practical tool with demonstrated outcomes: 5.9% increase in student attainment, 33.3% increase in pass rates, reduced misconduct at British University Vietnam. Levels range from 'No AI' to 'Full AI'.",
+                keyAreas: ["Assessment design", "Scaffolding AI use", "Academic integrity", "Student outcomes"],
+                strength: "Evidence-based with proven results; practical implementation guidance",
+                bestFor: "Assessment design and scaffolding AI integration",
+                features: ["Assessment", "Evidence-based", "Academic integrity"],
+                link: "https://arxiv.org/abs/2403.14692",
+                doi: "10.14742/ajet.9434"
+            },
+            {
+                name: "Human-Centric AI-First (HCAIF)",
+                year: 2025,
+                author: "Verhoeven, B., Hor, T. (Newcastle Business School / AACSB)",
+                category: "pedagogical",
+                focus: "Five-pillar pedagogical framework with AI as augmentation",
+                description: "Developed for entrepreneurship education at Newcastle Business School. Five pillars: Preparation, Personalized Learning, Classroom Engagement, Summative Assessment, Personalized Monitoring. Emphasizes Attribution and Reflection.",
+                keyAreas: ["Course preparation", "Personalization", "Engagement", "Assessment", "Monitoring"],
+                strength: "Detailed pedagogical implementation with tested examples",
+                bestFor: "Course design with AI augmentation focus",
+                features: ["Assessment", "Training", "Human-centered", "Personalization"],
+                link: "https://www.aacsb.edu/insights/articles/2025/02/a-framework-for-human-centric-ai-first-teaching"
+            },
+            {
+                name: "AI Literacy in Teaching & Learning (ALTL)",
+                year: 2024,
+                author: "EDUCAUSE",
+                category: "literacy",
+                focus: "Four dimensions of AI literacy for higher education",
+                description: "Defines AI literacy across technical understanding, evaluative skills, practical application, and ethical awareness. Provides clarity for professional development and curriculum design.",
+                keyAreas: ["Technical understanding", "Evaluation skills", "Practical application", "Ethical awareness"],
+                strength: "Clear literacy definitions suitable for diverse stakeholder groups",
+                bestFor: "Professional development and curriculum planning",
+                features: ["Training", "Ethics", "Literacy"],
+                link: "https://www.educause.edu/content/2024/ai-literacy-in-teaching-and-learning"
+            },
+            {
+                name: "AI Literacy Heptagon",
+                year: 2023,
+                author: "Various researchers",
+                category: "literacy",
+                focus: "Seven dimensions of AI literacy for higher education",
+                description: "Comprehensive literacy model covering technical, applicational, critical, ethical, social, integrational, and legal dimensions. Rich decomposition of literacy concept.",
+                keyAreas: ["Technical literacy", "Application skills", "Critical thinking", "Ethics", "Social impact", "Integration", "Legal awareness"],
+                strength: "Most comprehensive literacy decomposition for curriculum scaffolding",
+                bestFor: "Detailed curriculum development and competency mapping",
+                features: ["Training", "Ethics", "Literacy", "Legal compliance"],
+                link: "https://arxiv.org/abs/2509.18900"
+            },
+            {
+                name: "Human-Driven AI in Higher Education (HD-AIHED)",
+                year: 2025,
+                author: "Mahajan, P.",
+                category: "conceptual",
+                focus: "Participatory, ethical approach to AI governance",
+                description: "Emphasizes AI as collaborative enabler, not replacement. Includes participatory integrated co-system, phased human intelligence, SWOC analysis, and ethical review boards. Complies with UNESCO and OECD ethical standards.",
+                keyAreas: ["Participatory governance", "Ethical oversight", "Human intelligence phasing", "Collaborative AI"],
+                strength: "Strong governance and ethical oversight mechanisms",
+                bestFor: "Governance structures and institutional ethos development",
+                features: ["Ethics", "Governance", "Human-centered", "Collaboration"],
+                link: "https://arxiv.org/abs/2503.04751"
+            },
+            {
+                name: "AAI-HE Model",
+                year: 2021,
+                author: "Jantakun, T., Jantakun, K., Jantakoon, T.",
+                category: "conceptual",
+                focus: "Seven-component technical architecture for AI in HE",
+                description: "Technical framework covering user interaction, AI components/technology, AI roles in education, machine learning/deep learning, decision support modules, AI applications, and campus efficiencies.",
+                keyAreas: ["System architecture", "Technical infrastructure", "AI roles", "Campus operations", "Decision support"],
+                strength: "Detailed technical architecture for infrastructure planning",
+                bestFor: "IT infrastructure planning and technical implementation",
+                features: ["Infrastructure", "Technical architecture", "Operations"],
+                link: "https://files.eric.ed.gov/fulltext/EJ1319500.pdf",
+                doi: "10.5539/ies.v14n11p94"
+            }
+        ];
+
+        let frameworks = [];
+
+        const features = [
+            "Ethics & Governance",
+            "Assessment Design",
+            "Training & Support",
+            "Human-Centered",
+            "Equity & Access",
+            "Evidence-based",
+            "Academic Integrity",
+            "Transparency",
+            "Infrastructure",
+            "Bias Mitigation"
+        ];
+
+        // Storage wrapper
+        const storage = {
+            isAvailable: false,
+            
+            init() {
+                try {
+                    const test = '__storage_test__';
+                    localStorage.setItem(test, test);
+                    localStorage.removeItem(test);
+                    this.isAvailable = true;
+                } catch(e) {
+                    this.isAvailable = false;
+                }
+            },
+            
+            getItem(key) {
+                if (this.isAvailable) {
+                    try {
+                        return localStorage.getItem(key);
+                    } catch(e) {
+                        return null;
+                    }
+                }
+                return null;
+            },
+            
+            setItem(key, value) {
+                if (this.isAvailable) {
+                    try {
+                        localStorage.setItem(key, value);
+                        return true;
+                    } catch(e) {
+                        return false;
+                    }
+                }
+                return false;
+            }
+        };
+
+        function loadFrameworks() {
+            storage.init();
+            const saved = storage.getItem('aiFrameworks');
+            if (saved) {
+                try {
+                    frameworks = JSON.parse(saved);
+                } catch (e) {
+                    frameworks = [...defaultFrameworks];
+                }
+            } else {
+                frameworks = [...defaultFrameworks];
+            }
+            updateStats();
+            renderGlanceSection();
+            if (!storage.isAvailable) {
+                const warning = document.getElementById('storageWarning');
+                if (warning) warning.style.display = 'block';
+            }
+        }
+
+        function saveFrameworks() {
+            storage.setItem('aiFrameworks', JSON.stringify(frameworks));
+            updateStats();
+            renderGlanceSection();
+        }
+
+        function updateStats() {
+            document.getElementById('totalCountDisplay').textContent = frameworks.length;
+        }
+
+        function renderGlanceSection() {
+            // Render all frameworks list
+            const allFrameworksList = document.getElementById('allFrameworksList');
+            const sortedFrameworks = [...frameworks].sort((a, b) => a.name.localeCompare(b.name));
+            
+            allFrameworksList.innerHTML = sortedFrameworks.map(fw => `
+                <li>
+                    <a href="${fw.link || '#'}" 
+                       target="${fw.link ? '_blank' : '_self'}" 
+                       rel="noopener noreferrer" 
+                       class="framework-list-link"
+                       ${!fw.link ? 'onclick="return false;" style="cursor: default; color: #999;"' : ''}>
+                        ${fw.name}
+                    </a>
+                    <div class="framework-list-meta">
+                        <span class="year-badge">${fw.year}</span>
+                        <span class="category-badge">${getCategoryAbbrev(fw.category)}</span>
+                        ${fw.link ? '<span class="external-link-icon">↗</span>' : ''}
+                    </div>
+                </li>
+            `).join('');
+
+            // Render recent publications
+            const recentPublications = document.getElementById('recentPublications');
+            const recentFrameworks = frameworks
+                .filter(fw => fw.year >= 2023)
+                .sort((a, b) => b.year - a.year);
+            
+            recentPublications.innerHTML = recentFrameworks.map(fw => `
+                <div class="recent-item">
+                    <div class="recent-item-title">
+                        ${fw.link ? 
+                            `<a href="${fw.link}" target="_blank" rel="noopener noreferrer">${fw.name}</a>` : 
+                            fw.name
+                        }
+                    </div>
+                    <div class="recent-item-meta">${fw.author} • ${fw.year} • ${getCategoryLabel(fw.category)}</div>
+                    <div class="recent-item-desc">${fw.focus}</div>
+                </div>
+            `).join('');
+        }
+
+        function getCategoryAbbrev(category) {
+            const abbrevs = {
+                policy: "POL",
+                readiness: "READ",
+                pedagogical: "PED",
+                literacy: "LIT",
+                conceptual: "CON"
+            };
+            return abbrevs[category] || category;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            loadFrameworks();
+            initializeTabs();
+            renderCards(frameworks);
+            renderTimeline();
+            renderComparisonTable();
+            renderFeatureMatrix();
+            renderCategoryView();
+            initializeFilters();
+            initializeContribute();
+        });
+
+        function initializeTabs() {
+            const tabs = document.querySelectorAll('.nav-tab');
+            const contents = document.querySelectorAll('.tab-content');
+
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetId = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    contents.forEach(c => c.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById(targetId).classList.add('active');
+                });
+            });
+        }
+
+        function renderCards(frameworksToRender) {
+            const grid = document.getElementById('cardsGrid');
+            grid.innerHTML = '';
+
+            if (frameworksToRender.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666; padding: 40px;">No frameworks match your filters.</p>';
+                return;
+            }
+
+            frameworksToRender.forEach(fw => {
+                const card = document.createElement('div');
+                card.className = 'framework-card';
+                
+                const linksHTML = fw.link ? `
+                    <div class="card-footer">
+                        <a href="${fw.link}" target="_blank" rel="noopener noreferrer" class="btn btn-primary">View Framework</a>
+                        ${fw.doi ? `<a href="https://doi.org/${fw.doi}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">DOI</a>` : ''}
+                    </div>
+                ` : '';
+
+                card.innerHTML = `
+                    <div class="framework-title">${fw.name}</div>
+                    <div class="framework-meta">
+                        <span class="badge badge-category">${getCategoryLabel(fw.category)}</span>
+                        <span class="badge badge-year">${fw.year}</span>
+                    </div>
+                    <p class="framework-author">${fw.author}</p>
+                    <div class="framework-focus">${fw.focus}</div>
+                    <div class="framework-description">${fw.description}</div>
+                    <div class="framework-details">
+                        <h4>Key Areas</h4>
+                        <ul>
+                            ${fw.keyAreas.slice(0, 5).map(area => `<li>${area}</li>`).join('')}
+                        </ul>
+                        ${fw.strength ? `<h4>Strength</h4><p>${fw.strength}</p>` : ''}
+                        ${fw.bestFor ? `<h4>Best For</h4><p>${fw.bestFor}</p>` : ''}
+                    </div>
+                    <div style="margin-top: 16px; display: flex; flex-wrap: wrap; gap: 6px;">
+                        ${fw.features.slice(0, 4).map(f => `<span class="badge badge-feature">${f}</span>`).join('')}
+                    </div>
+                    ${linksHTML}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderTimeline() {
+            const timeline = document.getElementById('timelineContent');
+            const sorted = [...frameworks].sort((a, b) => a.year - b.year);
+            timeline.innerHTML = '';
+            
+            sorted.forEach((fw) => {
+                const item = document.createElement('div');
+                item.className = 'timeline-item';
+                const linkButton = fw.link ? 
+                    `<a href="${fw.link}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary" style="margin-top: 12px;">View Framework</a>` : '';
+
+                item.innerHTML = `
+                    <div class="timeline-date">${fw.year}</div>
+                    <div class="timeline-content">
+                        <h3 style="color: var(--illinois-blue); margin-bottom: 8px; font-size: 1.2rem; font-weight: 500;">${fw.name}</h3>
+                        <p style="color: #666; margin-bottom: 12px; font-style: italic;">${fw.author}</p>
+                        <p style="margin-bottom: 12px;">${fw.description}</p>
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                            <span class="badge badge-category">${getCategoryLabel(fw.category)}</span>
+                            ${fw.features.slice(0, 3).map(f => `<span class="badge badge-feature">${f}</span>`).join('')}
+                        </div>
+                        ${linkButton}
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+        }
+
+        function renderComparisonTable() {
+            const tbody = document.querySelector('#comparisonTable tbody');
+            tbody.innerHTML = '';
+            
+            frameworks.forEach(fw => {
+                const row = document.createElement('tr');
+                const linksCell = fw.link ? 
+                    `<a href="${fw.link}" target="_blank" rel="noopener noreferrer" class="btn btn-link">View</a>${fw.doi ? `<br><a href="https://doi.org/${fw.doi}" target="_blank" rel="noopener noreferrer" class="btn btn-link">DOI</a>` : ''}` 
+                    : '—';
+
+                row.innerHTML = `
+                    <td><strong>${fw.name}</strong><br><small style="color: #666;">${fw.author}</small></td>
+                    <td>${fw.year}</td>
+                    <td>${getCategoryLabel(fw.category)}</td>
+                    <td>${fw.focus}</td>
+                    <td>${fw.strength || '—'}</td>
+                    <td>${fw.bestFor || '—'}</td>
+                    <td>${linksCell}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function renderFeatureMatrix() {
+            const matrix = document.getElementById('featureMatrix');
+            let html = '<div class="matrix-cell matrix-header">Framework</div>';
+            features.forEach(feature => {
+                html += `<div class="matrix-cell matrix-header">${feature}</div>`;
+            });
+            
+            frameworks.forEach(fw => {
+                html += `<div class="matrix-cell matrix-row-header">${fw.name}</div>`;
+                features.forEach(feature => {
+                    const hasFeature = checkFeature(fw, feature);
+                    html += `<div class="matrix-cell ${hasFeature ? 'has-feature' : ''}"></div>`;
+                });
+            });
+            matrix.innerHTML = html;
+        }
+
+        function checkFeature(framework, feature) {
+            const featureMap = {
+                "Ethics & Governance": ["Ethics", "Governance", "Legal compliance"],
+                "Assessment Design": ["Assessment", "Academic integrity"],
+                "Training & Support": ["Training", "Literacy"],
+                "Human-Centered": ["Human-centered"],
+                "Equity & Access": ["Equity", "Accessibility"],
+                "Evidence-based": ["Evidence-based"],
+                "Academic Integrity": ["Academic integrity"],
+                "Transparency": ["Transparency"],
+                "Infrastructure": ["Infrastructure", "Technical architecture"],
+                "Bias Mitigation": ["Bias mitigation"]
+            };
+            const keywords = featureMap[feature] || [];
+            return framework.features.some(f => 
+                keywords.some(k => f.toLowerCase().includes(k.toLowerCase()))
+            );
+        }
+
+        function renderCategoryView() {
+            const container = document.getElementById('categoryView');
+            const categories = {
+                policy: "Policy & Governance Frameworks",
+                readiness: "Readiness & Implementation Frameworks",
+                pedagogical: "Pedagogical & Learning Design Frameworks",
+                literacy: "Literacy & Competency Frameworks",
+                conceptual: "Conceptual & Ethical Frameworks"
+            };
+
+            container.innerHTML = '';
+            Object.entries(categories).forEach(([key, label]) => {
+                const categoryFrameworks = frameworks.filter(f => f.category === key);
+                const section = document.createElement('div');
+                section.className = 'category-section';
+                section.innerHTML = `
+                    <h2>${label} (${categoryFrameworks.length})</h2>
+                    <div>
+                        ${categoryFrameworks.map(fw => {
+                            const linkButton = fw.link ? 
+                                `<a href="${fw.link}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="margin-top: 12px;">View Framework</a>` : '';
+                            return `
+                            <div class="category-card">
+                                <h3>${fw.name} <span style="color: #999; font-size: 0.9rem; font-weight: 400;">(${fw.year})</span></h3>
+                                <p style="color: #666; margin-bottom: 12px; font-style: italic;">${fw.author}</p>
+                                <p style="color: #666; margin-bottom: 8px;"><strong>Focus:</strong> ${fw.focus}</p>
+                                <p style="margin-bottom: 12px;">${fw.description}</p>
+                                ${fw.bestFor ? `<p style="color: #666;"><strong>Best For:</strong> ${fw.bestFor}</p>` : ''}
+                                <div style="margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px;">
+                                    ${fw.features.map(f => `<span class="badge badge-feature">${f}</span>`).join('')}
+                                </div>
+                                ${linkButton}
+                            </div>
+                        `}).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        function initializeFilters() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            const yearFilter = document.getElementById('yearFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const cardSearch = document.getElementById('cardSearch');
+            const tableSearch = document.getElementById('tableSearch');
+
+            function applyFilters() {
+                let filtered = [...frameworks];
+                
+                if (categoryFilter.value) {
+                    filtered = filtered.filter(f => f.category === categoryFilter.value);
+                }
+                
+                if (yearFilter.value) {
+                    if (yearFilter.value === '2019-2020') {
+                        filtered = filtered.filter(f => f.year >= 2019 && f.year <= 2020);
+                    } else {
+                        filtered = filtered.filter(f => f.year === parseInt(yearFilter.value));
+                    }
+                }
+                
+                if (cardSearch.value) {
+                    const searchTerm = cardSearch.value.toLowerCase();
+                    filtered = filtered.filter(f => 
+                        f.name.toLowerCase().includes(searchTerm) ||
+                        f.description.toLowerCase().includes(searchTerm) ||
+                        f.focus.toLowerCase().includes(searchTerm) ||
+                        f.author.toLowerCase().includes(searchTerm) ||
+                        f.keyAreas.some(area => area.toLowerCase().includes(searchTerm))
+                    );
+                }
+
+                if (sortFilter.value === 'year-desc') {
+                    filtered.sort((a, b) => b.year - a.year);
+                } else if (sortFilter.value === 'year-asc') {
+                    filtered.sort((a, b) => a.year - b.year);
+                } else if (sortFilter.value === 'name') {
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+                }
+                
+                renderCards(filtered);
+            }
+
+            categoryFilter.addEventListener('change', applyFilters);
+            yearFilter.addEventListener('change', applyFilters);
+            sortFilter.addEventListener('change', applyFilters);
+            cardSearch.addEventListener('input', applyFilters);
+
+            tableSearch.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const rows = document.querySelectorAll('#comparisonTable tbody tr');
+                rows.forEach(row => {
+                    const text = row.textContent.toLowerCase();
+                    row.style.display = text.includes(searchTerm) ? '' : 'none';
+                });
+            });
+        }
+
+        function initializeContribute() {
+            const form = document.getElementById('addFrameworkForm');
+            
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const keyAreasInput = document.getElementById('newKeyAreas').value;
+                const keyAreas = keyAreasInput ? keyAreasInput.split(',').map(s => s.trim()) : [];
+                
+                const featuresInput = document.getElementById('newFeatures').value;
+                const featuresArray = featuresInput ? featuresInput.split(',').map(s => s.trim()) : [];
+                
+                const newFramework = {
+                    name: document.getElementById('newName').value,
+                    author: document.getElementById('newAuthor').value,
+                    year: parseInt(document.getElementById('newYear').value),
+                    category: document.getElementById('newCategory').value,
+                    focus: document.getElementById('newFocus').value,
+                    description: document.getElementById('newDescription').value,
+                    strength: document.getElementById('newStrength').value,
+                    bestFor: document.getElementById('newBestFor').value,
+                    link: document.getElementById('newLink').value,
+                    doi: document.getElementById('newDOI').value,
+                    keyAreas: keyAreas,
+                    features: featuresArray
+                };
+                
+                frameworks.push(newFramework);
+                saveFrameworks();
+                
+                renderCards(frameworks);
+                renderTimeline();
+                renderComparisonTable();
+                renderFeatureMatrix();
+                renderCategoryView();
+                
+                form.reset();
+                const successMsg = document.getElementById('successMessage');
+                successMsg.style.display = 'block';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 5000);
+            });
+
+            document.getElementById('exportJSON').addEventListener('click', function() {
+                const dataStr = JSON.stringify(frameworks, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'ai-frameworks-' + new Date().toISOString().split('T')[0] + '.json';
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+
+            document.getElementById('exportCSV').addEventListener('click', function() {
+                const headers = ['Name', 'Author', 'Year', 'Category', 'Focus', 'Description', 'Strength', 'Best For', 'Link', 'DOI', 'Key Areas', 'Features'];
+                const rows = frameworks.map(f => [
+                    f.name, f.author, f.year, f.category, f.focus, f.description,
+                    f.strength || '', f.bestFor || '', f.link || '', f.doi || '',
+                    f.keyAreas.join('; '), f.features.join('; ')
+                ]);
+                
+                const csvContent = [
+                    headers.join(','),
+                    ...rows.map(row => row.map(cell => `"${cell.toString().replace(/"/g, '""')}"`).join(','))
+                ].join('\n');
+                
+                const dataBlob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = 'ai-frameworks-' + new Date().toISOString().split('T')[0] + '.csv';
+                link.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        function getCategoryLabel(category) {
+            const labels = {
+                policy: "Policy & Governance",
+                readiness: "Readiness & Implementation",
+                pedagogical: "Pedagogical & Learning",
+                literacy: "Literacy & Competency",
+                conceptual: "Conceptual & Ethical"
+            };
+            return labels[category] || category;
+        }
+    </script>
+
+
+</body></html>
