@@ -1,0 +1,1737 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyMaster - Interactive Learning Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                        secondary: '#8B5CF6',
+                        accent: '#06D6A0',
+                        warning: '#FFD166',
+                        danger: '#F72585'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .flip-card {
+            perspective: 1000px;
+        }
+        .flip-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+        .flip-card-front, .flip-card-back {
+            backface-visibility: hidden;
+        }
+        .flip-card-back {
+            transform: rotateY(180deg);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            transition: stroke-dasharray 0.35s;
+        }
+        @keyframes bounce-in {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .bounce-in {
+            animation: bounce-in 0.6s ease-out;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen transition-colors duration-300">
+    <!-- Header -->
+    <header class="bg-primary text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-brain text-2xl"></i>
+                    <h1 class="text-2xl font-bold">StudyMaster</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2 bg-white/20 rounded-full px-3 py-1">
+                        <i class="fas fa-star text-warning"></i>
+                        <span id="totalScore" class="font-semibold">0</span>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-white/20 rounded-full px-3 py-1">
+                        <i class="fas fa-fire text-orange-400"></i>
+                        <span id="streak" class="font-semibold">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-6 max-w-4xl">
+        <!-- Study Set Management -->
+        <div id="studySetManagement" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-folder-open mr-2 text-primary"></i>
+                Study Sets
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="studySetName" placeholder="Study set name" class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-base dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent">
+                <button onclick="createStudySet()" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+                    <i class="fas fa-plus mr-2"></i>Create Set
+                </button>
+            </div>
+
+            <div id="studySets" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- Study Mode Selection -->
+        <div id="modeSelection" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-graduation-cap mr-2 text-secondary"></i>
+                Choose Study Mode
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <button onclick="startMode('flashcards')" class="mode-btn bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-cards-blank text-2xl mb-2"></i>
+                    <div class="font-semibold">Flashcards</div>
+                    <div class="text-sm opacity-90">Single card review</div>
+                </button>
+                <button onclick="startMode('memory')" class="mode-btn bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-brain text-2xl mb-2"></i>
+                    <div class="font-semibold">Memory Game</div>
+                    <div class="text-sm opacity-90">Match terms to definitions</div>
+                </button>
+                <button onclick="startMode('quiz')" class="mode-btn bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-question-circle text-2xl mb-2"></i>
+                    <div class="font-semibold">Quiz Mode</div>
+                    <div class="text-sm opacity-90">Test yourself</div>
+                </button>
+                <button onclick="startMode('match')" class="mode-btn bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-puzzle-piece text-2xl mb-2"></i>
+                    <div class="font-semibold">Match Game</div>
+                    <div class="text-sm opacity-90">Connect pairs</div>
+                </button>
+                <button onclick="startMode('spaced')" class="mode-btn bg-gradient-to-r from-orange-500 to-orange-600 text-white p-4 rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-clock text-2xl mb-2"></i>
+                    <div class="font-semibold">Spaced Review</div>
+                    <div class="text-sm opacity-90">Smart repetition</div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Add Terms Section -->
+        <div id="addTermsSection" class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6 hidden">
+            <h2 class="text-xl font-bold mb-4 flex items-center">
+                <i class="fas fa-plus-circle mr-2 text-accent"></i>
+                Add Terms
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <input type="text" id="termInput" placeholder="Term or concept" class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-base dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent">
+                <input type="text" id="definitionInput" placeholder="Definition or explanation" class="border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-base dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+            <div class="flex gap-3">
+                <button onclick="addTerm()" class="bg-accent text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+                    <i class="fas fa-plus mr-2"></i>Add Term
+                </button>
+                <button onclick="bulkImport()" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+                    <i class="fas fa-upload mr-2"></i>Bulk Import
+                </button>
+            </div>
+            
+            <div id="termsList" class="mt-6"></div>
+        </div>
+
+        <!-- Study Interface -->
+        <div id="studyInterface" class="hidden">
+            <!-- Flashcard Mode -->
+            <div id="flashcardMode" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Flashcard Review</h2>
+                        <div class="flex items-center space-x-4">
+                            <span id="cardProgress" class="text-sm text-gray-600 dark:text-gray-400"></span>
+                            <button onclick="endStudy()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Progress bars -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="flex items-center space-x-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-green-500 rounded"></div>
+                                    <span class="text-sm">Win Pile: <span id="winCount">0</span></span>
+                                </div>
+                                <div class="flex items-center space-x-2">
+                                    <div class="w-4 h-4 bg-yellow-500 rounded"></div>
+                                    <span class="text-sm">Review Pile: <span id="reviewCount">0</span></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div id="progressBar" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Flashcard Grid -->
+                    <div id="flashcardGrid" class="grid grid-cols-3 gap-4 mb-6"></div>
+                    
+                    <!-- Next Round Button -->
+                    <div id="nextRoundSection" class="text-center hidden">
+                        <p class="text-gray-600 dark:text-gray-400 mb-4">Round complete! <span id="roundSummary"></span></p>
+                        <button onclick="startNextRound()" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+                            <i class="fas fa-arrow-right mr-2"></i>Next Round
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Mode -->
+            <div id="quizMode" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Quiz Challenge</h2>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <svg class="progress-ring w-12 h-12">
+                                    <circle class="progress-ring-circle stroke-gray-300" stroke-width="3" fill="transparent" r="18" cx="24" cy="24"></circle>
+                                    <circle id="progressCircle" class="progress-ring-circle stroke-primary" stroke-width="3" fill="transparent" r="18" cx="24" cy="24"></circle>
+                                </svg>
+                                <span id="quizProgress" class="text-sm font-medium"></span>
+                            </div>
+                            <button onclick="endStudy()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="quizQuestion" class="mb-6">
+                        <div class="text-lg font-semibold mb-4" id="questionText"></div>
+                        <div id="quizOptions" class="space-y-3"></div>
+                    </div>
+
+                    <div id="quizResult" class="hidden mb-6">
+                        <div id="resultMessage" class="text-center py-4"></div>
+                        <button onclick="nextQuestion()" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-opacity-90 transition-colors font-medium">
+                            Next Question
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Match Game Mode -->
+            <div id="matchMode" class="hidden">
+                <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold">Match Game</h2>
+                        <div class="flex items-center space-x-4">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-clock text-primary"></i>
+                                <span id="gameTimer" class="font-mono text-lg">00:00</span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-trophy text-warning"></i>
+                                <span id="gameScore" class="font-semibold">0</span>
+                            </div>
+                            <button onclick="endStudy()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                                <i class="fas fa-times text-xl"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="matchGrid" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Modal -->
+        <div id="resultsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-8 max-w-md w-full mx-4">
+                <div class="text-center">
+                    <div id="resultsIcon" class="text-6xl mb-4"></div>
+                    <h3 class="text-2xl font-bold mb-4" id="resultsTitle"></h3>
+                    <div id="resultsStats" class="space-y-2 mb-6 text-sm"></div>
+                    <div class="flex space-x-3">
+                        <button onclick="closeResults()" class="flex-1 bg-gray-500 text-white py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+                            Close
+                        </button>
+                        <button onclick="restartStudy()" class="flex-1 bg-primary text-white py-3 rounded-lg hover:bg-opacity-90 transition-colors">
+                            Study Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bulk Import Modal -->
+        <div id="bulkImportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+            <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 max-w-2xl w-full mx-4">
+                <h3 class="text-xl font-bold mb-4">Bulk Import Terms</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                    Enter terms in the format: "Term | Definition" (one per line)
+                </p>
+                <textarea id="bulkImportText" rows="10" class="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 text-base dark:bg-gray-700 focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Photosynthesis | The process by which plants make food from sunlight
+Mitochondria | The powerhouse of the cell
+DNA | Deoxyribonucleic acid"></textarea>
+                <div class="flex justify-end space-x-3 mt-4">
+                    <button onclick="closeBulkImport()" class="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">
+                        Cancel
+                    </button>
+                    <button onclick="processBulkImport()" class="px-4 py-2 bg-primary text-white rounded hover:bg-opacity-90">
+                        Import Terms
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode support
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Global state - using in-memory storage since localStorage isn't available
+        let studySets = {};
+        let currentSet = null;
+        let currentMode = null;
+        let currentIndex = 0;
+        let studyData = [];
+        let score = 0;
+        let streak = 0;
+        let totalScore = 0;
+        let gameTimer = null;
+        let startTime = null;
+        let selectedCards = [];
+        
+        // Sample data to get users started
+        function initializeSampleData() {
+            studySets = {
+                'Visual Communication': {
+                    name: 'Visual Communication',
+                    terms: [
+                        { term: 'Visual Hierarchy', definition: 'The arrangement of elements to show their order of importance and guide the viewer\'s eye through the design', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Typography', definition: 'The art and technique of arranging type to make written language legible, readable, and appealing', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Contrast', definition: 'The difference between elements (like color, size, or weight) that makes them stand out from each other', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'White Space', definition: 'Empty space around and between design elements that helps create focus and breathing room', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Grid System', definition: 'A structure of horizontal and vertical lines used to organize content and create consistent layouts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Color Theory', definition: 'The science and art of using color, including how colors mix, match, and contrast with each other', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Serif', definition: 'Small decorative strokes that extend from the main strokes of letters in certain typefaces', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Sans Serif', definition: 'Typefaces without the small decorative strokes (serifs), creating a clean, modern appearance', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Kerning', definition: 'The adjustment of space between individual letter pairs to achieve visually pleasing typography', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Leading', definition: 'The vertical spacing between lines of text, measured from baseline to baseline', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Alignment', definition: 'The positioning of text or graphic elements relative to a margin, edge, or other elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Balance', definition: 'The distribution of visual weight in a composition to create stability and harmony', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Proximity', definition: 'The principle of grouping related elements close together to create organization and connection', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Repetition', definition: 'The consistent use of design elements throughout a composition to create unity and cohesion', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Emphasis', definition: 'Making certain elements stand out to draw attention and create focal points in the design', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Complementary Colors', definition: 'Colors that are opposite each other on the color wheel and create high contrast when paired', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Analogous Colors', definition: 'Colors that are adjacent to each other on the color wheel, creating harmonious color schemes', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Monochromatic', definition: 'A color scheme using different shades, tints, and tones of a single color', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Saturation', definition: 'The intensity or purity of a color, ranging from vivid and bright to dull and gray', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Hue', definition: 'The pure color itself, the position on the color wheel (red, blue, yellow, etc.)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Value', definition: 'The lightness or darkness of a color, independent of its hue', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Composition', definition: 'The arrangement and organization of visual elements within a design or artwork', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Golden Ratio', definition: 'A mathematical ratio (1:1.618) often used in design to create aesthetically pleasing proportions', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Rule of Thirds', definition: 'A composition guideline that divides an image into nine equal sections to create more interesting layouts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Logo', definition: 'A graphic symbol or emblem used to identify and represent a brand, company, or organization', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Brand Identity', definition: 'The visual elements that together identify and distinguish a brand (logo, colors, typography, imagery)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Vector Graphics', definition: 'Images created using mathematical formulas that can be scaled to any size without losing quality', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Raster Graphics', definition: 'Images made up of individual pixels, which can lose quality when enlarged beyond their original size', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'DPI/PPI', definition: 'Dots/Pixels Per Inch - measurement of image resolution and print quality', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'CMYK', definition: 'Cyan, Magenta, Yellow, Key (Black) - color model used for printing', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'RGB', definition: 'Red, Green, Blue - color model used for digital displays and screens', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Gestalt Principles', definition: 'Psychological principles describing how humans naturally organize visual information into meaningful patterns', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Focal Point', definition: 'The area in a design that draws the viewer\'s attention first and serves as the main point of interest', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Negative Space', definition: 'The empty or unused space around and between design elements, also called white space', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Texture', definition: 'The surface quality or feel of an object, or the visual representation of tactile qualities', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Pattern', definition: 'A repeated decorative design or sequence of elements used to create visual interest', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Iconography', definition: 'The use of simple, recognizable symbols or images to communicate ideas quickly and universally', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Minimalism', definition: 'A design approach that uses the fewest elements necessary to achieve maximum impact', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Call to Action', definition: 'A design element that prompts the viewer to take a specific action (button, link, etc.)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'User Experience (UX)', definition: 'The overall experience a person has when interacting with a product, system, or service', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'User Interface (UI)', definition: 'The visual elements and interactive components that enable users to interact with a digital product', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() }
+                    ],
+                    created: new Date().toISOString(),
+                    lastStudied: null
+                },
+                'Design Elements & Principles': {
+                    name: 'Design Elements & Principles',
+                    terms: [
+                        { term: 'Line', definition: 'A mark connecting two points that can create direction, movement, texture, and define shapes and forms', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Shape', definition: 'A two-dimensional enclosed area defined by boundaries such as lines, colors, or textures', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Form', definition: 'A three-dimensional object with volume and depth, or the illusion of 3D in two-dimensional work', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Color', definition: 'Visual perception resulting from light wavelengths, comprising hue, saturation, and brightness', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Texture', definition: 'The surface quality of an object that can be felt, seen, or both - rough, smooth, soft, hard', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Space', definition: 'The area around, between, inside, or within components of a design, including positive and negative space', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Value', definition: 'The lightness or darkness of a color, creating contrast and defining form through highlights and shadows', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Balance', definition: 'The distribution of visual weight in a composition to create stability and harmony', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Contrast', definition: 'The difference between elements to create visual interest, emphasis, and hierarchy', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Emphasis', definition: 'The focal point or center of interest that draws attention to the most important element', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Movement', definition: 'The path the eye follows through a composition, created by arrangement of elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Pattern', definition: 'The repetition of elements in a predictable combination to create surface interest', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Repetition', definition: 'Using the same element multiple times throughout a design to create unity and consistency', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Rhythm', definition: 'A regular repetition of elements to create a sense of organized movement and flow', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Unity', definition: 'The harmonious arrangement of elements that creates a sense of completeness and cohesion', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Variety', definition: 'The use of different elements to create visual interest and prevent monotony', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Proportion', definition: 'The size relationship between different elements and the whole composition', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Scale', definition: 'The size of an element compared to other elements or to a standard reference point', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Symmetrical Balance', definition: 'Formal balance where elements are mirrored equally on both sides of a central axis', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Asymmetrical Balance', definition: 'Informal balance achieved through unequal distribution of different visual weights', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Radial Balance', definition: 'Balance achieved by arranging elements around a central point, radiating outward', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Positive Space', definition: 'The areas in a design occupied by the main subject or focal elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Negative Space', definition: 'The empty or unoccupied areas around and between design elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Focal Point', definition: 'The area of emphasis that attracts attention and serves as the entry point into the design', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Hierarchy', definition: 'The arrangement of elements in order of importance to guide the viewer\'s attention', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Alignment', definition: 'The positioning of elements along common edges or centers to create order and connection', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Proximity', definition: 'The distance between elements that suggests relationships and creates groupings', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Grid', definition: 'A framework of intersecting horizontal and vertical lines used to organize content', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Composition', definition: 'The arrangement and organization of visual elements within the boundaries of a design', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Geometric Shapes', definition: 'Mathematical, precise shapes like circles, squares, triangles, and rectangles', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Organic Shapes', definition: 'Irregular, natural shapes found in nature, often curved and flowing', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Abstract Shapes', definition: 'Simplified or stylized representations that may be derived from natural forms', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Implied Line', definition: 'A line that is suggested rather than drawn, created by the arrangement of elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Contour Line', definition: 'A line that defines the outer edge or silhouette of a form or shape', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Gestural Line', definition: 'Expressive, free-flowing lines that capture movement, energy, or emotion', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Actual Texture', definition: 'Real surface texture that can be physically felt when touched', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Visual Texture', definition: 'The illusion of texture created through visual techniques rather than actual surface quality', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Tactile Texture', definition: 'Texture that appeals to the sense of touch, whether real or implied', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Warm Colors', definition: 'Colors like red, orange, and yellow that evoke feelings of warmth and energy', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Cool Colors', definition: 'Colors like blue, green, and purple that evoke feelings of calm and coolness', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Primary Colors', definition: 'Red, blue, and yellow - colors that cannot be created by mixing other colors', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Secondary Colors', definition: 'Orange, green, and purple - colors created by mixing two primary colors', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Tertiary Colors', definition: 'Colors created by mixing a primary and secondary color (e.g., red-orange, blue-green)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Tint', definition: 'A color mixed with white to create a lighter value of the original color', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Shade', definition: 'A color mixed with black to create a darker value of the original color', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Tone', definition: 'A color mixed with gray to create a muted or dulled version of the original color', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Chroma', definition: 'The purity or intensity of a color, also known as saturation', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Visual Weight', definition: 'The perceived heaviness or lightness of elements based on size, color, texture, and position', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Tension', definition: 'The dynamic energy created by the relationship between elements in a composition', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Directional Force', definition: 'The visual path or flow created by the arrangement and orientation of elements', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Closure', definition: 'The visual completion of incomplete shapes or forms by the viewer\'s mind', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() }
+                    ],
+                    created: new Date().toISOString(),
+                    lastStudied: null
+                },
+                'Gestalt Psychology': {
+                    name: 'Gestalt Psychology',
+                    terms: [
+                        { term: 'Gestalt', definition: 'German word meaning "whole" or "form" - the idea that the whole is greater than the sum of its parts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Figure-Ground', definition: 'The perceptual tendency to distinguish between objects (figure) and their background (ground)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Proximity', definition: 'Elements that are close together are perceived as belonging to the same group', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Similarity', definition: 'Elements that share similar characteristics are perceived as belonging together', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Closure', definition: 'The tendency to perceive incomplete shapes as complete by filling in missing information', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Continuity', definition: 'Elements arranged in a line or curve are perceived as belonging together and continuing in that direction', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Common Fate', definition: 'Elements moving in the same direction are perceived as belonging to the same group', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Prägnanz', definition: 'The law of good form - we tend to perceive objects in their simplest, most stable form', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Symmetry', definition: 'Symmetrical elements are perceived as belonging together and forming coherent shapes', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Common Region', definition: 'Elements within the same enclosed area are perceived as belonging together', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Max Wertheimer', definition: 'German psychologist who founded Gestalt psychology and discovered the phi phenomenon', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Wolfgang Köhler', definition: 'German psychologist who studied insight learning in apes and contributed to Gestalt theory', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Kurt Koffka', definition: 'German-American psychologist who helped establish Gestalt psychology and wrote "Principles of Gestalt Psychology"', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Kurt Lewin', definition: 'German-American psychologist who applied Gestalt principles to social psychology and developed field theory', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Phi Phenomenon', definition: 'The illusion of movement created by rapidly displaying static images in sequence', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Insight Learning', definition: 'Sudden understanding of a problem\'s solution, as opposed to trial-and-error learning', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Field Theory', definition: 'The idea that behavior is determined by the total field of forces acting on an individual', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Isomorphism', definition: 'The correspondence between psychological experience and underlying brain activity', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Phenomenology', definition: 'The study of conscious experience as experienced from the first-person point of view', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Holism', definition: 'The principle that systems should be understood as wholes, not just collections of parts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Emergent Properties', definition: 'Characteristics that arise from the interaction of parts but cannot be predicted from the parts alone', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Multistable Perception', definition: 'When the same stimulus can be perceived in multiple ways (like the Necker cube)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Perceptual Constancy', definition: 'The tendency to perceive objects as stable and unchanging despite changes in sensory input', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Good Continuation', definition: 'The tendency to perceive smooth, continuous lines rather than abrupt changes in direction', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Connectedness', definition: 'Elements that are connected by lines or borders are perceived as belonging together', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Past Experience', definition: 'Prior knowledge and familiarity influence how we organize and interpret perceptual information', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Rubin\'s Vase', definition: 'Famous figure-ground illusion showing either a vase or two faces in profile', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Kanizsa Triangle', definition: 'Illusory contours that create the perception of a triangle that isn\'t actually drawn', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Gestalt Therapy', definition: 'Psychotherapy approach focusing on present-moment awareness and personal responsibility', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Fritz Perls', definition: 'Psychiatrist who developed Gestalt therapy based on Gestalt psychology principles', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Top-Down Processing', definition: 'Perception driven by expectations, prior knowledge, and context rather than sensory input alone', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Bottom-Up Processing', definition: 'Perception that begins with sensory input and builds up to final recognition', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Perceptual Organization', definition: 'The process by which we structure sensory information into meaningful patterns', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Productive Thinking', definition: 'Creative problem-solving that involves restructuring the problem to find new solutions', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Functional Fixedness', definition: 'The inability to see new uses for familiar objects, limiting creative problem-solving', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Life Space', definition: 'In field theory, the totality of possible facts that determine behavior at a given time', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Valence', definition: 'The positive or negative value that objects or events have for an individual', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Force Field', definition: 'The dynamic system of psychological forces that influence behavior and decision-making', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Group Dynamics', definition: 'The study of how individuals behave in groups, influenced by Gestalt field theory', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Restructuring', definition: 'The process of reorganizing elements to solve problems or gain new understanding', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Perceptual Grouping', definition: 'The automatic process of organizing visual elements into meaningful clusters', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Subjective Contours', definition: 'Perceived boundaries or edges that aren\'t physically present in the stimulus', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Apparent Movement', definition: 'The illusion of motion created by sequential presentation of static stimuli', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Configurational Learning', definition: 'Learning that involves understanding relationships between elements rather than isolated facts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Perceptual Set', definition: 'The tendency to perceive stimuli in a particular way based on expectations and context', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Whole-Part Relationship', definition: 'The fundamental Gestalt principle that wholes have properties not present in individual parts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Pattern Recognition', definition: 'The cognitive process of identifying and categorizing sensory information into familiar patterns', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Gestalt Laws', definition: 'Principles describing how humans naturally organize visual information into meaningful patterns', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Uniform Connectedness', definition: 'Elements that share uniform visual properties are perceived as belonging to the same group', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Element Connectedness', definition: 'The strongest grouping principle - elements connected by other elements are seen as belonging together', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Synchrony', definition: 'Elements that change at the same time are perceived as belonging to the same group', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() }
+                    ],
+                    created: new Date().toISOString(),
+                    lastStudied: null
+                },
+                'Semiotics': {
+                    name: 'Semiotics',
+                    terms: [
+                        { term: 'Semiotics', definition: 'The study of signs, symbols, and their interpretation in communication and meaning-making', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Sign', definition: 'Any entity that conveys meaning, consisting of a signifier and signified relationship', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Signifier', definition: 'The physical form of a sign - the word, image, sound, or gesture that carries meaning', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Signified', definition: 'The mental concept or meaning that a signifier refers to or represents', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Referent', definition: 'The actual object, person, or thing in the real world that a sign refers to', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Icon', definition: 'A sign that resembles or imitates its object (like a photograph or realistic drawing)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Index', definition: 'A sign that has a direct physical connection to its object (like smoke indicating fire)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Symbol', definition: 'A sign with an arbitrary relationship to its object, established by convention (like words or flags)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Denotation', definition: 'The literal, explicit, or obvious meaning of a sign - what it directly represents', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Connotation', definition: 'The implied, suggested, or cultural meanings associated with a sign beyond its literal meaning', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Code', definition: 'A system of rules and conventions that governs how signs are organized and interpreted', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Encoding', definition: 'The process of creating or constructing a message using signs and codes', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Decoding', definition: 'The process of interpreting and understanding the meaning of signs and messages', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Paradigm', definition: 'A set of signs that can be substituted for each other in the same context (like synonyms)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Syntagm', definition: 'The sequential combination of signs to create meaning (like words in a sentence)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Binary Opposition', definition: 'Pairs of related terms or concepts that are opposite in meaning (like good/evil, nature/culture)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Myth', definition: 'In Barthes\' semiotics, a type of speech that transforms history into nature, making cultural values seem universal', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Ideology', definition: 'A system of beliefs and values that shape how signs are interpreted and meaning is constructed', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Polysemy', definition: 'The capacity of a sign to have multiple meanings or interpretations', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Anchorage', definition: 'The use of text or context to limit and direct the interpretation of an image\'s meaning', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Relay', definition: 'When text and image work together to create meaning that neither could convey alone', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Intertextuality', definition: 'The relationship between texts and how meaning is created through references to other texts', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Discourse', definition: 'A particular way of talking about and understanding the world that shapes knowledge and meaning', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Ferdinand de Saussure', definition: 'Swiss linguist who founded structural semiotics and developed the signifier/signified model', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Charles Sanders Peirce', definition: 'American philosopher who developed the triadic model of signs (icon, index, symbol)', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Roland Barthes', definition: 'French semiotician who analyzed cultural myths and developed concepts of connotation and cultural codes', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Umberto Eco', definition: 'Italian semiotician who explored sign systems, interpretation, and the role of the reader in meaning-making', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Morpheme', definition: 'The smallest meaningful unit in language that cannot be broken down further', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Phoneme', definition: 'The smallest unit of sound in language that can distinguish meaning between words', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Sememe', definition: 'The smallest unit of meaning that can be analyzed semantically', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Metalanguage', definition: 'Language used to describe or analyze language itself - language about language', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Cultural Code', definition: 'Shared knowledge and conventions within a culture that influence how signs are interpreted', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Isotopy', definition: 'The recurrence of semiotic categories that creates coherence and unity in a text', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Actant', definition: 'A basic unit of meaning in narrative structure that performs or undergoes an action', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Semiosphere', definition: 'The semiotic space where all communication and meaning-making processes occur within a culture', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Preferred Reading', definition: 'The intended or dominant interpretation of a text as encoded by its creator', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Oppositional Reading', definition: 'An interpretation that goes against the intended or dominant meaning of a text', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Negotiated Reading', definition: 'An interpretation that partially accepts and partially rejects the dominant meaning of a text', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Simulacrum', definition: 'A copy or representation that has no original, or where the copy has replaced the original', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Hyperreality', definition: 'A condition where simulated or artificial experiences become more real than reality itself', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Bricolage', definition: 'The practice of creating meaning by combining and recombining existing cultural signs and symbols', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Semiotic Square', definition: 'A tool for analyzing the relationships between opposing concepts and their contradictions', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Deixis', definition: 'Words or phrases that require contextual information to understand their meaning (like "here," "now," "this")', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Modality', definition: 'The degree of certainty, possibility, or authority expressed in a statement or sign', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Articulation', definition: 'The way signs are combined and structured to create meaning within a semiotic system', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Interpellation', definition: 'The process by which discourse "hails" individuals and positions them as subjects within ideology', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Genre', definition: 'A category of communication characterized by particular codes, conventions, and meaning-making practices', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Redundancy', definition: 'The repetition of semiotic elements that reinforces meaning and aids interpretation', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Entropy', definition: 'The measure of uncertainty or unpredictability in a semiotic system or message', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() },
+                        { term: 'Difference', definition: 'The concept that meaning is created through distinctions and contrasts between signs rather than inherent qualities', difficulty: 1, lastReviewed: null, nextReview: new Date().toISOString() }
+                    ],
+                    created: new Date().toISOString(),
+                    lastStudied: null
+                }
+            };
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeSampleData();
+            updateUI();
+            document.getElementById('totalScore').textContent = totalScore;
+        });
+
+        // Event listeners
+        document.getElementById('termInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('definitionInput').focus();
+            }
+        });
+
+        document.getElementById('definitionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addTerm();
+            }
+        });
+
+        // Study set management
+        function createStudySet() {
+            const name = document.getElementById('studySetName').value.trim();
+            if (!name) {
+                showNotification('Please enter a study set name', 'warning');
+                return;
+            }
+            
+            if (studySets[name]) {
+                showNotification('Study set already exists', 'warning');
+                return;
+            }
+
+            studySets[name] = {
+                name: name,
+                terms: [],
+                created: new Date().toISOString(),
+                lastStudied: null
+            };
+            
+            saveData();
+            updateUI();
+            selectStudySet(name);
+            document.getElementById('studySetName').value = '';
+            showNotification('Study set created successfully!', 'success');
+        }
+
+        function selectStudySet(name) {
+            currentSet = name;
+            document.getElementById('addTermsSection').classList.remove('hidden');
+            document.getElementById('modeSelection').classList.add('hidden');
+            updateTermsList();
+            updateModeButtons();
+        }
+
+        function deleteStudySet(name) {
+            showConfirmDialog(`Are you sure you want to delete "${name}"?`, () => {
+                delete studySets[name];
+                saveData();
+                updateUI();
+                if (currentSet === name) {
+                    currentSet = null;
+                    document.getElementById('addTermsSection').classList.add('hidden');
+                    document.getElementById('modeSelection').classList.add('hidden');
+                }
+                showNotification('Study set deleted', 'success');
+            });
+        }
+
+        function addTerm() {
+            const term = document.getElementById('termInput').value.trim();
+            const definition = document.getElementById('definitionInput').value.trim();
+            
+            if (!term || !definition) {
+                showNotification('Please enter both term and definition', 'warning');
+                return;
+            }
+
+            if (!currentSet) {
+                showNotification('Please select a study set first', 'warning');
+                return;
+            }
+
+            studySets[currentSet].terms.push({
+                term: term,
+                definition: definition,
+                difficulty: 1,
+                lastReviewed: null,
+                nextReview: new Date().toISOString()
+            });
+
+            saveData();
+            updateTermsList();
+            updateModeButtons();
+
+            document.getElementById('termInput').value = '';
+            document.getElementById('definitionInput').value = '';
+            document.getElementById('termInput').focus();
+            
+            showNotification('Term added successfully!', 'success');
+        }
+
+        function deleteTerm(index) {
+            showConfirmDialog('Are you sure you want to delete this term?', () => {
+                studySets[currentSet].terms.splice(index, 1);
+                saveData();
+                updateTermsList();
+                updateModeButtons();
+                showNotification('Term deleted', 'success');
+            });
+        }
+
+        function bulkImport() {
+            document.getElementById('bulkImportModal').classList.remove('hidden');
+        }
+
+        function closeBulkImport() {
+            document.getElementById('bulkImportModal').classList.add('hidden');
+            document.getElementById('bulkImportText').value = '';
+        }
+
+        function processBulkImport() {
+            const text = document.getElementById('bulkImportText').value.trim();
+            if (!text) return;
+
+            const lines = text.split('\n').filter(line => line.trim());
+            let imported = 0;
+
+            lines.forEach(line => {
+                const parts = line.split('|').map(part => part.trim());
+                if (parts.length >= 2) {
+                    studySets[currentSet].terms.push({
+                        term: parts[0],
+                        definition: parts[1],
+                        difficulty: 1,
+                        lastReviewed: null,
+                        nextReview: new Date().toISOString()
+                    });
+                    imported++;
+                }
+            });
+
+            saveData();
+            updateTermsList();
+            updateModeButtons();
+            closeBulkImport();
+            showNotification(`Imported ${imported} terms successfully!`, 'success');
+        }
+
+        // Study modes
+        function startMode(mode) {
+            if (!currentSet || studySets[currentSet].terms.length === 0) {
+                showNotification('Please add some terms first', 'warning');
+                return;
+            }
+
+            currentMode = mode;
+            currentIndex = 0;
+            score = 0;
+            streak = 0;
+            studyData = [...studySets[currentSet].terms];
+            startTime = Date.now();
+
+            document.getElementById('addTermsSection').classList.add('hidden');
+            document.getElementById('modeSelection').classList.add('hidden');
+            document.getElementById('studySetManagement').classList.add('hidden');
+            document.getElementById('studyInterface').classList.remove('hidden');
+
+            // Hide all modes first
+            document.getElementById('flashcardMode').classList.add('hidden');
+            document.getElementById('quizMode').classList.add('hidden');
+            document.getElementById('matchMode').classList.add('hidden');
+
+            switch(mode) {
+                case 'flashcards':
+                    startTraditionalFlashcards();
+                    break;
+                case 'memory':
+                    startMemoryGame();
+                    break;
+                case 'quiz':
+                    startQuiz();
+                    break;
+                case 'match':
+                    startMatchGame();
+                    break;
+                case 'spaced':
+                    startSpacedRepetition();
+                    break;
+            }
+
+            studySets[currentSet].lastStudied = new Date().toISOString();
+            saveData();
+        }
+
+        // Traditional single-card flashcards
+        function startTraditionalFlashcards() {
+            document.getElementById('flashcardMode').classList.remove('hidden');
+            shuffleArray(studyData);
+            
+            // Set up traditional single card interface
+            setupTraditionalInterface();
+        }
+
+        function setupTraditionalInterface() {
+            // Update header
+            document.querySelector('#flashcardMode h2').textContent = 'Traditional Flashcards';
+            
+            // Hide win/review piles for traditional mode
+            document.querySelector('.mb-6').style.display = 'none';
+            
+            showTraditionalFlashcard();
+        }
+
+        function showTraditionalFlashcard() {
+            if (currentIndex >= studyData.length) {
+                showResults();
+                return;
+            }
+
+            const card = studyData[currentIndex];
+            
+            // Update progress
+            document.getElementById('cardProgress').textContent = `${currentIndex + 1} / ${studyData.length}`;
+            
+            // Create single card interface
+            const grid = document.getElementById('flashcardGrid');
+            grid.innerHTML = '';
+            grid.className = 'flex justify-center mb-6';
+            
+            const cardElement = document.createElement('div');
+            cardElement.className = 'flip-card w-80 h-48 cursor-pointer';
+            cardElement.innerHTML = `
+                <div class="flip-card-inner relative w-full h-full">
+                    <div class="flip-card-front absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-lg p-6 flex flex-col justify-center items-center text-white">
+                        <div class="text-center">
+                            <div class="text-sm opacity-80 mb-2">TERM</div>
+                            <div class="text-xl font-bold">${card.term}</div>
+                        </div>
+                    </div>
+                    <div class="flip-card-back absolute inset-0 bg-gradient-to-br from-accent to-green-500 rounded-lg p-6 flex flex-col justify-center text-white">
+                        <div class="text-center mb-4">
+                            <div class="text-sm opacity-80 mb-2">DEFINITION</div>
+                            <div class="text-base leading-tight">${card.definition}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="nextTraditionalCard(false)" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded text-sm transition-colors">Need Practice</button>
+                            <button onclick="nextTraditionalCard(true)" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded text-sm transition-colors">Got It!</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            cardElement.onclick = () => cardElement.classList.toggle('flipped');
+            grid.appendChild(cardElement);
+        }
+
+        function nextTraditionalCard(isCorrect) {
+            if (isCorrect) {
+                score += 10;
+                streak++;
+            } else {
+                score += 2;
+                streak = Math.max(0, streak - 1);
+            }
+            
+            currentIndex++;
+            showTraditionalFlashcard();
+        }
+
+        // Memory game functions  
+        function startMemoryGame() {
+            document.getElementById('flashcardMode').classList.remove('hidden');
+            shuffleArray(studyData);
+            
+            // Set up memory game interface
+            setupMemoryInterface();
+        }
+
+        function setupMemoryInterface() {
+            // Update header
+            document.querySelector('#flashcardMode h2').textContent = 'Memory Game';
+            
+            // Show win/review piles for memory game
+            document.querySelector('.mb-6').style.display = 'block';
+            
+            setupFlashcardGrid();
+        }
+
+        function startQuiz() {
+            document.getElementById('quizMode').classList.remove('hidden');
+            shuffleArray(studyData);
+            showQuizQuestion();
+        }
+
+        function startMatchGame() {
+            document.getElementById('matchMode').classList.remove('hidden');
+            setupMatchGame();
+        }
+
+        function startSpacedRepetition() {
+            // Filter terms that need review based on spaced repetition algorithm
+            const now = new Date();
+            const allTerms = studySets[currentSet].terms;
+            studyData = allTerms.filter(term => {
+                return new Date(term.nextReview) <= now;
+            });
+
+            if (studyData.length === 0) {
+                // Show helpful info about when terms will be ready
+                const nextReviewTimes = allTerms.map(term => new Date(term.nextReview)).sort();
+                const nextReview = nextReviewTimes[0];
+                const hoursUntilNext = Math.ceil((nextReview - now) / (1000 * 60 * 60));
+                
+                showNotification(`No terms need review right now! Next review available in ${hoursUntilNext} hours.`, 'info');
+                endStudy();
+                return;
+            }
+
+            // Sort by priority (oldest first, then by difficulty)
+            studyData.sort((a, b) => {
+                const timeA = new Date(a.nextReview);
+                const timeB = new Date(b.nextReview);
+                if (timeA.getTime() !== timeB.getTime()) {
+                    return timeA - timeB;
+                }
+                return b.difficulty - a.difficulty; // Higher difficulty first if same time
+            });
+            
+            startSpacedFlashcards();
+        }
+
+        function startSpacedFlashcards() {
+            document.getElementById('flashcardMode').classList.remove('hidden');
+            // Set up single card interface for spaced repetition
+            setupSpacedInterface();
+        }
+
+        function setupSpacedInterface() {
+            // Update header
+            document.querySelector('#flashcardMode h2').textContent = 'Spaced Repetition Review';
+            
+            // Hide win/review piles since we don't use them for spaced repetition
+            document.querySelector('.mb-6').style.display = 'none';
+            
+            showSpacedFlashcard();
+        }
+
+        function showSpacedFlashcard() {
+            if (currentIndex >= studyData.length) {
+                showSpacedResults();
+                return;
+            }
+
+            const card = studyData[currentIndex];
+            const now = new Date();
+            const overdue = Math.ceil((now - new Date(card.nextReview)) / (1000 * 60 * 60));
+            
+            // Enhanced progress showing spaced repetition info
+            const progressText = `${currentIndex + 1} / ${studyData.length} • Difficulty: ${card.difficulty.toFixed(1)}${overdue > 0 ? ` • Overdue: ${overdue}h` : ''}`;
+            document.getElementById('cardProgress').textContent = progressText;
+            
+            // Create single card interface
+            const grid = document.getElementById('flashcardGrid');
+            grid.innerHTML = '';
+            grid.className = 'flex justify-center mb-6';
+            
+            const cardElement = document.createElement('div');
+            cardElement.className = 'flip-card w-80 h-48 cursor-pointer';
+            cardElement.innerHTML = `
+                <div class="flip-card-inner relative w-full h-full">
+                    <div class="flip-card-front absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-lg p-6 flex flex-col justify-center items-center text-white">
+                        <div class="text-center">
+                            <div class="text-sm opacity-80 mb-2">TERM</div>
+                            <div class="text-xl font-bold">${card.term}</div>
+                        </div>
+                    </div>
+                    <div class="flip-card-back absolute inset-0 bg-gradient-to-br from-accent to-green-500 rounded-lg p-6 flex flex-col justify-center text-white">
+                        <div class="text-center mb-4">
+                            <div class="text-sm opacity-80 mb-2">DEFINITION</div>
+                            <div class="text-base leading-tight">${card.definition}</div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="rateSpacedCard(1)" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2 rounded text-sm transition-colors">Again</button>
+                            <button onclick="rateSpacedCard(2)" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white py-2 rounded text-sm transition-colors">Hard</button>
+                            <button onclick="rateSpacedCard(3)" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded text-sm transition-colors">Good</button>
+                            <button onclick="rateSpacedCard(4)" class="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 rounded text-sm transition-colors">Easy</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            cardElement.onclick = () => cardElement.classList.toggle('flipped');
+            grid.appendChild(cardElement);
+        }
+
+        function showSpacedResults() {
+            const totalTerms = studySets[currentSet].terms.length;
+            const reviewedCount = studyData.length;
+            const remainingTerms = totalTerms - reviewedCount;
+            
+            // Calculate next review time
+            const now = new Date();
+            const allTerms = studySets[currentSet].terms;
+            const nextReviewTimes = allTerms.map(term => new Date(term.nextReview)).sort();
+            const nextReview = nextReviewTimes[0];
+            const hoursUntilNext = Math.ceil((nextReview - now) / (1000 * 60 * 60));
+
+            const endTime = Date.now();
+            const duration = Math.floor((endTime - startTime) / 1000);
+            
+            totalScore += score;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('streak').textContent = streak;
+
+            document.getElementById('resultsIcon').textContent = '🧠';
+            document.getElementById('resultsTitle').textContent = 'Spaced Review Complete!';
+            
+            const stats = [];
+            stats.push(`Reviewed: ${reviewedCount} / ${totalTerms} terms`);
+            stats.push(`Score: +${score} points`);
+            stats.push(`Time: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
+            stats.push(`Best Streak: ${streak}`);
+            if (remainingTerms > 0) {
+                stats.push(`Next review: ${hoursUntilNext} hours`);
+            }
+            
+            document.getElementById('resultsStats').innerHTML = stats.map(stat => 
+                `<div class="text-gray-600 dark:text-gray-400">${stat}</div>`
+            ).join('');
+
+            document.getElementById('resultsModal').classList.remove('hidden');
+        }
+
+        // New Flashcard Grid System - Memory Game
+        let currentRound = [];
+        let winPile = [];
+        let reviewPile = [];
+        let roundNumber = 1;
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let canFlip = true;
+
+        function flipMemoryCard(cardElement, item, index) {
+            if (item.matched || item.flipped) {
+                return;
+            }
+
+            // Reveal the term
+            item.flipped = true;
+            score += 5; // Small points for revealing
+            
+            // Update the card display
+            displayFlashcardGrid();
+            
+            // Auto-hide after 3 seconds if not manually hidden
+            setTimeout(() => {
+                if (item.flipped && !item.matched) {
+                    item.flipped = false;
+                    displayFlashcardGrid();
+                }
+            }, 3000);
+        }
+
+        // Missing functions for memory game
+        function markCard(index, isCorrect) {
+            const item = currentRound[index];
+            const now = new Date();
+            
+            if (isCorrect) {
+                // Mark as known
+                item.matched = true;
+                winPile.push(item);
+                score += 15; // Good points for knowing it
+                streak++;
+                
+                // Update spaced repetition
+                item.difficulty = Math.max(1, item.difficulty - 0.1);
+                item.nextReview = new Date(now.getTime() + item.difficulty * 3 * 24 * 60 * 60 * 1000).toISOString();
+            } else {
+                // Needs more practice
+                reviewPile.push(item);
+                score += 5; // Some points for trying
+                if (streak > 0) streak = Math.max(0, streak - 1);
+                
+                // Update spaced repetition
+                item.difficulty = Math.min(3, item.difficulty + 0.1);
+                item.nextReview = new Date(now.getTime() + 12 * 60 * 60 * 1000).toISOString(); // Review in 12 hours
+            }
+            
+            item.lastReviewed = now.toISOString();
+            
+            // Remove from current round
+            currentRound.splice(index, 1);
+            
+            // Update display
+            displayFlashcardGrid();
+            updateProgress();
+            
+            // Check if round is complete
+            if (currentRound.length === 0) {
+                roundComplete();
+            }
+            
+            saveData();
+        }
+
+        function rateSpacedCard(rating) {
+            const card = studyData[currentIndex];
+            const now = new Date();
+            
+            // Update card based on rating (1=Again, 2=Hard, 3=Good, 4=Easy)
+            let multiplier;
+            switch(rating) {
+                case 1: // Again
+                    multiplier = 0.5;
+                    score += 2;
+                    streak = 0;
+                    break;
+                case 2: // Hard  
+                    multiplier = 0.8;
+                    score += 5;
+                    break;
+                case 3: // Good
+                    multiplier = 1.2;
+                    score += 10;
+                    streak++;
+                    break;
+                case 4: // Easy
+                    multiplier = 2.0;
+                    score += 15;
+                    streak++;
+                    break;
+            }
+            
+            // Update spaced repetition algorithm
+            if (rating === 1) {
+                card.difficulty = Math.min(3, card.difficulty + 0.2);
+                card.nextReview = new Date(now.getTime() + 10 * 60 * 1000).toISOString(); // 10 minutes
+            } else {
+                card.difficulty = Math.max(1, card.difficulty + (rating - 2.5) * 0.1);
+                const hours = Math.round(card.difficulty * multiplier * 24);
+                card.nextReview = new Date(now.getTime() + hours * 60 * 60 * 1000).toISOString();
+            }
+            
+            card.lastReviewed = now.toISOString();
+            
+            currentIndex++;
+            showSpacedFlashcard();
+            saveData();
+        }
+
+        function checkMemoryMatch() {
+            const [first, second] = flippedCards;
+            
+            if (first.card.id === second.card.matchId) {
+                // Match found!
+                first.element.classList.add('matched');
+                second.element.classList.add('matched');
+                
+                // Add visual feedback for match
+                first.element.style.transform = 'scale(1.1)';
+                second.element.style.transform = 'scale(1.1)';
+                setTimeout(() => {
+                    first.element.style.transform = 'scale(1)';
+                    second.element.style.transform = 'scale(1)';
+                }, 300);
+                
+                matchedPairs++;
+                score += 20;
+                streak++;
+                
+                // Check if round is complete
+                if (matchedPairs === currentRound.length) {
+                    setTimeout(() => {
+                        // Move all pairs to win pile
+                        currentRound.forEach(card => winPile.push(card));
+                        currentRound = [];
+                        updateProgress();
+                        roundComplete();
+                    }, 1000);
+                }
+            } else {
+                // No match - flip cards back
+                first.element.classList.add('shake');
+                second.element.classList.add('shake');
+                
+                setTimeout(() => {
+                    first.element.classList.remove('flipped', 'shake');
+                    second.element.classList.remove('flipped', 'shake');
+                    first.element.querySelector('.memory-card-front').style.opacity = '0';
+                    first.element.querySelector('.memory-card-back').style.opacity = '1';
+                    second.element.querySelector('.memory-card-front').style.opacity = '0';
+                    second.element.querySelector('.memory-card-back').style.opacity = '1';
+                }, 500);
+                
+                streak = 0;
+            }
+            
+            flippedCards = [];
+            canFlip = true;
+            saveData();
+        }
+
+        function setupFlashcardGrid() {
+            // Initialize piles
+            winPile = [];
+            reviewPile = [...studyData];
+            roundNumber = 1;
+            
+            updateProgress();
+            startNextRound();
+        }
+
+        function startNextRound() {
+            if (reviewPile.length === 0) {
+                showResults();
+                return;
+            }
+
+            // Take up to 6 cards from review pile for this round (12 cards total with pairs)
+            currentRound = reviewPile.splice(0, Math.min(6, reviewPile.length));
+            shuffleArray(currentRound);
+            
+            // Reset memory game state
+            flippedCards = [];
+            matchedPairs = 0;
+            canFlip = true;
+            
+            displayFlashcardGrid();
+            updateProgress();
+            
+            document.getElementById('nextRoundSection').classList.add('hidden');
+        }
+
+        function displayFlashcardGrid() {
+            const grid = document.getElementById('flashcardGrid');
+            grid.innerHTML = '';
+            
+            // Update progress text
+            document.getElementById('cardProgress').textContent = `Round ${roundNumber} • Match ${currentRound.length} terms to definitions!`;
+            
+            // Create cards: definitions always visible, terms hidden
+            currentRound.forEach((item, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card h-32 cursor-pointer transform transition-all duration-300 hover:scale-105';
+                cardElement.setAttribute('data-index', index);
+                
+                const isMatched = item.matched || false;
+                const isFlipped = item.flipped || false;
+                
+                cardElement.innerHTML = `
+                    <div class="memory-card-inner relative w-full h-full">
+                        <!-- Definition (Always Visible) -->
+                        <div class="definition-side absolute inset-0 bg-gradient-to-br from-accent to-green-500 rounded-lg p-3 flex flex-col justify-center text-white">
+                            <div class="text-center">
+                                <div class="text-xs opacity-80 mb-2">DEFINITION</div>
+                                <div class="text-xs leading-tight mb-3">${item.definition}</div>
+                                ${isMatched ? 
+                                    `<div class="text-xs font-bold bg-white/20 rounded px-2 py-1">✓ ${item.term}</div>` : 
+                                    (isFlipped ? 
+                                        `<div class="text-xs font-bold bg-white/20 rounded px-2 py-1 mb-2">${item.term}</div>
+                                         <div class="flex gap-1">
+                                             <button onclick="markCard(${index}, true)" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs py-1 rounded transition-colors">Know It!</button>
+                                             <button onclick="markCard(${index}, false)" class="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-xs py-1 rounded transition-colors">Need Practice</button>
+                                         </div>` :
+                                        `<div class="text-xs bg-gray-400 hover:bg-gray-300 text-gray-800 rounded px-2 py-1 cursor-pointer transition-colors">Click to reveal term</div>`
+                                    )
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                if (!isMatched) {
+                    cardElement.onclick = () => flipMemoryCard(cardElement, item, index);
+                }
+                
+                grid.appendChild(cardElement);
+            });
+        }
+
+        function flipGridCard(cardElement) {
+            cardElement.classList.add('flipped');
+        }
+
+        function updateSliderColor(slider) {
+            const value = parseInt(slider.value);
+            const valueElement = document.getElementById(`slider-value-${slider.id.split('-')[1]}`);
+            if (valueElement) {
+                valueElement.textContent = value;
+            }
+            
+            // Update slider track color based on confidence level
+            const percentage = ((value - 1) / 9) * 100;
+            const color = value >= 7 ? '#059669' : '#ea580c'; // green for confident, orange for review
+            slider.style.background = `linear-gradient(to right, ${color} 0%, ${color} ${percentage}%, rgba(255,255,255,0.3) ${percentage}%, rgba(255,255,255,0.3) 100%)`;
+        }
+
+        function rateCardConfidence(cardIndex) {
+            const slider = document.getElementById(`slider-${cardIndex}`);
+            const confidence = parseInt(slider.value);
+            const card = currentRound[cardIndex];
+            const now = new Date();
+            
+            // Update card based on confidence
+            if (confidence >= 7) {
+                // Win pile - confident
+                winPile.push(card);
+                score += confidence * 2; // Higher confidence = more points
+                if (confidence >= 9) streak++;
+                
+                // Update spaced repetition
+                card.difficulty = Math.max(1, card.difficulty - 0.1);
+                card.nextReview = new Date(now.getTime() + card.difficulty * (confidence >= 9 ? 5 : 3) * 24 * 60 * 60 * 1000).toISOString();
+            } else {
+                // Review pile - needs more practice
+                reviewPile.push(card);
+                score += confidence; // Some points for attempting
+                if (confidence <= 3) streak = 0;
+                
+                // Update spaced repetition
+                card.difficulty = Math.min(3, card.difficulty + 0.1);
+                card.nextReview = new Date(now.getTime() + (confidence <= 3 ? 12 : 24) * 60 * 60 * 1000).toISOString();
+            }
+            
+            card.lastReviewed = now.toISOString();
+            
+            // Remove the card from current round and grid
+            currentRound.splice(cardIndex, 1);
+            displayFlashcardGrid();
+            updateProgress();
+            
+            // Check if round is complete
+            if (currentRound.length === 0) {
+                roundComplete();
+            }
+            
+            saveData();
+        }
+
+        function roundComplete() {
+            roundNumber++;
+            
+            if (reviewPile.length === 0) {
+                // All cards in win pile!
+                setTimeout(() => showResults(), 1000);
+            } else {
+                // Show next round button
+                const remaining = reviewPile.length;
+                document.getElementById('roundSummary').textContent = `${remaining} card${remaining !== 1 ? 's' : ''} remaining for review.`;
+                document.getElementById('nextRoundSection').classList.remove('hidden');
+            }
+        }
+
+        function updateProgress() {
+            const totalCards = winPile.length + reviewPile.length + currentRound.length;
+            const completedCards = winPile.length;
+            const progressPercent = totalCards > 0 ? (completedCards / totalCards) * 100 : 0;
+            
+            document.getElementById('winCount').textContent = winPile.length;
+            document.getElementById('reviewCount').textContent = reviewPile.length + currentRound.length;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
+        }
+
+        // Quiz functions
+        function showQuizQuestion() {
+            if (currentIndex >= studyData.length) {
+                showResults();
+                return;
+            }
+
+            const question = studyData[currentIndex];
+            const isTermQuestion = Math.random() > 0.5;
+            
+            document.getElementById('questionText').textContent = isTermQuestion 
+                ? `What is the definition of: ${question.term}?`
+                : `What term matches this definition: ${question.definition}?`;
+
+            // Create options
+            const correctAnswer = isTermQuestion ? question.definition : question.term;
+            const wrongAnswers = getWrongAnswers(correctAnswer, isTermQuestion);
+            const allOptions = [correctAnswer, ...wrongAnswers];
+            shuffleArray(allOptions);
+
+            const optionsContainer = document.getElementById('quizOptions');
+            optionsContainer.innerHTML = '';
+            
+            allOptions.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = 'w-full text-left p-4 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors';
+                button.textContent = option;
+                button.onclick = () => selectAnswer(option, correctAnswer);
+                optionsContainer.appendChild(button);
+            });
+
+            updateQuizProgress();
+        }
+
+        function getWrongAnswers(correct, isTermQuestion) {
+            const allAnswers = studyData.map(item => isTermQuestion ? item.definition : item.term);
+            const wrongAnswers = allAnswers.filter(answer => answer !== correct);
+            shuffleArray(wrongAnswers);
+            return wrongAnswers.slice(0, 3);
+        }
+
+        function selectAnswer(selected, correct) {
+            const options = document.getElementById('quizOptions').children;
+            const isCorrect = selected === correct;
+            
+            Array.from(options).forEach(option => {
+                option.disabled = true;
+                if (option.textContent === correct) {
+                    option.classList.add('bg-green-100', 'dark:bg-green-900', 'border-green-500');
+                } else if (option.textContent === selected && !isCorrect) {
+                    option.classList.add('bg-red-100', 'dark:bg-red-900', 'border-red-500');
+                    option.classList.add('shake');
+                }
+            });
+
+            if (isCorrect) {
+                score += 10;
+                streak++;
+                document.getElementById('resultMessage').innerHTML = `
+                    <div class="text-green-600 dark:text-green-400 bounce-in">
+                        <i class="fas fa-check-circle text-3xl mb-2"></i>
+                        <div class="font-semibold">Correct!</div>
+                    </div>
+                `;
+            } else {
+                streak = 0;
+                document.getElementById('resultMessage').innerHTML = `
+                    <div class="text-red-600 dark:text-red-400">
+                        <i class="fas fa-times-circle text-3xl mb-2"></i>
+                        <div class="font-semibold">Incorrect</div>
+                        <div class="text-sm mt-2">The correct answer was: ${correct}</div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('quizResult').classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            document.getElementById('quizResult').classList.add('hidden');
+            currentIndex++;
+            showQuizQuestion();
+        }
+
+        function updateQuizProgress() {
+            const progress = ((currentIndex + 1) / studyData.length) * 100;
+            const circumference = 2 * Math.PI * 18;
+            const offset = circumference - (progress / 100) * circumference;
+            
+            document.getElementById('progressCircle').style.strokeDasharray = circumference;
+            document.getElementById('progressCircle').style.strokeDashoffset = offset;
+            document.getElementById('quizProgress').textContent = `${currentIndex + 1}/${studyData.length}`;
+        }
+
+        // Match game functions
+        function setupMatchGame() {
+            const gameData = studyData.slice(0, Math.min(8, studyData.length));
+            const cards = [];
+            
+            gameData.forEach(item => {
+                cards.push({ type: 'term', value: item.term, match: item.definition });
+                cards.push({ type: 'definition', value: item.definition, match: item.term });
+            });
+            
+            shuffleArray(cards);
+            
+            const grid = document.getElementById('matchGrid');
+            grid.innerHTML = '';
+            
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'match-card bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 p-4 rounded-lg cursor-pointer hover:shadow-lg transition-all border-2 border-transparent';
+                cardElement.innerHTML = `
+                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">${card.type.toUpperCase()}</div>
+                    <div class="font-medium text-sm">${card.value}</div>
+                `;
+                cardElement.onclick = () => selectMatchCard(cardElement, card, index);
+                grid.appendChild(cardElement);
+            });
+            
+            selectedCards = [];
+            score = 0;
+            startGameTimer();
+            updateGameScore();
+        }
+
+        function selectMatchCard(element, card, index) {
+            if (element.classList.contains('matched') || element.classList.contains('selected')) {
+                return;
+            }
+            
+            element.classList.add('selected', 'border-primary');
+            selectedCards.push({ element, card, index });
+            
+            if (selectedCards.length === 2) {
+                setTimeout(() => checkMatch(), 500);
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = selectedCards;
+            
+            if (card1.card.value === card2.card.match || card1.card.match === card2.card.value) {
+                // Match found
+                card1.element.classList.remove('selected', 'border-primary');
+                card2.element.classList.remove('selected', 'border-primary');
+                card1.element.classList.add('matched', 'bg-green-100', 'dark:bg-green-900', 'border-green-500');
+                card2.element.classList.add('matched', 'bg-green-100', 'dark:bg-green-900', 'border-green-500');
+                
+                score += 20;
+                streak++;
+                updateGameScore();
+                
+                // Check if game is complete
+                const totalCards = document.querySelectorAll('.match-card').length;
+                const matchedCards = document.querySelectorAll('.matched').length;
+                
+                if (matchedCards === totalCards) {
+                    setTimeout(() => {
+                        stopGameTimer();
+                        showResults();
+                    }, 1000);
+                }
+            } else {
+                // No match
+                card1.element.classList.remove('selected', 'border-primary');
+                card2.element.classList.remove('selected', 'border-primary');
+                card1.element.classList.add('shake');
+                card2.element.classList.add('shake');
+                setTimeout(() => {
+                    card1.element.classList.remove('shake');
+                    card2.element.classList.remove('shake');
+                }, 500);
+                streak = 0;
+            }
+            
+            selectedCards = [];
+        }
+
+        function startGameTimer() {
+            startTime = Date.now();
+            gameTimer = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                const minutes = Math.floor(elapsed / 60);
+                const seconds = elapsed % 60;
+                document.getElementById('gameTimer').textContent = 
+                    `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }, 1000);
+        }
+
+        function stopGameTimer() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+        }
+
+        function updateGameScore() {
+            document.getElementById('gameScore').textContent = score;
+        }
+
+        // Results and UI functions
+        function showResults() {
+            const endTime = Date.now();
+            const duration = Math.floor((endTime - startTime) / 1000);
+            const accuracy = currentMode === 'quiz' ? Math.round((score / (studyData.length * 10)) * 100) : 100;
+            
+            totalScore += score;
+            document.getElementById('totalScore').textContent = totalScore;
+            document.getElementById('streak').textContent = streak;
+
+            let icon, title;
+            switch(currentMode) {
+                case 'flashcards':
+                case 'spaced':
+                    icon = '🎓';
+                    title = 'Study Session Complete!';
+                    break;
+                case 'quiz':
+                    icon = accuracy >= 80 ? '🏆' : accuracy >= 60 ? '🥈' : '📚';
+                    title = accuracy >= 80 ? 'Excellent Work!' : accuracy >= 60 ? 'Good Job!' : 'Keep Practicing!';
+                    break;
+                case 'match':
+                    icon = duration < 60 ? '⚡' : duration < 120 ? '🏆' : '👍';
+                    title = duration < 60 ? 'Lightning Fast!' : duration < 120 ? 'Great Job!' : 'Well Done!';
+                    break;
+            }
+
+            document.getElementById('resultsIcon').textContent = icon;
+            document.getElementById('resultsTitle').textContent = title;
+            
+            const stats = [];
+            stats.push(`Score: +${score} points`);
+            if (currentMode === 'quiz') stats.push(`Accuracy: ${accuracy}%`);
+            stats.push(`Time: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
+            stats.push(`Best Streak: ${streak}`);
+            
+            document.getElementById('resultsStats').innerHTML = stats.map(stat => 
+                `<div class="text-gray-600 dark:text-gray-400">${stat}</div>`
+            ).join('');
+
+            document.getElementById('resultsModal').classList.remove('hidden');
+        }
+
+        function closeResults() {
+            document.getElementById('resultsModal').classList.add('hidden');
+            endStudy();
+        }
+
+        function restartStudy() {
+            document.getElementById('resultsModal').classList.add('hidden');
+            startMode(currentMode);
+        }
+
+        function endStudy() {
+            if (gameTimer) {
+                clearInterval(gameTimer);
+                gameTimer = null;
+            }
+            
+            document.getElementById('studyInterface').classList.add('hidden');
+            document.getElementById('studySetManagement').classList.remove('hidden');
+            document.getElementById('addTermsSection').classList.remove('hidden');
+            document.getElementById('modeSelection').classList.remove('hidden');
+            
+            currentMode = null;
+            currentIndex = 0;
+            studyData = [];
+        }
+
+        function updateUI() {
+            const setsContainer = document.getElementById('studySets');
+            setsContainer.innerHTML = '';
+
+            if (Object.keys(studySets).length === 0) {
+                setsContainer.innerHTML = '<div class="col-span-full text-center text-gray-500 dark:text-gray-400 py-8">No study sets yet. Create your first one!</div>';
+                return;
+            }
+
+            Object.values(studySets).forEach(set => {
+                const setElement = document.createElement('div');
+                setElement.className = `p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:shadow-md transition-all cursor-pointer ${currentSet === set.name ? 'ring-2 ring-primary' : ''}`;
+                setElement.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-semibold text-lg">${set.name}</h3>
+                        <button onclick="event.stopPropagation(); deleteStudySet('${set.name}')" 
+                                class="text-gray-400 hover:text-red-500 text-sm">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="text-sm text-gray-600 dark:text-gray-400">
+                        <div>${set.terms.length} terms</div>
+                        <div>Created: ${new Date(set.created).toLocaleDateString()}</div>
+                        ${set.lastStudied ? `<div>Last studied: ${new Date(set.lastStudied).toLocaleDateString()}</div>` : ''}
+                    </div>
+                `;
+                setElement.onclick = () => selectStudySet(set.name);
+                setsContainer.appendChild(setElement);
+            });
+        }
+
+        function updateTermsList() {
+            if (!currentSet) return;
+
+            const container = document.getElementById('termsList');
+            const terms = studySets[currentSet].terms;
+
+            if (terms.length === 0) {
+                container.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-8">No terms yet. Add your first term above!</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <h3 class="font-semibold text-lg mb-4">Terms (${terms.length})</h3>
+                <div class="space-y-3">
+                    ${terms.map((term, index) => `
+                        <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex-1">
+                                <div class="font-medium">${term.term}</div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">${term.definition}</div>
+                            </div>
+                            <button onclick="deleteTerm(${index})" 
+                                    class="text-gray-400 hover:text-red-500 ml-4">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function updateModeButtons() {
+            const hasTerms = currentSet && studySets[currentSet].terms.length > 0;
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            
+            modeButtons.forEach(btn => {
+                if (hasTerms) {
+                    btn.disabled = false;
+                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            });
+
+            if (hasTerms) {
+                document.getElementById('modeSelection').classList.remove('hidden');
+            }
+        }
+
+        // Utility functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function saveData() {
+            // Data is stored in memory during the session
+            // Note: Data will not persist between page reloads due to iframe restrictions
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg text-white transform translate-x-full transition-transform duration-300 ${
+                type === 'success' ? 'bg-green-500' :
+                type === 'warning' ? 'bg-yellow-500' :
+                type === 'danger' ? 'bg-red-500' :
+                'bg-blue-500'
+            }`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+            }, 100);
+            
+            setTimeout(() => {
+                notification.classList.add('translate-x-full');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 3000);
+        }
+
+        function showConfirmDialog(message, onConfirm) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
+                    <p class="text-gray-700 dark:text-gray-300 mb-4">${message}</p>
+                    <div class="flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded">Cancel</button>
+                        <button class="confirm-btn px-4 py-2 bg-red-500 text-white hover:bg-red-600 rounded">Confirm</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.querySelector('.cancel-btn').onclick = () => document.body.removeChild(modal);
+            modal.querySelector('.confirm-btn').onclick = () => {
+                document.body.removeChild(modal);
+                onConfirm();
+            };
+            
+            document.body.appendChild(modal);
+        }
+    </script>
+
+
+</body></html>
