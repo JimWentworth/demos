@@ -1,0 +1,631 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visual Communication Concepts</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            color: #333;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #495057;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        
+        p {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #6c757d;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .instructions {
+            font-style: italic;
+            color: #6c757d;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .score-display {
+            text-align: center;
+            margin: 10px 0 20px;
+            font-size: 1.2rem;
+        }
+        
+        .terms-area {
+            border: 1px dashed #ced4da;
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            min-height: 100px;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+        
+        .term {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: grab;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.3s;
+        }
+        
+        .term:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+        }
+        
+        .term.dragging {
+            opacity: 0.5;
+        }
+        
+        .term.correct {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+        }
+        
+        .term.incorrect {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .category {
+            border-radius: 8px;
+            padding: 10px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .category-header {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .category-content {
+            background-color: rgba(255, 255, 255, 0.6);
+            border-radius: 5px;
+            padding: 10px;
+            flex-grow: 1;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 10px;
+            overflow-y: auto;
+        }
+        
+        .category1 {
+            background-color: #e9ecef;
+            border: 1px solid #dee2e6;
+        }
+        
+        .category2 {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+        }
+        
+        .category3 {
+            background-color: #f1f8e9;
+            border: 1px solid #dcedc8;
+        }
+        
+        .category4 {
+            background-color: #fff8e1;
+            border: 1px solid #ffecb3;
+        }
+        
+        .buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: #5a6268;
+        }
+        
+        .definition-box {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            max-width: 90%;
+            display: none;
+            text-align: center;
+            z-index: 100;
+        }
+        
+        .help-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .result-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .result-content {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .result-score {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+        
+        .result-message {
+            margin-bottom: 20px;
+        }
+        
+        .close-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .close-button:hover {
+            background-color: #5a6268;
+        }
+        
+        /* Animation for moving terms */
+        @keyframes moveBack {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(0.9);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        
+        .term.moving {
+            animation: moveBack 0.5s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .categories {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Visual Communication Concepts</h1>
+    <p>Drag and drop each term to its correct category</p>
+    
+    <div class="container">
+        <div class="instructions">
+            Drag each concept to the appropriate category. Click on a term to see its definition.
+        </div>
+        
+        <div class="score-display">
+            Score: <span id="score">0</span> / <span id="total-terms">25</span>
+        </div>
+        
+        <div class="terms-area" id="terms-area"></div>
+        
+        <div class="categories">
+            <div class="category category1">
+                <div class="category-header">Core Semiotics &amp; Meaning</div>
+                <div class="category-content" id="category1"></div>
+            </div>
+            <div class="category category2">
+                <div class="category-header">Visual Perception &amp; Gestalt</div>
+                <div class="category-content" id="category2"></div>
+            </div>
+            <div class="category category3">
+                <div class="category-header">Media &amp; Image Analysis</div>
+                <div class="category-content" id="category3"></div>
+            </div>
+            <div class="category category4">
+                <div class="category-header">Design &amp; Visual Communication</div>
+                <div class="category-content" id="category4"></div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button id="check-btn">Check Answers</button>
+            <button id="reset-btn">Reset Game</button>
+        </div>
+    </div>
+    
+    <div class="definition-box" id="definition-box"></div>
+    <div class="help-button" id="help-button">?</div>
+    
+    <div class="result-popup" id="result-popup">
+        <div class="result-content">
+            <div class="result-title">Your Results</div>
+            <div class="result-score" id="result-score">0/25</div>
+            <div class="result-message" id="result-message"></div>
+            <button class="close-button" id="close-result">Continue</button>
+        </div>
+    </div>
+    
+    <script>
+        // Visual Communication Terms
+        const termData = [
+            { term: "Semiotics", category: "Core Semiotics & Meaning", definition: "The study of signs and symbols and how meaning is constructed." },
+            { term: "Signifier", category: "Core Semiotics & Meaning", definition: "The form a sign takes (e.g., word, image, sound)." },
+            { term: "Signified", category: "Core Semiotics & Meaning", definition: "The concept or meaning the signifier represents." },
+            { term: "Denotation", category: "Core Semiotics & Meaning", definition: "The literal, surface-level meaning of an image." },
+            { term: "Connotation", category: "Core Semiotics & Meaning", definition: "The cultural or emotional associations attached to an image or sign." },
+            { term: "Myth (in Barthes' terms)", category: "Core Semiotics & Meaning", definition: "Deeply embedded cultural narratives or ideologies conveyed by images." },
+            { term: "Code", category: "Core Semiotics & Meaning", definition: "A system of signs understood within a culture (e.g., color codes, fashion codes)." },
+            { term: "Anchorage", category: "Core Semiotics & Meaning", definition: "Text or captions that fix the meaning of an image." },
+            
+            { term: "Gestalt Principles", category: "Visual Perception & Gestalt", definition: "Rules of perception that explain how we visually organize information (e.g., proximity, similarity, closure, continuity)." },
+            { term: "Figure-Ground", category: "Visual Perception & Gestalt", definition: "The relationship between an object (figure) and its background (ground)." },
+            { term: "Closure", category: "Visual Perception & Gestalt", definition: "The tendency to perceive a complete image even when parts are missing." },
+            { term: "Proximity", category: "Visual Perception & Gestalt", definition: "Elements close together are perceived as a group." },
+            { term: "Similarity", category: "Visual Perception & Gestalt", definition: "Elements that look alike are seen as related." },
+            { term: "Continuity", category: "Visual Perception & Gestalt", definition: "Our eyes follow lines or paths, even across breaks." },
+            { term: "Visual Hierarchy", category: "Visual Perception & Gestalt", definition: "The arrangement of elements to show order of importance." },
+            
+            { term: "Framing", category: "Media & Image Analysis", definition: "The way visual information is presented to guide interpretation." },
+            { term: "Composition", category: "Media & Image Analysis", definition: "The arrangement of visual elements in an image or design." },
+            { term: "Perspective", category: "Media & Image Analysis", definition: "The technique used to represent three-dimensional space on a two-dimensional surface." },
+            { term: "Cropping", category: "Media & Image Analysis", definition: "Selecting part of an image to focus attention or change meaning." },
+            { term: "Juxtaposition", category: "Media & Image Analysis", definition: "Placing images side-by-side to create contrast or comparison." },
+            
+            { term: "Typography", category: "Design & Visual Communication", definition: "The art and technique of arranging type for visual communication." },
+            { term: "Iconography", category: "Design & Visual Communication", definition: "The study of symbols and imagery within a particular context." },
+            { term: "Color Theory", category: "Design & Visual Communication", definition: "The study of how colors interact and the psychological effects of color." },
+            { term: "Visual Metaphor", category: "Design & Visual Communication", definition: "A visual symbol that represents another concept or idea." },
+            { term: "Representation", category: "Design & Visual Communication", definition: "The depiction of subjects in visual media and the implications of how they're shown." }
+        ];
+        
+        // DOM elements
+        const termsArea = document.getElementById('terms-area');
+        const category1 = document.getElementById('category1');
+        const category2 = document.getElementById('category2');
+        const category3 = document.getElementById('category3');
+        const category4 = document.getElementById('category4');
+        const definitionBox = document.getElementById('definition-box');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const helpBtn = document.getElementById('help-button');
+        const scoreDisplay = document.getElementById('score');
+        const totalTermsDisplay = document.getElementById('total-terms');
+        const resultPopup = document.getElementById('result-popup');
+        const resultScore = document.getElementById('result-score');
+        const resultMessage = document.getElementById('result-message');
+        const closeResult = document.getElementById('close-result');
+        
+        // Global variables
+        let dragged = null;
+        let score = 0;
+        
+        // Initialize the game
+        function initGame() {
+            // Clear all containers
+            termsArea.innerHTML = '';
+            category1.innerHTML = '';
+            category2.innerHTML = '';
+            category3.innerHTML = '';
+            category4.innerHTML = '';
+            
+            // Reset score
+            score = 0;
+            scoreDisplay.textContent = score;
+            totalTermsDisplay.textContent = termData.length;
+            
+            // Shuffle terms
+            const shuffledTerms = [...termData].sort(() => Math.random() - 0.5);
+            
+            // Create term elements
+            shuffledTerms.forEach(item => {
+                const termEl = document.createElement('div');
+                termEl.className = 'term';
+                termEl.textContent = item.term;
+                termEl.draggable = true;
+                termEl.dataset.term = item.term;
+                termEl.dataset.category = item.category;
+                termEl.dataset.definition = item.definition;
+                
+                // Event listeners
+                termEl.addEventListener('dragstart', handleDragStart);
+                termEl.addEventListener('dragend', handleDragEnd);
+                termEl.addEventListener('click', showDefinition);
+                
+                termsArea.appendChild(termEl);
+            });
+            
+            // Set up drop zones
+            setupDropZones();
+        }
+        
+        // Show definition when term is clicked
+        function showDefinition(e) {
+            const term = e.target.dataset.term;
+            const definition = e.target.dataset.definition;
+            
+            definitionBox.textContent = `${term}: ${definition}`;
+            definitionBox.style.display = 'block';
+            
+            // Hide after 5 seconds
+            setTimeout(() => {
+                definitionBox.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Handle drag start
+        function handleDragStart(e) {
+            dragged = e.target;
+            e.target.classList.add('dragging');
+        }
+        
+        // Handle drag end
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+        
+        // Setup drop zones
+        function setupDropZones() {
+            const dropZones = [category1, category2, category3, category4, termsArea];
+            
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', e => {
+                    e.preventDefault(); // Allow drop
+                });
+                
+                zone.addEventListener('dragenter', e => {
+                    e.preventDefault();
+                    if (zone !== termsArea) {
+                        zone.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
+                    }
+                });
+                
+                zone.addEventListener('dragleave', e => {
+                    if (zone !== termsArea) {
+                        zone.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    }
+                });
+                
+                zone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    if (zone !== termsArea) {
+                        zone.style.backgroundColor = 'rgba(255, 255, 255, 0.6)';
+                    }
+                    
+                    if (dragged) {
+                        // Check if the term is already in another container
+                        const currentParent = dragged.parentNode;
+                        if (currentParent !== zone) {
+                            // If it's already somewhere, remove it
+                            currentParent.removeChild(dragged);
+                            
+                            // Add to new zone
+                            zone.appendChild(dragged);
+                            
+                            // Update score immediately if not in termsArea
+                            if (zone !== termsArea) {
+                                updateScore();
+                            }
+                        }
+                    }
+                });
+            });
+        }
+        
+        // Update score based on current placements
+        function updateScore() {
+            // Reset score
+            score = 0;
+            
+            // Check all categories
+            const categories = {
+                "Core Semiotics & Meaning": Array.from(category1.children),
+                "Visual Perception & Gestalt": Array.from(category2.children),
+                "Media & Image Analysis": Array.from(category3.children),
+                "Design & Visual Communication": Array.from(category4.children)
+            };
+            
+            // Count correct placements
+            for (const [categoryName, terms] of Object.entries(categories)) {
+                terms.forEach(term => {
+                    if (term.dataset.category === categoryName) {
+                        score++;
+                    }
+                });
+            }
+            
+            // Update score display
+            scoreDisplay.textContent = score;
+        }
+        
+        // Move incorrect terms back to terms area
+        function moveIncorrectTermsBack() {
+            // Categories mapping
+            const categoryMapping = {
+                "Core Semiotics & Meaning": category1,
+                "Visual Perception & Gestalt": category2,
+                "Media & Image Analysis": category3,
+                "Design & Visual Communication": category4
+            };
+            
+            // Process each category
+            for (const [categoryName, container] of Object.entries(categoryMapping)) {
+                // Get all terms in this category
+                const terms = Array.from(container.children);
+                
+                // Check each term
+                terms.forEach(term => {
+                    if (term.dataset.category !== categoryName) {
+                        // Mark as incorrect first
+                        term.classList.add('incorrect');
+                        
+                        // Add animation class
+                        term.classList.add('moving');
+                        
+                        // Move back to terms area after a delay for visual feedback
+                        setTimeout(() => {
+                            container.removeChild(term);
+                            termsArea.appendChild(term);
+                            
+                            // Remove classes after animation completes
+                            setTimeout(() => {
+                                term.classList.remove('incorrect', 'moving');
+                            }, 500);
+                        }, 800);
+                    } else {
+                        // Mark as correct
+                        term.classList.add('correct');
+                        
+                        // Remove class after a delay
+                        setTimeout(() => {
+                            term.classList.remove('correct');
+                        }, 1500);
+                    }
+                });
+            }
+            
+            // Update score after movements
+            setTimeout(updateScore, 1500);
+        }
+        
+        // Check answers
+        function checkAnswers() {
+            // First, highlight correct and incorrect terms
+            const categoryMapping = {
+                "Core Semiotics & Meaning": category1,
+                "Visual Perception & Gestalt": category2,
+                "Media & Image Analysis": category3,
+                "Design & Visual Communication": category4
+            };
+            
+            // Calculate current score
+            updateScore();
+            
+            // Move incorrect terms back
+            moveIncorrectTermsBack();
+            
+            // Show result popup
+            resultScore.textContent = `${score}/${termData.length}`;
+            
+            // Set message based on score
+            const percentage = (score / termData.length) * 100;
+            if (percentage === 100) {
+                resultMessage.textContent = "Perfect! You've mastered these visual communication concepts.";
+            } else if (percentage >= 80) {
+                resultMessage.textContent = "Great job! You have a strong understanding of these concepts.";
+            } else if (percentage >= 60) {
+                resultMessage.textContent = "Good work! Keep studying to improve your knowledge.";
+            } else {
+                resultMessage.textContent = "Keep practicing! These concepts take time to learn.";
+            }
+            
+            resultPopup.style.display = 'flex';
+        }
+        
+        // Reset game
+        function resetGame() {
+            initGame();
+        }
+        
+        // Show help
+        function showHelp() {
+            alert("How to play:\n\n1. Drag each term to its correct category.\n2. Click on a term to see its definition.\n3. Use 'Check Answers' to evaluate your categorization - incorrect terms will be returned to the starting area.\n4. Use 'Reset Game' to start over.");
+        }
+        
+        // Event listeners for buttons
+        checkBtn.addEventListener('click', checkAnswers);
+        resetBtn.addEventListener('click', resetGame);
+        helpBtn.addEventListener('click', showHelp);
+        closeResult.addEventListener('click', () => {
+            resultPopup.style.display = 'none';
+        });
+        
+        // Initialize the game when page loads
+        initGame();
+    </script>
+
+
+</body></html>
