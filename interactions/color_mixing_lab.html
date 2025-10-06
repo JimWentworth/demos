@@ -1,0 +1,569 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Mixing Laboratory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .color-slider {
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            outline: none;
+            transition: opacity 0.2s;
+        }
+        
+        .color-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #5D5CDE;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .color-slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ffffff;
+            border: 2px solid #5D5CDE;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        }
+        
+        .additive-light {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            mix-blend-mode: screen;
+            transition: opacity 0.3s ease;
+        }
+        
+        .pigment-drop {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            mix-blend-mode: multiply;
+            transition: all 0.3s ease;
+        }
+        
+        .challenge-card {
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .challenge-card.active {
+            border-color: #5D5CDE;
+            transform: scale(1.05);
+        }
+        
+        .challenge-card.completed {
+            border-color: #10B981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        
+        @keyframes colorPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .result-pulse {
+            animation: colorPulse 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-primary mb-2">🧪 Color Mixing Laboratory</h1>
+            <p class="text-lg text-gray-300">Explore additive (light) and subtractive (pigment) color mixing!</p>
+        </div>
+
+        <!-- Mode Switcher -->
+        <div class="flex justify-center mb-8">
+            <div class="bg-gray-800 rounded-lg p-1 flex">
+                <button id="additive-btn" class="px-6 py-3 rounded-lg font-semibold transition-all bg-primary text-white">
+                    💡 Additive (Light)
+                </button>
+                <button id="subtractive-btn" class="px-6 py-3 rounded-lg font-semibold transition-all text-gray-300 hover:text-white">
+                    🎨 Subtractive (Pigment)
+                </button>
+            </div>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-8">
+            <!-- Color Mixing Panel -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Additive Mode -->
+                <div id="additive-mode" class="space-y-6">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center">Light Mixing (RGB)</h2>
+                        <p class="text-gray-300 text-center mb-6">Add colored lights together - they get brighter!</p>
+                        
+                        <!-- Light Mixing Visualization -->
+                        <div class="relative bg-black rounded-lg mb-6 mx-auto" style="width: 300px; height: 300px;">
+                            <div id="red-light" class="additive-light" style="background: radial-gradient(circle, rgba(255,0,0,0.8) 0%, transparent 70%); top: 50px; left: 25px;"></div>
+                            <div id="green-light" class="additive-light" style="background: radial-gradient(circle, rgba(0,255,0,0.8) 0%, transparent 70%); top: 50px; right: 25px;"></div>
+                            <div id="blue-light" class="additive-light" style="background: radial-gradient(circle, rgba(0,0,255,0.8) 0%, transparent 70%); bottom: 50px; left: 50%; transform: translateX(-50%);"></div>
+                        </div>
+
+                        <!-- RGB Controls -->
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-red-400 font-bold">Red</span>
+                                <input type="range" id="red-slider" class="flex-1 color-slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #ff0000);">
+                                <span id="red-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-green-400 font-bold">Green</span>
+                                <input type="range" id="green-slider" class="flex-1 color-slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #00ff00);">
+                                <span id="green-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-blue-400 font-bold">Blue</span>
+                                <input type="range" id="blue-slider" class="flex-1 color-slider" min="0" max="255" value="0" style="background: linear-gradient(to right, #000, #0000ff);">
+                                <span id="blue-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subtractive Mode -->
+                <div id="subtractive-mode" class="space-y-6 hidden">
+                    <div class="bg-gray-800 rounded-lg p-6">
+                        <h2 class="text-2xl font-bold mb-4 text-center">Pigment Mixing (CMY)</h2>
+                        <p class="text-gray-300 text-center mb-6">Mix pigments together - they get darker!</p>
+                        
+                        <!-- Pigment Mixing Visualization -->
+                        <div class="relative bg-white rounded-lg mb-6 mx-auto" style="width: 300px; height: 300px;">
+                            <div id="cyan-pigment" class="pigment-drop" style="background: radial-gradient(circle, rgba(0,255,255,0.8) 0%, transparent 70%); top: 80px; left: 60px;"></div>
+                            <div id="magenta-pigment" class="pigment-drop" style="background: radial-gradient(circle, rgba(255,0,255,0.8) 0%, transparent 70%); top: 80px; right: 60px;"></div>
+                            <div id="yellow-pigment" class="pigment-drop" style="background: radial-gradient(circle, rgba(255,255,0,0.8) 0%, transparent 70%); bottom: 80px; left: 50%; transform: translateX(-50%);"></div>
+                        </div>
+
+                        <!-- CMY Controls -->
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-cyan-400 font-bold">Cyan</span>
+                                <input type="range" id="cyan-slider" class="flex-1 color-slider" min="0" max="100" value="0" style="background: linear-gradient(to right, #fff, #00ffff);">
+                                <span id="cyan-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0%</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-pink-400 font-bold">Magenta</span>
+                                <input type="range" id="magenta-slider" class="flex-1 color-slider" min="0" max="100" value="0" style="background: linear-gradient(to right, #fff, #ff00ff);">
+                                <span id="magenta-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0%</span>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="w-16 text-yellow-400 font-bold">Yellow</span>
+                                <input type="range" id="yellow-slider" class="flex-1 color-slider" min="0" max="100" value="0" style="background: linear-gradient(to right, #fff, #ffff00);">
+                                <span id="yellow-value" class="w-12 text-center bg-gray-700 rounded px-2 py-1">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Display -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4 text-center">Mixed Color Result</h3>
+                    <div class="flex gap-4 items-center">
+                        <div class="flex-1">
+                            <div id="result-color" class="w-full h-24 rounded-lg border-4 border-gray-600 transition-all duration-300"></div>
+                            <div class="text-center mt-2">
+                                <span id="result-hex" class="font-mono text-sm bg-gray-700 px-3 py-1 rounded">#000000</span>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button id="save-color" class="bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 transition-colors">
+                                💾 Save Color
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="space-y-6">
+                <!-- Color Theory Info -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">📚 Learn</h3>
+                    <div id="additive-info" class="space-y-3">
+                        <h4 class="font-semibold text-blue-400">Additive Color (RGB)</h4>
+                        <p class="text-sm text-gray-300">Used in screens and displays. When you add all colors together, you get white light!</p>
+                        <ul class="text-sm text-gray-400 space-y-1">
+                            <li>• Red + Green = Yellow</li>
+                            <li>• Green + Blue = Cyan</li>
+                            <li>• Red + Blue = Magenta</li>
+                            <li>• Red + Green + Blue = White</li>
+                        </ul>
+                    </div>
+                    <div id="subtractive-info" class="space-y-3 hidden">
+                        <h4 class="font-semibold text-pink-400">Subtractive Color (CMY)</h4>
+                        <p class="text-sm text-gray-300">Used in printing and paint. Pigments absorb (subtract) light wavelengths!</p>
+                        <ul class="text-sm text-gray-400 space-y-1">
+                            <li>• Cyan absorbs red light</li>
+                            <li>• Magenta absorbs green light</li>
+                            <li>• Yellow absorbs blue light</li>
+                            <li>• Mixed pigments = darker, muddier colors</li>
+                            <li>• Real paint mixing is complex!</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Color Challenges -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">🎯 Challenges</h3>
+                    <div id="challenges-container" class="space-y-3">
+                        <!-- Challenges will be dynamically added -->
+                    </div>
+                </div>
+
+                <!-- Saved Colors -->
+                <div class="bg-gray-800 rounded-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">🎨 Saved Colors</h3>
+                    <div id="saved-colors" class="grid grid-cols-4 gap-2">
+                        <!-- Saved colors will appear here -->
+                    </div>
+                    <button id="clear-saved" class="w-full mt-3 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors text-sm">
+                        Clear All
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode setup
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Game state
+        let gameState = {
+            mode: 'additive', // 'additive' or 'subtractive'
+            rgb: { r: 0, g: 0, b: 0 },
+            cmy: { c: 0, m: 0, y: 0 },
+            savedColors: [],
+            completedChallenges: new Set()
+        };
+
+        // Challenges for both modes
+        const challenges = {
+            additive: [
+                { name: 'Yellow Light', target: '#FFFF00', hint: 'Mix red and green light', rgb: { r: 255, g: 255, b: 0 } },
+                { name: 'Cyan Light', target: '#00FFFF', hint: 'Mix green and blue light', rgb: { r: 0, g: 255, b: 255 } },
+                { name: 'Magenta Light', target: '#FF00FF', hint: 'Mix red and blue light', rgb: { r: 255, g: 0, b: 255 } },
+                { name: 'White Light', target: '#FFFFFF', hint: 'Mix all three lights equally', rgb: { r: 255, g: 255, b: 255 } },
+                { name: 'Orange Light', target: '#FF8000', hint: 'More red than green', rgb: { r: 255, g: 128, b: 0 } }
+            ],
+            subtractive: [
+                { name: 'Orange Paint', target: '#E85A00', hint: 'Lots of magenta and yellow', cmy: { c: 0, m: 80, y: 100 } },
+                { name: 'Forest Green', target: '#2E8B00', hint: 'Cyan and yellow make green', cmy: { c: 70, m: 0, y: 90 } },
+                { name: 'Deep Purple', target: '#4B0082', hint: 'Cyan and magenta create blue-purple', cmy: { c: 80, m: 90, y: 0 } },
+                { name: 'Brown Paint', target: '#654321', hint: 'Mix all three pigments moderately', cmy: { c: 40, m: 60, y: 80 } },
+                { name: 'Dark Gray', target: '#404040', hint: 'Equal amounts of all pigments', cmy: { c: 70, m: 70, y: 70 } }
+            ]
+        };
+
+        function switchMode(mode) {
+            gameState.mode = mode;
+            
+            // Update button states
+            document.getElementById('additive-btn').className = mode === 'additive' 
+                ? 'px-6 py-3 rounded-lg font-semibold transition-all bg-primary text-white'
+                : 'px-6 py-3 rounded-lg font-semibold transition-all text-gray-300 hover:text-white';
+                
+            document.getElementById('subtractive-btn').className = mode === 'subtractive' 
+                ? 'px-6 py-3 rounded-lg font-semibold transition-all bg-primary text-white'
+                : 'px-6 py-3 rounded-lg font-semibold transition-all text-gray-300 hover:text-white';
+            
+            // Show/hide modes
+            document.getElementById('additive-mode').classList.toggle('hidden', mode !== 'additive');
+            document.getElementById('subtractive-mode').classList.toggle('hidden', mode !== 'subtractive');
+            document.getElementById('additive-info').classList.toggle('hidden', mode !== 'additive');
+            document.getElementById('subtractive-info').classList.toggle('hidden', mode !== 'subtractive');
+            
+            updateResult();
+            loadChallenges();
+        }
+
+        function updateAdditiveColor() {
+            const r = parseInt(document.getElementById('red-slider').value);
+            const g = parseInt(document.getElementById('green-slider').value);
+            const b = parseInt(document.getElementById('blue-slider').value);
+            
+            gameState.rgb = { r, g, b };
+            
+            // Update value displays
+            document.getElementById('red-value').textContent = r;
+            document.getElementById('green-value').textContent = g;
+            document.getElementById('blue-value').textContent = b;
+            
+            // Update light opacity
+            document.getElementById('red-light').style.opacity = r / 255;
+            document.getElementById('green-light').style.opacity = g / 255;
+            document.getElementById('blue-light').style.opacity = b / 255;
+            
+            updateResult();
+        }
+
+        function updateSubtractiveColor() {
+            const c = parseInt(document.getElementById('cyan-slider').value);
+            const m = parseInt(document.getElementById('magenta-slider').value);
+            const y = parseInt(document.getElementById('yellow-slider').value);
+            
+            gameState.cmy = { c, m, y };
+            
+            // Update value displays
+            document.getElementById('cyan-value').textContent = c + '%';
+            document.getElementById('magenta-value').textContent = m + '%';
+            document.getElementById('yellow-value').textContent = y + '%';
+            
+            // Update pigment opacity
+            document.getElementById('cyan-pigment').style.opacity = c / 100;
+            document.getElementById('magenta-pigment').style.opacity = m / 100;
+            document.getElementById('yellow-pigment').style.opacity = y / 100;
+            
+            updateResult();
+        }
+
+        function cmyToRgb(c, m, y) {
+            // More accurate subtractive color mixing
+            // Each pigment absorbs certain wavelengths of light
+            
+            // Convert percentages to decimal
+            const cDecimal = c / 100;
+            const mDecimal = m / 100;
+            const yDecimal = y / 100;
+            
+            // Start with white paper (255, 255, 255)
+            // Each pigment subtracts (absorbs) certain colors:
+            // Cyan absorbs red light
+            // Magenta absorbs green light  
+            // Yellow absorbs blue light
+            
+            let r = 255 * (1 - cDecimal) * (1 - mDecimal * 0.7); // Magenta affects red slightly
+            let g = 255 * (1 - mDecimal) * (1 - yDecimal * 0.7); // Yellow affects green slightly
+            let b = 255 * (1 - yDecimal) * (1 - cDecimal * 0.7); // Cyan affects blue slightly
+            
+            // Apply more realistic pigment interaction
+            // When multiple pigments are present, they interact non-linearly
+            if (cDecimal > 0 && mDecimal > 0) {
+                // Cyan + Magenta = Blue (but not perfect)
+                b = Math.min(b, 255 * (1 - Math.min(cDecimal + mDecimal * 0.8, 1)));
+                r *= (1 - cDecimal * mDecimal * 0.5);
+                g *= (1 - cDecimal * mDecimal * 0.5);
+            }
+            
+            if (mDecimal > 0 && yDecimal > 0) {
+                // Magenta + Yellow = Red (but not perfect)
+                r = Math.min(r, 255 * (1 - Math.min(mDecimal + yDecimal * 0.8, 1)));
+                g *= (1 - mDecimal * yDecimal * 0.5);
+                b *= (1 - mDecimal * yDecimal * 0.5);
+            }
+            
+            if (cDecimal > 0 && yDecimal > 0) {
+                // Cyan + Yellow = Green (but not perfect)
+                g = Math.min(g, 255 * (1 - Math.min(cDecimal + yDecimal * 0.8, 1)));
+                r *= (1 - cDecimal * yDecimal * 0.5);
+                b *= (1 - cDecimal * yDecimal * 0.5);
+            }
+            
+            // Triple mixing creates muddy browns/blacks
+            if (cDecimal > 0 && mDecimal > 0 && yDecimal > 0) {
+                const muddiness = Math.min(cDecimal * mDecimal * yDecimal, 0.8);
+                r *= (1 - muddiness);
+                g *= (1 - muddiness);
+                b *= (1 - muddiness);
+            }
+            
+            // Ensure values stay within valid range
+            return {
+                r: Math.max(0, Math.min(255, Math.round(r))),
+                g: Math.max(0, Math.min(255, Math.round(g))),
+                b: Math.max(0, Math.min(255, Math.round(b)))
+            };
+        }
+
+        function updateResult() {
+            let resultColor;
+            
+            if (gameState.mode === 'additive') {
+                resultColor = `rgb(${gameState.rgb.r}, ${gameState.rgb.g}, ${gameState.rgb.b})`;
+            } else {
+                const rgb = cmyToRgb(gameState.cmy.c, gameState.cmy.m, gameState.cmy.y);
+                resultColor = `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`;
+            }
+            
+            const resultDiv = document.getElementById('result-color');
+            resultDiv.style.backgroundColor = resultColor;
+            resultDiv.classList.add('result-pulse');
+            setTimeout(() => resultDiv.classList.remove('result-pulse'), 500);
+            
+            // Update hex display
+            const hex = rgbToHex(resultColor);
+            document.getElementById('result-hex').textContent = hex;
+            
+            checkChallenges();
+        }
+
+        function rgbToHex(rgb) {
+            const result = rgb.match(/\d+/g);
+            if (result) {
+                const r = parseInt(result[0]).toString(16).padStart(2, '0');
+                const g = parseInt(result[1]).toString(16).padStart(2, '0');
+                const b = parseInt(result[2]).toString(16).padStart(2, '0');
+                return `#${r}${g}${b}`.toUpperCase();
+            }
+            return '#000000';
+        }
+
+        function loadChallenges() {
+            const container = document.getElementById('challenges-container');
+            container.innerHTML = '';
+            
+            const currentChallenges = challenges[gameState.mode];
+            
+            currentChallenges.forEach((challenge, index) => {
+                const isCompleted = gameState.completedChallenges.has(`${gameState.mode}-${index}`);
+                const card = document.createElement('div');
+                card.className = `challenge-card p-3 bg-gray-700 rounded-lg cursor-pointer ${isCompleted ? 'completed' : ''}`;
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded" style="background-color: ${challenge.target}"></div>
+                        <div class="flex-1">
+                            <div class="font-semibold text-sm">${challenge.name}</div>
+                            <div class="text-xs text-gray-400">${challenge.hint}</div>
+                        </div>
+                        <div class="text-lg">${isCompleted ? '✅' : '🎯'}</div>
+                    </div>
+                `;
+                
+                card.addEventListener('click', () => setTargetColor(challenge, index));
+                container.appendChild(card);
+            });
+        }
+
+        function setTargetColor(challenge, index) {
+            if (gameState.mode === 'additive' && challenge.rgb) {
+                document.getElementById('red-slider').value = challenge.rgb.r;
+                document.getElementById('green-slider').value = challenge.rgb.g;
+                document.getElementById('blue-slider').value = challenge.rgb.b;
+                updateAdditiveColor();
+            } else if (gameState.mode === 'subtractive' && challenge.cmy) {
+                document.getElementById('cyan-slider').value = challenge.cmy.c;
+                document.getElementById('magenta-slider').value = challenge.cmy.m;
+                document.getElementById('yellow-slider').value = challenge.cmy.y;
+                updateSubtractiveColor();
+            }
+        }
+
+        function checkChallenges() {
+            const currentChallenges = challenges[gameState.mode];
+            const currentHex = document.getElementById('result-hex').textContent;
+            
+            currentChallenges.forEach((challenge, index) => {
+                if (currentHex === challenge.target) {
+                    const challengeId = `${gameState.mode}-${index}`;
+                    if (!gameState.completedChallenges.has(challengeId)) {
+                        gameState.completedChallenges.add(challengeId);
+                        showSuccess(`🎉 Challenge completed: ${challenge.name}!`);
+                        loadChallenges();
+                    }
+                }
+            });
+        }
+
+        function showSuccess(message) {
+            const popup = document.createElement('div');
+            popup.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform';
+            popup.textContent = message;
+            document.body.appendChild(popup);
+            
+            setTimeout(() => popup.style.transform = 'translateX(0)', 100);
+            setTimeout(() => {
+                popup.style.transform = 'translateX(100%)';
+                setTimeout(() => popup.remove(), 300);
+            }, 3000);
+        }
+
+        function saveColor() {
+            const hex = document.getElementById('result-hex').textContent;
+            if (hex && hex !== '#000000' && !gameState.savedColors.includes(hex)) {
+                gameState.savedColors.push(hex);
+                updateSavedColors();
+                showSuccess('Color saved! 🎨');
+            }
+        }
+
+        function updateSavedColors() {
+            const container = document.getElementById('saved-colors');
+            container.innerHTML = '';
+            
+            gameState.savedColors.forEach(color => {
+                const colorDiv = document.createElement('div');
+                colorDiv.className = 'w-full h-8 rounded cursor-pointer border-2 border-gray-600 hover:border-white transition-colors';
+                colorDiv.style.backgroundColor = color;
+                colorDiv.title = color;
+                colorDiv.addEventListener('click', () => {
+                    navigator.clipboard.writeText(color);
+                    showSuccess(`Copied ${color}! 📋`);
+                });
+                container.appendChild(colorDiv);
+            });
+        }
+
+        function clearSavedColors() {
+            gameState.savedColors = [];
+            updateSavedColors();
+        }
+
+        // Event listeners
+        document.getElementById('additive-btn').addEventListener('click', () => switchMode('additive'));
+        document.getElementById('subtractive-btn').addEventListener('click', () => switchMode('subtractive'));
+
+        // Additive sliders
+        document.getElementById('red-slider').addEventListener('input', updateAdditiveColor);
+        document.getElementById('green-slider').addEventListener('input', updateAdditiveColor);
+        document.getElementById('blue-slider').addEventListener('input', updateAdditiveColor);
+
+        // Subtractive sliders
+        document.getElementById('cyan-slider').addEventListener('input', updateSubtractiveColor);
+        document.getElementById('magenta-slider').addEventListener('input', updateSubtractiveColor);
+        document.getElementById('yellow-slider').addEventListener('input', updateSubtractiveColor);
+
+        // Other controls
+        document.getElementById('save-color').addEventListener('click', saveColor);
+        document.getElementById('clear-saved').addEventListener('click', clearSavedColors);
+
+        // Initialize
+        updateResult();
+        loadChallenges();
+    </script>
+
+
+</body></html>
