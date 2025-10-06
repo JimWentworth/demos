@@ -1,0 +1,192 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CITL Student Workload Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 5px;
+            margin-right: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .result {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        #clearAllButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #clearAllButton:hover {
+            background-color: #c0392b;
+        }
+        .instructions {
+            margin-bottom: 15px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <h1>CITL Student Workload Calculator</h1>
+
+    <h2>Campus Student Workload Requirements</h2>
+    <p class="instructions">Enter the number of credits and weeks in the semester to calculate the required student workload.</p>
+    <div>
+        <label for="credits">Number of credits:</label>
+        <input type="number" id="credits" value="3" min="0" step="0.5">
+    </div>
+    <div>
+        <label for="weeks">Number of weeks in semester:</label>
+        <input type="number" id="weeks" value="16" min="1">
+    </div>
+    <div class="result" id="workloadResult"></div>
+
+    <h2>Estimating Student Workload</h2>
+    <div class="instructions">
+        <p>Use this section to estimate the time students will spend on various course activities. Consider these guidelines when estimating:</p>
+        <ul>
+            <li>Be realistic about the time an average student might need, not just high-achievers.</li>
+            <li>Factor in preparation time, not just the activity duration itself.</li>
+            <li>For readings, consider complexity and length (a general guideline: 6 pages per hour for complex material, 10-15 pages per hour for easier texts).</li>
+            <li>Include time for reflection, review, and potential revisions in your estimates.</li>
+        </ul>
+    </div>
+    <table id="activitiesTable">
+        <tbody><tr>
+            <th>Learning Activity</th>
+            <th>Total # of activities per semester</th>
+            <th>Estimated average hours per activity</th>
+            <th>Total</th>
+        </tr>
+        <!-- Rows will be dynamically added here -->
+    </tbody></table>
+
+    <div class="result" id="weeklyHoursResult"></div>
+    <div class="result" id="totalSemesterHoursResult"></div>
+    <div class="result" id="variationResult"></div>
+
+    <button id="clearAllButton">Clear All</button>
+
+    <script>
+        const activities = [
+            { name: "Lectures", step: 0.25 },
+            { name: "Discussions", step: 0.25 },
+            { name: "Guided group work / online activities", step: 0.25 },
+            { name: "Student presentations / critique", step: 0.25 },
+            { name: "Quizzes / exams", step: 0.25 },
+            { name: "Guest speakers / movies / other mediated events", step: 0.25 },
+            { name: "Labs / events / site visits etc.", step: 0.25 },
+            { name: "Course projects", step: 0.5 },
+            { name: "Writing assignments", step: 0.5 },
+            { name: "Group project", step: 0.5 },
+            { name: "Required readings – textbooks, articles, etc.", step: 0.25 },
+            { name: "Online research / activities", step: 0.25 },
+            { name: "Problem sets / homework / other", step: 0.25 }
+        ];
+
+        const creditsInput = document.getElementById('credits');
+        const weeksInput = document.getElementById('weeks');
+        const workloadResult = document.getElementById('workloadResult');
+        const weeklyHoursResult = document.getElementById('weeklyHoursResult');
+        const totalSemesterHoursResult = document.getElementById('totalSemesterHoursResult');
+        const variationResult = document.getElementById('variationResult');
+        const table = document.getElementById('activitiesTable');
+        const clearAllButton = document.getElementById('clearAllButton');
+
+        function createActivityRow(activity) {
+            const row = table.insertRow();
+            row.insertCell(0).textContent = activity.name;
+            row.insertCell(1).innerHTML = `<input type="number" class="activity-count" value="0" min="0">`;
+            row.insertCell(2).innerHTML = `<input type="number" class="activity-hours" value="0" min="0" step="${activity.step}">`;
+            row.cells[2].querySelector('input').addEventListener('change', function() {
+                this.value = (Math.round(this.value / activity.step) * activity.step).toFixed(2);
+            });
+            row.insertCell(3).textContent = '0';
+        }
+
+        activities.forEach(createActivityRow);
+
+        function updateCalculations() {
+            const credits = parseFloat(creditsInput.value);
+            const weeks = parseFloat(weeksInput.value);
+
+            const totalWeeklyContactHours = credits;
+            const averageHoursPerWeek = (48 * credits) / weeks;
+            const totalHoursPerSemester = 48 * credits;
+
+            workloadResult.innerHTML = `
+                Total weekly contact hours: ${totalWeeklyContactHours.toFixed(2)}<br>
+                Average hours of student effort per week: ${averageHoursPerWeek.toFixed(2)}<br>
+                Total hours of student effort for the semester: ${totalHoursPerSemester.toFixed(2)}
+            `;
+
+            let totalHours = 0;
+
+            table.querySelectorAll('tr').forEach((row, index) => {
+                if (index === 0) return; // Skip header row
+                const count = parseFloat(row.querySelector('.activity-count').value) || 0;
+                const hours = parseFloat(row.querySelector('.activity-hours').value) || 0;
+                const total = count * hours;
+                row.cells[3].textContent = total.toFixed(2);
+                totalHours += total;
+            });
+
+            weeklyHoursResult.textContent = `Average Weekly hours of student effort: ${(totalHours / weeks).toFixed(2)}`;
+            totalSemesterHoursResult.textContent = `Total hours of student effort for the semester: ${totalHours.toFixed(2)}`;
+            variationResult.textContent = `Variation from campus policy: ${(totalHours - totalHoursPerSemester).toFixed(2)}`;
+        }
+
+        function clearAll() {
+            creditsInput.value = '3';
+            weeksInput.value = '16';
+            
+            table.querySelectorAll('tr').forEach((row, index) => {
+                if (index === 0) return; // Skip header row
+                row.querySelector('.activity-count').value = '0';
+                row.querySelector('.activity-hours').value = '0';
+                row.cells[3].textContent = '0';
+            });
+
+            updateCalculations();
+        }
+
+        creditsInput.addEventListener('input', updateCalculations);
+        weeksInput.addEventListener('input', updateCalculations);
+        table.addEventListener('input', updateCalculations);
+        clearAllButton.addEventListener('click', clearAll);
+
+        updateCalculations(); // Initial calculation
+    </script>
+
+
+</body></html>
