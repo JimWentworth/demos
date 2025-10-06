@@ -1,0 +1,467 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Color Terms Fill-in-the-Blank</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#5D5CDE'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .drop-zone {
+            min-height: 2rem;
+            border: 2px dashed #d1d5db;
+            transition: all 0.3s ease;
+        }
+        .drop-zone.drag-over {
+            border-color: #5D5CDE;
+            background-color: rgba(93, 92, 222, 0.1);
+        }
+        .drop-zone.filled {
+            border-style: solid;
+            border-color: #10b981;
+            background-color: rgba(16, 185, 129, 0.1);
+        }
+        .drop-zone.incorrect {
+            border-color: #ef4444;
+            background-color: rgba(239, 68, 68, 0.1);
+        }
+        .draggable {
+            cursor: grab;
+            transition: all 0.2s ease;
+        }
+        .draggable:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        .draggable.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .word-bank-item {
+            user-select: none;
+        }
+        @media (max-width: 768px) {
+            .draggable {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-white dark:bg-gray-900 min-h-screen">
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+    </script>
+
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-2">
+                Color Terms Fill-in-the-Blank
+            </h1>
+            <p class="text-gray-600 dark:text-gray-300">
+                Drag the color terms from the word bank below to fill in the blanks
+            </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-6">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-sm text-gray-600 dark:text-gray-300">Progress</span>
+                <span id="progress-text" class="text-sm text-gray-600 dark:text-gray-300">0/12 completed</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div id="progress-bar" class="bg-primary h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+
+        <!-- Content with Blanks -->
+        <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 mb-8 space-y-6">
+            <div class="prose dark:prose-invert max-w-none">
+                <h2 class="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Color Theory Fundamentals</h2>
+                
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    The three 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="primary"></span>
+                    colors are red, blue, and yellow. These colors cannot be created by mixing other colors together.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="secondary"></span>
+                    colors are created by mixing two primary colors. Orange is made by mixing red and yellow, 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="violet"></span>
+                    is made by mixing red and blue, and green is made by mixing blue and yellow.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Colors that are opposite each other on the color wheel are called 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="complementary"></span>
+                    colors. When placed next to each other, they create high contrast and make each other appear more vibrant.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="analogous"></span>
+                    colors are groups of three colors that are next to each other on the color wheel, such as red, red-orange, and orange.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    The 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="hue"></span>
+                    refers to the pure color itself, while 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="saturation"></span>
+                    describes how intense or pure the color appears.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    Adding white to a color creates a 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="tint"></span>
+                    , while adding black creates a 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="shade"></span>
+                    .
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="warm"></span>
+                    colors like red, orange, and yellow are associated with energy and excitement, while 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="cool"></span>
+                    colors like blue, green, and purple tend to be calming and peaceful.
+                </p>
+
+                <p class="text-gray-700 dark:text-gray-300 leading-relaxed">
+                    A 
+                    <span class="drop-zone inline-flex items-center justify-center rounded px-2 py-1 mx-1" data-answer="monochromatic"></span>
+                    color scheme uses different values of the same color, creating a harmonious and cohesive look.
+                </p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-wrap gap-3 mb-8 justify-center">
+            <button id="check-btn" class="bg-primary hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Check Answers
+            </button>
+            <button id="reset-btn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg transition-colors">
+                Reset All
+            </button>
+            <button id="hint-btn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors">
+                Show Hint
+            </button>
+        </div>
+
+        <!-- Word Bank -->
+        <div class="bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-lg p-6">
+            <h3 class="text-lg font-semibold mb-4 text-gray-900 dark:text-white text-center">
+                Word Bank - Drag these terms to fill in the blanks
+            </h3>
+            <div id="word-bank" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <!-- Words will be generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="mt-6 p-4 rounded-lg hidden">
+            <div class="text-center">
+                <div id="score" class="text-2xl font-bold mb-2"></div>
+                <div id="feedback" class="text-gray-600 dark:text-gray-300"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const words = [
+            'primary', 'secondary', 'complementary', 'analogous', 'hue', 
+            'saturation', 'tint', 'shade', 'warm', 'cool', 'violet', 'monochromatic'
+        ];
+
+        const wordBank = document.getElementById('word-bank');
+        const dropZones = document.querySelectorAll('.drop-zone');
+        const checkBtn = document.getElementById('check-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const hintBtn = document.getElementById('hint-btn');
+        const results = document.getElementById('results');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        let draggedElement = null;
+        let touchStartPos = { x: 0, y: 0 };
+        let currentDropZone = null;
+
+        // Initialize word bank
+        function initializeWordBank() {
+            wordBank.innerHTML = '';
+            words.forEach(word => {
+                const wordElement = document.createElement('div');
+                wordElement.className = 'draggable word-bank-item bg-primary text-white px-4 py-2 rounded-lg text-center font-medium';
+                wordElement.draggable = true;
+                wordElement.textContent = word;
+                wordElement.dataset.word = word;
+
+                // Mouse events
+                wordElement.addEventListener('dragstart', handleDragStart);
+                wordElement.addEventListener('dragend', handleDragEnd);
+
+                // Touch events for mobile
+                wordElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+                wordElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+                wordElement.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+                wordBank.appendChild(wordElement);
+            });
+        }
+
+        // Drag and drop handlers
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.outerHTML);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+            draggedElement = null;
+        }
+
+        // Touch event handlers for mobile
+        function handleTouchStart(e) {
+            draggedElement = e.target;
+            const touch = e.touches[0];
+            touchStartPos = { x: touch.clientX, y: touch.clientY };
+            
+            // Create visual feedback
+            e.target.classList.add('dragging');
+            e.preventDefault();
+        }
+
+        function handleTouchMove(e) {
+            if (!draggedElement) return;
+            
+            e.preventDefault();
+            const touch = e.touches[0];
+            const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
+            
+            // Clear previous highlights
+            dropZones.forEach(zone => zone.classList.remove('drag-over'));
+            
+            // Highlight current drop zone
+            if (elementBelow && elementBelow.classList.contains('drop-zone')) {
+                elementBelow.classList.add('drag-over');
+                currentDropZone = elementBelow;
+            } else {
+                currentDropZone = null;
+            }
+        }
+
+        function handleTouchEnd(e) {
+            if (!draggedElement) return;
+            
+            draggedElement.classList.remove('dragging');
+            dropZones.forEach(zone => zone.classList.remove('drag-over'));
+            
+            if (currentDropZone && !currentDropZone.hasChildNodes()) {
+                // Move the word to the drop zone
+                const word = draggedElement.dataset.word;
+                placeWordInDropZone(currentDropZone, word);
+                draggedElement.remove();
+            }
+            
+            draggedElement = null;
+            currentDropZone = null;
+        }
+
+        // Setup drop zones
+        dropZones.forEach(zone => {
+            zone.addEventListener('dragover', handleDragOver);
+            zone.addEventListener('drop', handleDrop);
+            zone.addEventListener('dragleave', handleDragLeave);
+        });
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (!e.target.hasChildNodes()) {
+                e.target.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.target.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.target.classList.remove('drag-over');
+            
+            if (e.target.hasChildNodes()) return; // Already filled
+            
+            const word = draggedElement.dataset.word;
+            placeWordInDropZone(e.target, word);
+            draggedElement.remove();
+        }
+
+        function placeWordInDropZone(dropZone, word) {
+            const wordElement = document.createElement('span');
+            wordElement.className = 'placed-word bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded text-sm font-medium cursor-pointer';
+            wordElement.textContent = word;
+            wordElement.dataset.word = word;
+            
+            // Allow removal by clicking
+            wordElement.addEventListener('click', function() {
+                removeWordFromDropZone(dropZone, word);
+            });
+            
+            dropZone.appendChild(wordElement);
+            dropZone.classList.add('filled');
+            updateProgress();
+        }
+
+        function removeWordFromDropZone(dropZone, word) {
+            dropZone.innerHTML = '';
+            dropZone.classList.remove('filled', 'incorrect');
+            
+            // Add word back to word bank
+            const wordElement = document.createElement('div');
+            wordElement.className = 'draggable word-bank-item bg-primary text-white px-4 py-2 rounded-lg text-center font-medium';
+            wordElement.draggable = true;
+            wordElement.textContent = word;
+            wordElement.dataset.word = word;
+
+            // Re-add event listeners
+            wordElement.addEventListener('dragstart', handleDragStart);
+            wordElement.addEventListener('dragend', handleDragEnd);
+            wordElement.addEventListener('touchstart', handleTouchStart, { passive: false });
+            wordElement.addEventListener('touchmove', handleTouchMove, { passive: false });
+            wordElement.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+            wordBank.appendChild(wordElement);
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const totalBlanks = dropZones.length;
+            const filledBlanks = document.querySelectorAll('.drop-zone.filled').length;
+            const percentage = (filledBlanks / totalBlanks) * 100;
+            
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${filledBlanks}/${totalBlanks} completed`;
+        }
+
+        function checkAnswers() {
+            let correct = 0;
+            let total = 0;
+            
+            dropZones.forEach(zone => {
+                total++;
+                const correctAnswer = zone.dataset.answer;
+                const placedWord = zone.querySelector('.placed-word');
+                
+                if (placedWord) {
+                    const userAnswer = placedWord.dataset.word;
+                    if (userAnswer === correctAnswer) {
+                        correct++;
+                        zone.classList.remove('incorrect');
+                        zone.classList.add('filled');
+                        placedWord.className = 'placed-word bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 px-2 py-1 rounded text-sm font-medium cursor-pointer';
+                    } else {
+                        zone.classList.add('incorrect');
+                        placedWord.className = 'placed-word bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 px-2 py-1 rounded text-sm font-medium cursor-pointer';
+                    }
+                }
+            });
+            
+            // Show results
+            results.classList.remove('hidden');
+            const score = document.getElementById('score');
+            const feedback = document.getElementById('feedback');
+            
+            const percentage = Math.round((correct / total) * 100);
+            score.textContent = `Score: ${correct}/${total} (${percentage}%)`;
+            
+            if (percentage === 100) {
+                feedback.textContent = "Perfect! You've mastered color theory terms!";
+                results.className = 'mt-6 p-4 rounded-lg bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200';
+            } else if (percentage >= 80) {
+                feedback.textContent = "Great job! Just a few more to get perfect.";
+                results.className = 'mt-6 p-4 rounded-lg bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200';
+            } else {
+                feedback.textContent = "Keep trying! Review the incorrect answers and try again.";
+                results.className = 'mt-6 p-4 rounded-lg bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200';
+            }
+        }
+
+        function resetAll() {
+            // Clear all drop zones
+            dropZones.forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('filled', 'incorrect');
+            });
+            
+            // Reset word bank
+            initializeWordBank();
+            
+            // Hide results
+            results.classList.add('hidden');
+            
+            // Reset progress
+            updateProgress();
+        }
+
+        function showHint() {
+            const emptyZones = Array.from(dropZones).filter(zone => !zone.hasChildNodes());
+            if (emptyZones.length > 0) {
+                const randomZone = emptyZones[Math.floor(Math.random() * emptyZones.length)];
+                const correctAnswer = randomZone.dataset.answer;
+                
+                // Highlight the correct word in word bank
+                const correctWordElement = document.querySelector(`[data-word="${correctAnswer}"]`);
+                if (correctWordElement) {
+                    correctWordElement.style.animation = 'pulse 2s infinite';
+                    setTimeout(() => {
+                        correctWordElement.style.animation = '';
+                    }, 4000);
+                }
+                
+                // Highlight the drop zone
+                randomZone.style.animation = 'pulse 2s infinite';
+                setTimeout(() => {
+                    randomZone.style.animation = '';
+                }, 4000);
+            }
+        }
+
+        // Event listeners
+        checkBtn.addEventListener('click', checkAnswers);
+        resetBtn.addEventListener('click', resetAll);
+        hintBtn.addEventListener('click', showHint);
+
+        // Initialize the game
+        initializeWordBank();
+        updateProgress();
+    </script>
+
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+    </style>
+
+
+</body></html>
