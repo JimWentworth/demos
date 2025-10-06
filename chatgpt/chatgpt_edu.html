@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ChatGPT for Education — Comparison Sheet (UIUC)</title>
+  <meta name="description" content="One-page comparison of ChatGPT Free/Plus, Teams/Enterprise, and Edu for higher-education stakeholders." />
+  <style>
+    :root {
+      --illinois-blue: #13294B;
+      --illinois-orange: #FF552E;
+      --text: #1a1a1a;
+      --muted: #555;
+      --bg: #ffffff;
+      --stripe: #f6f7f9;
+      --border: #d9d9e3;
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    }
+    .container {
+      max-width: 980px;
+      margin: 24px auto 48px;
+      padding: 0 20px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border-bottom: 3px solid var(--illinois-blue);
+      padding-bottom: 12px;
+      margin-bottom: 20px;
+    }
+    .brand {
+      color: var(--illinois-blue);
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      color: var(--illinois-blue);
+      letter-spacing: .2px;
+    }
+    .subhead {
+      margin: 2px 0 0;
+      font-size: .95rem;
+      color: var(--muted);
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--illinois-blue);
+      background: var(--illinois-blue);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: .9rem;
+      cursor: pointer;
+    }
+    section + section { margin-top: 18px; }
+    h2 { 
+      font-size: 1.05rem; 
+      margin: 0 0 8px; 
+      color: var(--illinois-orange); 
+    }
+    p { margin: 0 0 8px; }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: white;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+    thead th {
+      position: sticky;
+      top: 0;
+      background: var(--illinois-blue);
+      color: #fff;
+      text-align: left;
+      font-weight: 700;
+      padding: 10px 12px;
+      font-size: .92rem;
+    }
+    tbody td, tbody th {
+      border-top: 1px solid var(--border);
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: .92rem;
+    }
+    tbody tr:nth-child(odd) td {
+      background: var(--stripe);
+    }
+    tbody th[scope="row"] {
+      font-weight: 700;
+      white-space: nowrap;
+      width: 18%;
+    }
+    .kicker {
+      display: block;
+      font-weight: 700;
+      color: var(--illinois-orange);
+      margin-bottom: 4px;
+    }
+    .foot {
+      margin-top: 16px;
+      font-size: .85rem;
+      color: var(--muted);
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+    @media print {
+      .actions { display: none !important; }
+      header { border-bottom-color: #000; }
+      a::after { content: "" !important; }
+      body { font-size: 11pt; }
+      .container { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#comparison" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;">Skip to comparison table</a>
+  <div class="container" role="document">
+    <header>
+      <div>
+        <h1>ChatGPT for Education — Comparison Sheet</h1>
+        <p class="subhead brand">University of Illinois Urbana–Champaign · Center for Innovation in Teaching &amp; Learning</p>
+      </div>
+      <div class="actions" aria-label="Actions">
+        <button class="btn" onclick="window.print()">Print</button>
+      </div>
+    </header>
+
+    <section id="comparison" aria-labelledby="table-label">
+      <h2 id="table-label">Feature comparison</h2>
+      <div class="table-wrap" role="region" aria-label="Comparison table" tabindex="0">
+        <table aria-describedby="table-caption">
+          <caption id="table-caption" style="text-align:left;padding:8px 12px;">Side‑by‑side overview of capabilities, privacy, security, and fit.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Feature Area</th>
+              <th scope="col">Free / Plus (Individual)</th>
+              <th scope="col">Teams / Enterprise (Business)</th>
+              <th scope="col">Edu (Institutional Academic License)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Model Access</th>
+              <td>Free: standard models with caps; Plus: access to advanced models with higher limits.</td>
+              <td>Access to flagship models with high usage quotas for organizations.</td>
+              <td>Access to flagship models; higher limits suitable for courses and research cohorts.</td>
+            </tr>
+            <tr>
+              <th scope="row">Tools &amp; Capabilities</th>
+              <td>Core chat and text generation; limited advanced tools.</td>
+              <td>Full toolset: data analysis, web browsing, file uploads, coding support, long‑context.</td>
+              <td>Full toolset oriented to teaching/learning: data analysis, document summarization, long uploads, browsing, coding.</td>
+            </tr>
+            <tr>
+              <th scope="row">Custom GPTs</th>
+              <td>Personal use only; no organizational sharing.</td>
+              <td>Create &amp; share GPTs across a company workspace.</td>
+              <td>Create &amp; share GPTs across classes, departments, or campus workspaces.</td>
+            </tr>
+            <tr>
+              <th scope="row">Collaboration</th>
+              <td>Single user.</td>
+              <td>Shared workspaces, team folders, content governance.</td>
+              <td>Campus‑wide deployment; supports groups for courses, labs, and research teams.</td>
+            </tr>
+            <tr>
+              <th scope="row">Data Use Policy</th>
+              <td>Individual settings; some plans allow opting out of training.</td>
+              <td>Business data is not used to train models.</td>
+              <td>Student/faculty data is not used to train models; aligns with institutional privacy expectations.</td>
+            </tr>
+            <tr>
+              <th scope="row">Security &amp; Compliance</th>
+              <td>Consumer account security.</td>
+              <td>Enterprise controls: SAML SSO, SCIM provisioning, audit, SOC 2.</td>
+              <td>Enterprise‑grade controls plus education‑specific compliance considerations (e.g., FERPA awareness), SSO/SCIM, admin console.</td>
+            </tr>
+            <tr>
+              <th scope="row">Admin Controls</th>
+              <td>None.</td>
+              <td>Central admin, permissions, usage analytics.</td>
+              <td>Central admin for IT/EdTech; usage analytics and retention controls.</td>
+            </tr>
+            <tr>
+              <th scope="row">Support</th>
+              <td>Help center &amp; community.</td>
+              <td>Enterprise support &amp; SLAs.</td>
+              <td>Institutional onboarding and faculty development support pathways.</td>
+            </tr>
+            <tr>
+              <th scope="row">Cost Model</th>
+              <td>Free or individual subscription.</td>
+              <td>Per‑seat or org subscription (business).</td>
+              <td>Institutional license (often discounted, scalable).</td>
+            </tr>
+            <tr>
+              <th scope="row">Best For</th>
+              <td>Individuals, hobbyists, exploratory use.</td>
+              <td>Businesses and professional teams.</td>
+              <td>Universities, colleges, K‑12 districts, research institutes.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section aria-labelledby="takeaways">
+      <h2 id="takeaways">Key takeaways</h2>
+      <p><span class="kicker">Privacy &amp; compliance matter most.</span>Edu brings enterprise‑grade privacy and admin controls tailored for campuses.</p>
+      <p><span class="kicker">It’s more than licensing.</span>Edu typically includes higher usage limits, workspace sharing, and custom GPTs for courses/research.</p>
+      <p><span class="kicker">Plan for pedagogy, not just access.</span>Pair procurement with faculty development and clear syllabus policies for responsible use.</p>
+    </section>
+
+    <p class="foot">Prepared for UIUC · CITL • Last updated August 19, 2025. For procurement details or policy alignment, consult your campus IT/security office.</p>
+  </div>
+</body>
+</html>
