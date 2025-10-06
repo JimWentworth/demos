@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LLM Model Families & Timeline</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <h1>LLM Model Families & Evolution</h1>
+    <p class="tagline">Track model <strong>families</strong> and their <strong>timeline</strong>. Search, filter, and compare.</p>
+  </header>
+
+  <main>
+    <nav class="tabs" role="tablist" aria-label="LLM Catalog Tabs">
+      <button class="tab active" role="tab" aria-selected="true" aria-controls="panel-families" id="tab-families">Families</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-timeline" id="tab-timeline">Timeline</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="panel-about" id="tab-about">About</button>
+    </nav>
+
+    <section id="panel-families" class="tab-panel active" role="tabpanel" aria-labelledby="tab-families">
+      <div class="controls">
+        <input id="searchInput" type="search" placeholder="Search by family, steward, trait…" aria-label="Search families" />
+        <div class="filters">
+          <label>License
+            <select id="licenseFilter" aria-label="Filter by license">
+              <option value="">Any</option>
+              <option>Open</option>
+              <option>Open‑weight</option>
+              <option>Open‑weight (custom)</option>
+              <option>Open‑weight & Hosted</option>
+              <option>Closed / Hosted</option>
+              <option>Mixed (Gemini closed, Gemma open)</option>
+            </select>
+          </label>
+          <label>Modalities
+            <select id="modalityFilter" aria-label="Filter by modality">
+              <option value="">Any</option>
+              <option>Text</option>
+              <option>Vision</option>
+              <option>Audio</option>
+              <option>Code</option>
+              <option>Embeddings</option>
+            </select>
+          </label>
+          <label>Sort
+            <select id="sortSelect" aria-label="Sort families">
+              <option value="family-asc">Family (A→Z)</option>
+              <option value="steward-asc">Steward (A→Z)</option>
+              <option value="initial-asc">Initial Release (old→new)</option>
+              <option value="initial-desc">Initial Release (new→old)</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div id="cards" class="cards" aria-live="polite"></div>
+    </section>
+
+    <section id="panel-timeline" class="tab-panel" role="tabpanel" aria-labelledby="tab-timeline">
+      <ol id="timelineList" class="timeline"></ol>
+    </section>
+
+    <section id="panel-about" class="tab-panel" role="tabpanel" aria-labelledby="tab-about">
+      <article class="about">
+        <h2>About this catalog</h2>
+        <p>This is a lightweight, client‑side site to help you track major LLM <em>families</em> (not every checkpoint) and see key milestones over time. Use the search and filters to narrow the view. Click cards to expand details.</p>
+        <p><strong>Tip:</strong> You can add or edit entries in <code>data.js</code>. The UI will update automatically when you refresh.</p>
+        <details>
+          <summary>Editing guidance</summary>
+          <ul>
+            <li>Add a new entry to <code>window.__LLM_FAMILIES__</code> with fields that match existing items.</li>
+            <li>Use consistent wording for licenses: e.g., “Open‑weight”, “Closed / Hosted”, “Open”.</li>
+            <li>Modalities: pick from Text, Vision, Audio, Code, Embeddings.</li>
+            <li>For the timeline, append to <code>window.__LLM_TIMELINE__</code> with <code>phase</code>, <code>event</code>, and <code>why</code>.</li>
+          </ul>
+        </details>
+      </article>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>Built for quick orientation and ongoing updates. Last generated: <span id="builtAt"></span>.</p>
+  </footer>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
