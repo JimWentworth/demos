@@ -1,0 +1,1417 @@
+<!DOCTYPE html><html lang="en"><head><meta name="x-poe-datastore-behavior" content="local_only"><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPT Prompt Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .prompt-section {
+            flex: 1;
+            min-width: 300px;
+        }
+        .evaluation-section {
+            flex: 2;
+            min-width: 400px;
+        }
+        .prompt-card {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .prompt-card:hover {
+            background: #f0f0f0;
+        }
+        .selected {
+            background: #e8f4ff;
+            border-color: #4a90e2;
+        }
+        .selected:hover {
+            background: #d8eaff;
+        }
+        .evaluated {
+            background: #f0f0f0;
+            color: #999;
+        }
+        .evaluated:hover {
+            background: #f0f0f0;
+        }
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #3a7bc8;
+        }
+        .category-filter {
+            margin-bottom: 15px;
+        }
+        .filter-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            margin-right: 5px;
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+        .filter-btn.active {
+            background: #4a90e2;
+            color: white;
+            border-color: #3a7bc8;
+        }
+        .evaluation-form {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .criteria-section {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .rating-group {
+            display: flex;
+            flex-direction: column;
+            margin: 15px 0;
+        }
+        .rating-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        .rating-label span {
+            font-weight: bold;
+        }
+        .slider-container {
+            display: flex;
+            align-items: center;
+        }
+        .slider {
+            flex-grow: 1;
+            height: 5px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #d3d3d3;
+            outline: none;
+            border-radius: 5px;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #4a90e2;
+            cursor: pointer;
+        }
+        .slider-value {
+            margin-left: 10px;
+            font-weight: bold;
+            width: 30px;
+            text-align: center;
+        }
+        .scale-markers {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+            margin-top: 5px;
+            font-size: 12px;
+            color: #777;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 10px;
+            min-height: 150px;
+            font-family: Arial, sans-serif;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        .pagination button {
+            padding: 5px 10px;
+            margin: 0 3px;
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        .pagination button.active {
+            background: #4a90e2;
+            color: white;
+            border-color: #3a7bc8;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        .tab {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+            position: relative;
+            z-index: 1;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 0 5px 5px 5px;
+        }
+        .export-options {
+            margin-top: 20px;
+        }
+        .status-message {
+            padding: 10px;
+            margin: 10px 0;
+            background: #e8f4ff;
+            border-radius: 5px;
+            display: none;
+        }
+        .response-container {
+            margin-top: 15px;
+        }
+        .response-text {
+            white-space: pre-wrap;
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .gpt-info {
+            background: #f0f7ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4a90e2;
+        }
+        .gpt-info a {
+            color: #4a90e2;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .gpt-info a:hover {
+            text-decoration: underline;
+        }
+        .launch-gpt-btn {
+            background: #4a90e2;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+        .launch-gpt-btn:hover {
+            background: #3a7bc8;
+        }
+        .copy-btn {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 5px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .copy-btn:hover {
+            background: #e0e0e0;
+        }
+        .current-prompt-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .prompt-actions {
+            display: flex;
+            flex-direction: column;
+        }
+        .instructions {
+            background: #fffaed;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #ffcc00;
+        }
+        .evaluation-status {
+            font-size: 12px;
+            margin-left: 8px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: #e8ffe8;
+            color: #2a802a;
+        }
+        .custom-prompt-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        .custom-prompt-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+        .small-instructions {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+        .rubric-item {
+            margin-bottom: 25px;
+        }
+        .rubric-item h3 {
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+        .rubric-item p {
+            margin-top: 5px;
+            margin-bottom: 10px;
+        }
+        .rubric-item ul {
+            margin-top: 5px;
+            padding-left: 20px;
+        }
+    </style>
+<script src="https://puc.poecdn.net/authenticated_preview_page/syncedState.bd4eeeb8e8e02052ee92.js"></script></head>
+<body>
+    <h1>GPT Prompt Tester</h1>
+    
+    <div class="container">
+        <div class="prompt-section">
+            <div class="gpt-info">
+                <div>
+                    <strong>Testing:</strong> <a href="https://chatgpt.com/g/g-67ec5b2726e481918acd6eda86fa8d04-guided-introduction-to-using-genai" target="_blank">Guided Introduction to Using GenAI</a>
+                </div>
+            </div>
+            
+            <p class="small-instructions">Use the tools below for prompt ideas, or feel free to skip this step and enter your own prompt.</p>
+            
+            <div class="custom-prompt-container">
+                <input type="text" id="custom-prompt" placeholder="Type your own prompt here...">
+                <button id="use-custom-prompt">Use This Prompt</button>
+            </div>
+            
+            <h2>Prompt Selection</h2>
+            
+            <div class="category-filter">
+                <button class="filter-btn active" data-category="all">All</button>
+                <button class="filter-btn" data-category="common">Common Beginner</button>
+                <button class="filter-btn" data-category="discipline">Discipline-Specific</button>
+                <button class="filter-btn" data-category="skeptical">Skeptical</button>
+                <button class="filter-btn" data-category="offwall">Off-the-Wall</button>
+            </div>
+            
+            <button id="randomize">Regenerate Prompt List</button>
+            
+            <div id="prompt-container">
+                <!-- Prompts will be loaded here -->
+            </div>
+            
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be generated here -->
+            </div>
+        </div>
+        
+        <div class="evaluation-section">
+            <div class="tabs">
+                <div class="tab active" data-tab="evaluation">Evaluation Form</div>
+                <div class="tab" data-tab="rubric">Evaluation Rubric</div>
+                <div class="tab" data-tab="results">Test Results</div>
+            </div>
+            
+            <div class="tab-content" id="evaluation-tab">
+                <h2>Evaluation Form</h2>
+                
+                <div class="instructions">
+                    <p><strong>Instructions:</strong> Use the Copy Prompt button to copy the current prompt. Launch the GPT and paste the prompt into the chatbot. Paste the response you receive into the text box along with your evaluation of the response using the sliders below. Be sure to close the ChatGPT session each round to start a new conversation with each test. When you are done click on the Test Result tab and download the csv file so your results are not lost.</p>
+                </div>
+                
+                <div class="evaluation-form">
+                    <h3>Current Prompt:</h3>
+                    <div class="current-prompt-container">
+                        <div id="current-prompt-text" class="prompt-card">Select a prompt to evaluate</div>
+                        <div class="prompt-actions">
+                            <button id="copy-prompt" class="copy-btn">Copy Prompt</button>
+                            <a href="https://chatgpt.com/g/g-67ec5b2726e481918acd6eda86fa8d04-guided-introduction-to-using-genai" target="_blank" class="launch-gpt-btn">Launch GPT</a>
+                        </div>
+                    </div>
+                    
+                    <div class="criteria-section">
+                        <h3>Paste Response Here</h3>
+                        <textarea id="response-text" rows="8" placeholder="Copy and paste the GPT's response to the prompt here..."></textarea>
+                    </div>
+                    
+                    <div class="criteria-section">
+                        <h3>Evaluation Criteria</h3>
+                        
+                        <!-- Accuracy and Factual Integrity -->
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span>Accuracy and Factual Integrity:</span>
+                                <span id="accuracy-factual-value">3</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" min="1" max="5" value="3" class="slider" id="accuracy-factual" oninput="document.getElementById('accuracy-factual-value').textContent = this.value">
+                            </div>
+                            <div class="scale-markers">
+                                <span>Unacceptable</span>
+                                <span></span>
+                                <span>Acceptable</span>
+                                <span></span>
+                                <span>Very Good</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Relevance to the Prompt/Context -->
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span>Relevance to the Prompt/Context:</span>
+                                <span id="relevance-prompt-value">3</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" min="1" max="5" value="3" class="slider" id="relevance-prompt" oninput="document.getElementById('relevance-prompt-value').textContent = this.value">
+                            </div>
+                            <div class="scale-markers">
+                                <span>Unacceptable</span>
+                                <span></span>
+                                <span>Acceptable</span>
+                                <span></span>
+                                <span>Very Good</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Clarity and Usability -->
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span>Clarity and Usability:</span>
+                                <span id="clarity-usability-value">3</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" min="1" max="5" value="3" class="slider" id="clarity-usability" oninput="document.getElementById('clarity-usability-value').textContent = this.value">
+                            </div>
+                            <div class="scale-markers">
+                                <span>Unacceptable</span>
+                                <span></span>
+                                <span>Acceptable</span>
+                                <span></span>
+                                <span>Very Good</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Appropriateness to Purpose and Audience -->
+                        <div class="rating-group">
+                            <div class="rating-label">
+                                <span>Appropriateness to Purpose and Audience:</span>
+                                <span id="appropriateness-purpose-value">3</span>
+                            </div>
+                            <div class="slider-container">
+                                <input type="range" min="1" max="5" value="3" class="slider" id="appropriateness-purpose" oninput="document.getElementById('appropriateness-purpose-value').textContent = this.value">
+                            </div>
+                            <div class="scale-markers">
+                                <span>Unacceptable</span>
+                                <span></span>
+                                <span>Acceptable</span>
+                                <span></span>
+                                <span>Very Good</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="criteria-section">
+                        <h3>Additional Notes</h3>
+                        <textarea id="additional-notes" rows="3" placeholder="Enter any additional observations or comments about the response..."></textarea>
+                    </div>
+
+                    <button id="save-evaluation">Save Evaluation</button>
+                    <div id="status-message" class="status-message"></div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="rubric-tab" style="display: none;">
+                <h2>Evaluation Rubric</h2>
+                <p>Below is the detailed rubric used for evaluating the GenAI's responses:</p>
+                
+                <div class="rubric-item">
+                    <h3>Accuracy and Factual Integrity</h3>
+                    <p>Does the response stick to verifiable truth and avoid introducing errors or hallucinations?</p>
+                    <ul>
+                        <li>Cross-checkable against external references or known constraints</li>
+                        <li>Free from obvious factual errors or made-up information</li>
+                        <li>Transparent about uncertainty or limitations in knowledge</li>
+                    </ul>
+                </div>
+                
+                <div class="rubric-item">
+                    <h3>Relevance to the Prompt/Context</h3>
+                    <p>Is the output actually addressing the request, or drifting into filler or tangents?</p>
+                    <ul>
+                        <li>Precision: stays on point without wandering to unrelated topics</li>
+                        <li>Completeness: covers what was asked for without major omissions</li>
+                        <li>Proportional focus on the most important aspects of the request</li>
+                    </ul>
+                </div>
+                
+                <div class="rubric-item">
+                    <h3>Clarity and Usability</h3>
+                    <p>Is the language clear, structured, and easy to apply in the intended context (teaching, writing, planning)?</p>
+                    <ul>
+                        <li>Can a non-expert understand and act on it without extra decoding?</li>
+                        <li>Well-organized with logical structure and flow</li>
+                        <li>Appropriate level of detail for the intended use</li>
+                    </ul>
+                </div>
+                
+                <div class="rubric-item">
+                    <h3>Appropriateness to Purpose and Audience</h3>
+                    <p>Tone, depth, and format fit the situation (scholarly, practical, creative, etc.).</p>
+                    <ul>
+                        <li>Ethical alignment: avoids bias and respects constraints</li>
+                        <li>Stylistic match to expectations and context</li>
+                        <li>Level of sophistication matches the intended audience</li>
+                    </ul>
+                </div>
+                
+                <div class="rubric-item">
+                    <h3>Rating Scale</h3>
+                    <ul>
+                        <li><strong>1-2 (Unacceptable):</strong> Significant issues that undermine usefulness</li>
+                        <li><strong>3 (Acceptable):</strong> Meets basic requirements with some minor issues</li>
+                        <li><strong>4-5 (Very Good):</strong> Strong performance that fully meets or exceeds expectations</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="results-tab" style="display: none;">
+                <h2>Test Results</h2>
+                <p>Review the results of your prompt testing:</p>
+                
+                <div id="results-container">
+                    <p>No evaluations saved yet.</p>
+                </div>
+                
+                <div class="export-options">
+                    <button id="export-csv">Export as CSV</button>
+                    <button id="export-json">Export as JSON</button>
+                    <button id="clear-results">Clear All Results</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store all prompts from the spreadsheet
+        const allPrompts = [
+            // Custom intro prompts (will always be at the top)
+            { id: 261, text: "I'm a beginner--how do I start?", category: "common" },
+            { id: 262, text: "Can you explain how GenAI works?", category: "common" },
+            { id: 263, text: "What are some common uses for GenAI?", category: "common" },
+            { id: 264, text: "Where can I go for more help?", category: "common" },
+            
+            // Common Beginner prompts
+            { id: 1, text: "What is generative AI and how does it work?", category: "common" },
+            { id: 2, text: "How is ChatGPT different from Google Search?", category: "common" },
+            { id: 3, text: "What does 'training data' mean in AI?", category: "common" },
+            { id: 4, text: "How do I know if AI is giving me the right answer?", category: "common" },
+            { id: 5, text: "Can you explain AI to me like I'm a student in my first year?", category: "common" },
+            { id: 6, text: "What's a good way to start using AI in my teaching?", category: "common" },
+            { id: 7, text: "What kinds of tasks is generative AI bad at?", category: "common" },
+            { id: 8, text: "How can I use AI to save time in grading?", category: "common" },
+            { id: 9, text: "What are the risks of using AI in research?", category: "common" },
+            { id: 10, text: "How do I cite AI tools in academic work?", category: "common" },
+            { id: 11, text: "What's the difference between ChatGPT, Claude, and Bard?", category: "common" },
+            { id: 12, text: "Can AI replace literature reviews?", category: "common" },
+            { id: 13, text: "What are the ethical issues with AI in education?", category: "common" },
+            { id: 14, text: "Can I share confidential data with AI?", category: "common" },
+            { id: 15, text: "What's the simplest prompt to try first?", category: "common" },
+            { id: 16, text: "How do I stop AI from making things up?", category: "common" },
+            { id: 17, text: "Is generative AI going to replace faculty jobs?", category: "common" },
+            { id: 18, text: "How can I get AI to explain an article to me more simply?", category: "common" },
+            { id: 19, text: "Can AI help me draft a research proposal?", category: "common" },
+            { id: 20, text: "How do I use AI for brainstorming?", category: "common" },
+            { id: 21, text: "What does 'hallucination' mean in AI?", category: "common" },
+            { id: 22, text: "Can AI help me write better emails to students?", category: "common" },
+            { id: 23, text: "Should I tell students when I use AI?", category: "common" },
+            { id: 24, text: "How do I integrate AI tools into my syllabus?", category: "common" },
+            { id: 25, text: "What's the easiest way to fact-check AI answers?", category: "common" },
+            { id: 26, text: "Can I upload PDFs for AI to read?", category: "common" },
+            { id: 27, text: "How can AI help me write recommendation letters?", category: "common" },
+            { id: 28, text: "How much do AI systems actually 'know'?", category: "common" },
+            { id: 29, text: "What are 'tokens' in GPT?", category: "common" },
+            { id: 30, text: "How secure is my data when I use AI?", category: "common" },
+            { id: 31, text: "How do I ask better questions to get better answers?", category: "common" },
+            { id: 32, text: "Can I use AI to generate quiz questions?", category: "common" },
+            { id: 33, text: "Does AI understand images, or only text?", category: "common" },
+            { id: 34, text: "What's the best way to experiment without making mistakes?", category: "common" },
+            { id: 35, text: "Can AI help me summarize a 50-page article?", category: "common" },
+            { id: 36, text: "How can I learn to think critically about AI output?", category: "common" },
+            { id: 37, text: "Can AI help me write clear assignment instructions?", category: "common" },
+            { id: 38, text: "What happens if I ask AI about something very niche?", category: "common" },
+            { id: 39, text: "How often is AI updated?", category: "common" },
+            { id: 40, text: "Can AI improve my PowerPoint slides?", category: "common" },
+            { id: 41, text: "How do I keep students from overusing AI?", category: "common" },
+            { id: 42, text: "Is there a difference between free and paid AI models?", category: "common" },
+            { id: 43, text: "What are embeddings in AI?", category: "common" },
+            { id: 44, text: "Can AI tell me when it doesn't know something?", category: "common" },
+            { id: 45, text: "How do I detect if students used AI in their essays?", category: "common" },
+            { id: 46, text: "What role should AI play in peer review?", category: "common" },
+            { id: 47, text: "How can I make AI responses more concise?", category: "common" },
+            { id: 48, text: "Can AI generate rubrics for grading?", category: "common" },
+            { id: 49, text: "How does AI handle bias?", category: "common" },
+            { id: 50, text: "What is prompt engineering?", category: "common" },
+            { id: 51, text: "How do I ask AI to explain statistics?", category: "common" },
+            { id: 52, text: "Can I use AI to generate multiple-choice questions?", category: "common" },
+            { id: 53, text: "How do I prevent AI from giving me outdated info?", category: "common" },
+            { id: 54, text: "Can AI act as a debate partner for students?", category: "common" },
+            { id: 55, text: "How do I know when to trust AI's math?", category: "common" },
+            { id: 56, text: "What is a large language model?", category: "common" },
+            { id: 57, text: "Can AI help me with academic writing style?", category: "common" },
+            { id: 58, text: "Is AI helpful for administrative tasks?", category: "common" },
+            { id: 59, text: "How do I keep AI responses focused?", category: "common" },
+            { id: 60, text: "Can I use AI offline?", category: "common" },
+            { id: 61, text: "How do I know if AI is safe to use with FERPA data?", category: "common" },
+            { id: 62, text: "Can AI help with drafting syllabi?", category: "common" },
+            { id: 63, text: "What are common pitfalls for beginners using AI?", category: "common" },
+            { id: 64, text: "How do I ask AI to roleplay as an expert?", category: "common" },
+            { id: 65, text: "Can AI tell jokes or lighten up a lecture?", category: "common" },
+            { id: 66, text: "How much can I trust AI with non-English sources?", category: "common" },
+            { id: 67, text: "Does AI know about my specific university?", category: "common" },
+            { id: 68, text: "Can AI generate outlines for research papers?", category: "common" },
+            { id: 69, text: "What are the best practices for prompting?", category: "common" },
+            { id: 70, text: "How do I limit word count in AI output?", category: "common" },
+            { id: 71, text: "Can I teach AI my preferences?", category: "common" },
+            { id: 72, text: "What does it mean that AI is probabilistic?", category: "common" },
+            { id: 73, text: "How fast does AI \"think\"?", category: "common" },
+            { id: 74, text: "Can AI explain a concept in different difficulty levels?", category: "common" },
+            { id: 75, text: "How do I integrate AI into online learning platforms?", category: "common" },
+            { id: 76, text: "Can AI check for accessibility in my course design?", category: "common" },
+            { id: 77, text: "How accurate is AI on scientific topics?", category: "common" },
+            { id: 78, text: "Can AI proofread my writing?", category: "common" },
+            { id: 79, text: "How do I use AI responsibly in front of students?", category: "common" },
+            { id: 80, text: "Can AI help me plan lectures more efficiently?", category: "common" },
+            { id: 81, text: "Can I ask AI for sample discussion questions?", category: "common" },
+            { id: 82, text: "How do I refine AI output step by step?", category: "common" },
+            { id: 83, text: "Can AI evaluate the readability of my writing?", category: "common" },
+            { id: 84, text: "What is \"temperature\" in AI outputs?", category: "common" },
+            { id: 85, text: "How do I cite AI in APA format?", category: "common" },
+            { id: 86, text: "Can AI simulate a Socratic dialogue?", category: "common" },
+            { id: 87, text: "How do I make sure AI doesn't plagiarize?", category: "common" },
+            { id: 88, text: "Can AI suggest images or visual aids?", category: "common" },
+            { id: 89, text: "What's the best way to test AI with my research topics?", category: "common" },
+            { id: 90, text: "How do I keep my AI session organized?", category: "common" },
+            { id: 91, text: "Can AI generate abstracts for papers?", category: "common" },
+            { id: 92, text: "What is the difference between supervised and unsupervised learning?", category: "common" },
+            { id: 93, text: "How can AI help me practice languages?", category: "common" },
+            { id: 94, text: "Can AI explain theories in plain language?", category: "common" },
+            { id: 95, text: "How do I deal with errors AI makes?", category: "common" },
+            { id: 96, text: "Can AI help me draft course policies?", category: "common" },
+            { id: 97, text: "How do I teach students to prompt AI effectively?", category: "common" },
+            { id: 98, text: "Can AI explain statistical significance?", category: "common" },
+            { id: 99, text: "How do I shorten AI answers if they're too long?", category: "common" },
+            { id: 100, text: "Can AI draft professional emails to students?", category: "common" },
+            { id: 101, text: "How do I make AI generate shorter, clearer text?", category: "common" },
+            { id: 102, text: "Can AI help me write grant proposal summaries?", category: "common" },
+            { id: 103, text: "How can AI rephrase my writing to be more formal?", category: "common" },
+            { id: 104, text: "Can AI make my syllabus policies sound friendlier?", category: "common" },
+            { id: 105, text: "Can AI turn my notes into polished prose?", category: "common" },
+            { id: 106, text: "Can I use AI to generate recommendation letter templates?", category: "common" },
+            { id: 107, text: "How do I use AI to improve clarity in academic writing?", category: "common" },
+            { id: 108, text: "Can AI generate good discussion prompts for seminars?", category: "common" },
+            { id: 109, text: "How do I check AI-generated text for accuracy?", category: "common" },
+            { id: 110, text: "Can AI summarize a research article for me?", category: "common" },
+            { id: 111, text: "How can AI help me brainstorm research ideas?", category: "common" },
+            { id: 112, text: "Can AI generate an outline for a paper?", category: "common" },
+            { id: 113, text: "How reliable is AI for literature reviews?", category: "common" },
+            { id: 114, text: "Can AI find gaps in my research design?", category: "common" },
+            { id: 115, text: "Can AI help me reframe research questions more clearly?", category: "common" },
+            { id: 116, text: "How do I cite AI in academic publications?", category: "common" },
+            { id: 117, text: "Can AI rewrite my abstract for different audiences?", category: "common" },
+            { id: 118, text: "Can AI turn complex methods into plain English?", category: "common" },
+            { id: 119, text: "Can AI suggest keywords for publishing?", category: "common" },
+            { id: 120, text: "What are the ethical risks of using AI in teaching?", category: "common" },
+            { id: 121, text: "Can students become over-reliant on AI?", category: "common" },
+            { id: 122, text: "How do I check if AI is biased?", category: "common" },
+            { id: 123, text: "What are privacy risks when sharing student data with AI?", category: "common" },
+            { id: 124, text: "Is AI safe under FERPA guidelines?", category: "common" },
+            { id: 125, text: "Can I get in trouble for using AI in grant writing?", category: "common" },
+            { id: 126, text: "What are \"hallucinations\" in AI?", category: "common" },
+            { id: 127, text: "How do I explain to students that AI doesn't \"think\"?", category: "common" },
+            { id: 128, text: "Should I disclose when I've used AI in my work?", category: "common" },
+            { id: 129, text: "How do I help students fact-check AI outputs?", category: "common" },
+            { id: 130, text: "How do I ask AI to give me step-by-step explanations?", category: "common" },
+            { id: 131, text: "Can AI explain statistics like p-values?", category: "common" },
+            { id: 132, text: "How do I adjust the length of AI answers?", category: "common" },
+            { id: 133, text: "Can AI help me create rubrics for grading?", category: "common" },
+            { id: 134, text: "What's the difference between free and paid versions of AI?", category: "common" },
+            { id: 135, text: "Can AI work in languages other than English?", category: "common" },
+            { id: 136, text: "How do I keep AI answers on-topic?", category: "common" },
+            { id: 137, text: "Can I ask AI to check my math?", category: "common" },
+            { id: 138, text: "What are \"tokens\" in GPT?", category: "common" },
+            { id: 139, text: "What does \"temperature\" mean in AI output settings?", category: "common" },
+            { id: 140, text: "Can AI suggest metaphors to explain difficult concepts?", category: "common" },
+            { id: 141, text: "Can AI generate jokes for my lecture slides?", category: "common" },
+            { id: 142, text: "How do I use AI to brainstorm student projects?", category: "common" },
+            { id: 143, text: "Can AI simulate a debate partner?", category: "common" },
+            { id: 144, text: "Can AI turn a boring topic into something engaging?", category: "common" },
+            { id: 145, text: "How do I make AI write in the style of a famous author?", category: "common" },
+            { id: 146, text: "Can AI write practice dialogues for language learning?", category: "common" },
+            { id: 147, text: "Can AI rewrite my lecture notes as a story?", category: "common" },
+            { id: 148, text: "Can AI help me visualize complex topics?", category: "common" },
+            { id: 149, text: "How do I make AI produce analogies students will understand?", category: "common" },
+            { id: 150, text: "How do I check if AI's references are real?", category: "common" },
+            { id: 151, text: "Why does AI sometimes give outdated information?", category: "common" },
+            { id: 152, text: "Can AI tell me when it's uncertain?", category: "common" },
+            { id: 153, text: "How can I cross-check AI answers quickly?", category: "common" },
+            { id: 154, text: "How do I get AI to provide sources?", category: "common" },
+            { id: 155, text: "Can AI provide me with DOIs for academic references?", category: "common" },
+            { id: 156, text: "What happens if AI contradicts itself?", category: "common" },
+            { id: 157, text: "Can I get AI to cite peer-reviewed articles?", category: "common" },
+            { id: 158, text: "How do I verify AI-generated data?", category: "common" },
+            { id: 159, text: "Can I ask AI to only answer if it's confident?", category: "common" },
+            
+            // Discipline-Specific prompts
+            { id: 160, text: "Can AI help me generate hypotheses for molecular biology experiments?", category: "discipline" },
+            { id: 161, text: "How do I check if AI-generated equations are correct in physics?", category: "discipline" },
+            { id: 162, text: "Can I use AI to model political discourse?", category: "discipline" },
+            { id: 163, text: "What are the limitations of AI in analyzing historical documents?", category: "discipline" },
+            { id: 164, text: "How can AI assist in qualitative coding of interviews?", category: "discipline" },
+            { id: 165, text: "Can AI simulate conversations with historical figures for teaching history?", category: "discipline" },
+            { id: 166, text: "How do I use AI to brainstorm theater scripts?", category: "discipline" },
+            { id: 167, text: "Can AI translate ancient Greek accurately?", category: "discipline" },
+            { id: 168, text: "How reliable is AI for analyzing climate data?", category: "discipline" },
+            { id: 169, text: "Can AI generate grant-specific language for NIH proposals?", category: "discipline" },
+            { id: 170, text: "What's the best way to use AI for peer review feedback in psychology?", category: "discipline" },
+            { id: 171, text: "Can AI generate datasets for computer science experiments?", category: "discipline" },
+            { id: 172, text: "How do I train AI on my own corpus of literary texts?", category: "discipline" },
+            { id: 173, text: "Is AI trustworthy for analyzing legal precedent?", category: "discipline" },
+            { id: 174, text: "Can AI design problem sets for engineering undergraduates?", category: "discipline" },
+            { id: 175, text: "Can AI suggest experimental designs for cell biology?", category: "discipline" },
+            { id: 176, text: "How accurate is AI when translating primary sources in medieval history?", category: "discipline" },
+            { id: 177, text: "Can AI generate practice problem sets in organic chemistry?", category: "discipline" },
+            { id: 178, text: "What are the limitations of AI in analyzing economic models?", category: "discipline" },
+            { id: 179, text: "Can AI help me identify key themes in political speeches?", category: "discipline" },
+            { id: 180, text: "How useful is AI in creating sociological survey questions?", category: "discipline" },
+            { id: 181, text: "Can AI generate phonetic transcriptions in linguistics?", category: "discipline" },
+            { id: 182, text: "How reliable is AI for drafting lesson plans in music theory?", category: "discipline" },
+            { id: 183, text: "Can AI simulate classroom dialogues for teaching foreign languages?", category: "discipline" },
+            { id: 184, text: "How do I check if AI-generated legal arguments are valid?", category: "discipline" },
+            { id: 185, text: "Can AI summarize large sets of psychological case studies?", category: "discipline" },
+            { id: 186, text: "How well does AI handle proofs in higher mathematics?", category: "discipline" },
+            { id: 187, text: "Can AI generate architectural design critiques?", category: "discipline" },
+            { id: 188, text: "How do I evaluate AI's accuracy in clinical case write-ups?", category: "discipline" },
+            { id: 189, text: "Can AI produce realistic scenarios for public health training?", category: "discipline" },
+            { id: 190, text: "Can AI suggest variables for a regression analysis in economics?", category: "discipline" },
+            { id: 191, text: "How helpful is AI in annotating classical literature passages?", category: "discipline" },
+            { id: 192, text: "Can AI create visual aids for explaining quantum mechanics?", category: "discipline" },
+            { id: 193, text: "How do I adapt AI output for teaching anthropology field methods?", category: "discipline" },
+            { id: 194, text: "Can AI generate lab safety protocols tailored to chemistry courses?", category: "discipline" },
+            { id: 195, text: "How do I use AI to test hypotheses in social psychology?", category: "discipline" },
+            { id: 196, text: "Can AI write mock peer reviews in computer science?", category: "discipline" },
+            { id: 197, text: "How effective is AI in modeling environmental impact studies?", category: "discipline" },
+            { id: 198, text: "Can AI help me design interview questions for ethnographic research?", category: "discipline" },
+            { id: 199, text: "What are the strengths and weaknesses of AI in art criticism?", category: "discipline" },
+            
+            // Skeptical prompts
+            { id: 200, text: "How do I know this AI isn't just making things up?", category: "skeptical" },
+            { id: 201, text: "What evidence do I have that AI improves learning outcomes?", category: "skeptical" },
+            { id: 202, text: "How transparent is the training data behind this model?", category: "skeptical" },
+            { id: 203, text: "Why should I trust AI when it doesn't cite its sources?", category: "skeptical" },
+            { id: 204, text: "Can AI really understand concepts, or is it just guessing?", category: "skeptical" },
+            { id: 205, text: "How can I verify the accuracy of AI's answers in my field?", category: "skeptical" },
+            { id: 206, text: "What happens when AI reinforces stereotypes in its responses?", category: "skeptical" },
+            { id: 207, text: "How do I know AI isn't plagiarizing from existing texts?", category: "skeptical" },
+            { id: 208, text: "Why should I spend time learning AI when it might be a fad?", category: "skeptical" },
+            { id: 209, text: "Can AI ever match the expertise of a trained researcher?", category: "skeptical" },
+            { id: 210, text: "What are the risks of students outsourcing critical thinking to AI?", category: "skeptical" },
+            { id: 211, text: "How do I know AI isn't biased toward Western perspectives?", category: "skeptical" },
+            { id: 212, text: "What happens if AI gives two different answers to the same question?", category: "skeptical" },
+            { id: 213, text: "Why should universities invest in AI if it makes so many errors?", category: "skeptical" },
+            { id: 214, text: "How much energy is consumed by running these AI models?", category: "skeptical" },
+            { id: 215, text: "What guarantees do I have that my data isn't being stored or sold?", category: "skeptical" },
+            { id: 216, text: "How do I know this AI won't become obsolete in a year?", category: "skeptical" },
+            { id: 217, text: "Can AI handle cutting-edge research, or only recycle old knowledge?", category: "skeptical" },
+            { id: 218, text: "What prevents students from using AI dishonestly?", category: "skeptical" },
+            { id: 219, text: "Why should I use AI when peer-reviewed sources are more reliable?", category: "skeptical" },
+            { id: 220, text: "How often does AI provide false references or \"fake\" citations?", category: "skeptical" },
+            { id: 221, text: "Is there any way to hold AI accountable for mistakes?", category: "skeptical" },
+            { id: 222, text: "Why should I let AI into my classroom when it may reduce rigor?", category: "skeptical" },
+            { id: 223, text: "How do I know AI won't deskill students in writing and analysis?", category: "skeptical" },
+            { id: 224, text: "What happens when AI contradicts established scientific consensus?", category: "skeptical" },
+            { id: 225, text: "Why does AI sometimes give confident answers that are wrong?", category: "skeptical" },
+            { id: 226, text: "Can AI ever generate original ideas, or just remix existing ones?", category: "skeptical" },
+            { id: 227, text: "What safeguards exist to prevent AI from spreading misinformation?", category: "skeptical" },
+            { id: 228, text: "Why should I believe AI has a place in academia at all?", category: "skeptical" },
+            { id: 229, text: "What are the limits AI cannot and should not cross in research?", category: "skeptical" },
+            
+            // Off-the-Wall prompts
+            { id: 230, text: "Can you write a love poem about tenure review?", category: "offwall" },
+            { id: 231, text: "What would Shakespeare say about AI?", category: "offwall" },
+            { id: 232, text: "Can AI generate a rap battle between Newton and Einstein?", category: "offwall" },
+            { id: 233, text: "If AI were a faculty member, what would its research focus be?", category: "offwall" },
+            { id: 234, text: "Can you describe my research as if it were a cooking recipe?", category: "offwall" },
+            { id: 235, text: "What would a syllabus for 'Alien Anthropology 101' look like?", category: "offwall" },
+            { id: 236, text: "Can AI invent a new academic discipline?", category: "offwall" },
+            { id: 237, text: "Write my research statement as a bedtime story.", category: "offwall" },
+            { id: 238, text: "What would a faculty meeting sound like if all participants were cats?", category: "offwall" },
+            { id: 239, text: "What would a peer-review process look like if conducted by pirates?", category: "offwall" },
+            { id: 240, text: "Can AI write a commencement speech for robots graduating from college?", category: "offwall" },
+            { id: 241, text: "What would Plato and Beyoncé debate if they met in my classroom?", category: "offwall" },
+            { id: 242, text: "Can AI turn my research into a Broadway musical plot summary?", category: "offwall" },
+            { id: 243, text: "What would an academic conference for time travelers sound like?", category: "offwall" },
+            { id: 244, text: "Write my research agenda as if it were a video game quest log.", category: "offwall" },
+            { id: 245, text: "How would Einstein explain Wi-Fi to Aristotle?", category: "offwall" },
+            { id: 246, text: "Can AI describe my department as if it were a sitcom cast?", category: "offwall" },
+            { id: 247, text: "What would my tenure dossier look like as a comic strip?", category: "offwall" },
+            { id: 248, text: "Can AI generate a research paper title in the style of clickbait?", category: "offwall" },
+            { id: 249, text: "What would grading rubrics look like in a parallel universe?", category: "offwall" },
+            { id: 250, text: "Can AI summarize my dissertation as a cooking show script?", category: "offwall" },
+            { id: 251, text: "If my field were a new sport, what would the rules be?", category: "offwall" },
+            { id: 252, text: "What would a faculty senate meeting sound like if all members were toddlers?", category: "offwall" },
+            { id: 253, text: "Can AI draft a syllabus for \"Underwater Basket Weaving for Astronauts\"?", category: "offwall" },
+            { id: 254, text: "What would a Shakespearean sonnet about grant funding rejections be?", category: "offwall" },
+            { id: 255, text: "Can AI rewrite my CV as a medieval knight's epic tale?", category: "offwall" },
+            { id: 256, text: "What would peer review look like if conducted by aliens?", category: "offwall" },
+            { id: 257, text: "Can AI create a lullaby about publishing deadlines?", category: "offwall" },
+            { id: 258, text: "If my research were an amusement park ride, how would it work?", category: "offwall" },
+            { id: 259, text: "What would an academic feud between cats and dogs look like?", category: "offwall" },
+            { id: 260, text: "Can AI write my department newsletter as a tabloid magazine?", category: "offwall" }
+        ];
+        
+        // The default prompt to start with
+        const defaultPromptId = 261; // I'm a beginner--how do I start?
+        
+        let currentPromptId = null;
+        let evaluations = {};
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let currentCategory = "all";
+        let customPromptCounter = 1000; // For assigning IDs to custom prompts
+        
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set the initial prompt
+            setCurrentPrompt(defaultPromptId);
+            
+            // Render the initial view
+            filterAndRenderPrompts();
+            
+            // Setup event listeners
+            document.getElementById('randomize').addEventListener('click', generateRandomPrompts);
+            document.getElementById('save-evaluation').addEventListener('click', saveCurrentEvaluation);
+            document.getElementById('use-custom-prompt').addEventListener('click', useCustomPrompt);
+            
+            // Handle Enter key in custom prompt input
+            document.getElementById('custom-prompt').addEventListener('keyup', function(event) {
+                if (event.key === "Enter") {
+                    useCustomPrompt();
+                }
+            });
+            
+            // Copy prompt button
+            document.getElementById('copy-prompt').addEventListener('click', copyCurrentPrompt);
+            
+            // Export buttons
+            document.getElementById('export-csv').addEventListener('click', exportAsCSV);
+            document.getElementById('export-json').addEventListener('click', exportAsJSON);
+            document.getElementById('clear-results').addEventListener('click', clearAllResults);
+            
+            // Tab navigation
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Hide all tab contents
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.style.display = 'none';
+                    });
+                    
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Show selected tab content and mark tab as active
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').style.display = 'block';
+                    tab.classList.add('active');
+                    
+                    // Update results view if that tab is selected
+                    if (tabId === 'results') {
+                        renderResults();
+                    }
+                });
+            });
+            
+            // Category filter buttons
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    btn.classList.add('active');
+                    currentCategory = btn.getAttribute('data-category');
+                    currentPage = 1;
+                    filterAndRenderPrompts();
+                });
+            });
+        });
+        
+        // Use custom prompt from the input box
+        function useCustomPrompt() {
+            const customPromptInput = document.getElementById('custom-prompt');
+            const promptText = customPromptInput.value.trim();
+            
+            if (!promptText) {
+                showStatusMessage('Please enter a prompt.', 'error');
+                return;
+            }
+            
+            // Create a new prompt object with a unique ID
+            const customPrompt = {
+                id: customPromptCounter++,
+                text: promptText,
+                category: "custom"
+            };
+            
+            // Set it as the current prompt
+            setCurrentPromptFromObj(customPrompt);
+            
+            // Clear the input
+            customPromptInput.value = '';
+            
+            showStatusMessage('Custom prompt added.');
+        }
+        
+        // Set the current prompt
+        function setCurrentPrompt(promptId) {
+            const prompt = allPrompts.find(p => p.id === promptId);
+            if (!prompt) return;
+            
+            setCurrentPromptFromObj(prompt);
+        }
+        
+        // Set the current prompt from a prompt object
+        function setCurrentPromptFromObj(prompt) {
+            currentPromptId = prompt.id;
+            
+            // Update the current prompt display
+            const promptTextDiv = document.getElementById('current-prompt-text');
+            promptTextDiv.textContent = prompt.text;
+            promptTextDiv.dataset.id = prompt.id;
+            
+            // If we have a saved evaluation for this prompt, load it
+            if (evaluations[prompt.id]) {
+                loadEvaluation(prompt.id);
+            } else {
+                resetEvaluationFormValues();
+            }
+            
+            // Update the prompts list UI
+            filterAndRenderPrompts();
+        }
+        
+        // Copy current prompt to clipboard
+        function copyCurrentPrompt() {
+            const promptText = document.getElementById('current-prompt-text').textContent;
+            if (promptText === 'Select a prompt to evaluate') {
+                showStatusMessage('No prompt selected to copy.', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(promptText).then(() => {
+                showStatusMessage('Prompt copied to clipboard!');
+            }, () => {
+                showStatusMessage('Failed to copy prompt. Please try again.', 'error');
+            });
+        }
+        
+        // Filter and render prompts based on category
+        function filterAndRenderPrompts() {
+            let filteredPrompts = [];
+            
+            // Always include the intro prompts at the top in the "All" category
+            if (currentCategory === "all") {
+                // Add the intro prompts (IDs 261-264)
+                filteredPrompts = allPrompts.filter(p => p.id >= 261 && p.id <= 264);
+                // Then add all other prompts
+                filteredPrompts = filteredPrompts.concat(allPrompts.filter(p => p.id < 261));
+            } else if (currentCategory === "common") {
+                // Add the intro prompts first for the common category
+                filteredPrompts = allPrompts.filter(p => p.id >= 261 && p.id <= 264);
+                // Then add all other common prompts
+                filteredPrompts = filteredPrompts.concat(allPrompts.filter(p => p.category === "common" && p.id < 261));
+            } else {
+                // For other categories, just filter normally
+                filteredPrompts = allPrompts.filter(p => p.category === currentCategory);
+            }
+            
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredPrompts.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const paginatedPrompts = filteredPrompts.slice(startIndex, startIndex + itemsPerPage);
+            
+            // Render prompts
+            renderPrompts(paginatedPrompts);
+            
+            // Render pagination
+            renderPagination(totalPages);
+        }
+        
+        // Render pagination controls
+        function renderPagination(totalPages) {
+            const paginationContainer = document.getElementById('pagination');
+            paginationContainer.innerHTML = '';
+            
+            if (totalPages <= 1) return;
+            
+            // Previous button
+            if (currentPage > 1) {
+                const prevButton = document.createElement('button');
+                prevButton.textContent = '←';
+                prevButton.addEventListener('click', () => {
+                    currentPage--;
+                    filterAndRenderPrompts();
+                });
+                paginationContainer.appendChild(prevButton);
+            }
+            
+            // Page numbers (limited to show 5 pages for better UI)
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, startPage + 4);
+            
+            if (endPage - startPage < 4) {
+                startPage = Math.max(1, endPage - 4);
+            }
+            
+            for (let i = startPage; i <= endPage; i++) {
+                const pageButton = document.createElement('button');
+                pageButton.textContent = i;
+                if (i === currentPage) {
+                    pageButton.classList.add('active');
+                }
+                pageButton.addEventListener('click', () => {
+                    currentPage = i;
+                    filterAndRenderPrompts();
+                });
+                paginationContainer.appendChild(pageButton);
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                const nextButton = document.createElement('button');
+                nextButton.textContent = '→';
+                nextButton.addEventListener('click', () => {
+                    currentPage++;
+                    filterAndRenderPrompts();
+                });
+                paginationContainer.appendChild(nextButton);
+            }
+        }
+        
+        // Check if a prompt has been evaluated
+        function isPromptEvaluated(promptId) {
+            return evaluations.hasOwnProperty(promptId);
+        }
+        
+        // Display prompts in the container
+        function renderPrompts(prompts) {
+            const container = document.getElementById('prompt-container');
+            container.innerHTML = '';
+            
+            if (prompts.length === 0) {
+                container.innerHTML = '<p>No prompts match your criteria.</p>';
+                return;
+            }
+            
+            prompts.forEach(prompt => {
+                const card = document.createElement('div');
+                card.className = 'prompt-card';
+                
+                // Mark as selected if it's the current prompt
+                if (prompt.id === currentPromptId) {
+                    card.classList.add('selected');
+                }
+                
+                // Mark as evaluated if we have saved an evaluation
+                if (isPromptEvaluated(prompt.id)) {
+                    card.classList.add('evaluated');
+                }
+                
+                card.textContent = prompt.text;
+                card.dataset.id = prompt.id;
+                
+                // Allow selection of any prompt
+                card.addEventListener('click', () => {
+                    setCurrentPrompt(prompt.id);
+                });
+                
+                container.appendChild(card);
+            });
+        }
+        
+        // Generate random prompts and select the first one
+        function generateRandomPrompts() {
+            // Filter out already evaluated prompts based on the current category
+            let promptPool = [];
+            
+            // Apply category filter if one is selected
+            if (currentCategory === "all") {
+                promptPool = allPrompts.filter(p => p.id < 261); // Exclude the intro prompts for randomization
+            } else {
+                promptPool = allPrompts.filter(p => p.category === currentCategory && p.id < 261);
+            }
+            
+            // Now filter for unevaluated prompts
+            const unevaluatedPrompts = promptPool.filter(prompt => !isPromptEvaluated(prompt.id));
+            
+            if (unevaluatedPrompts.length === 0) {
+                showStatusMessage('All prompts in this category have been evaluated. Try another category or clear results.', 'error');
+                return;
+            }
+            
+            // Shuffle the unevaluated prompts
+            const shuffled = [...unevaluatedPrompts].sort(() => 0.5 - Math.random());
+            
+            // Take the first 5 (or fewer if not enough available)
+            const randomPrompts = shuffled.slice(0, Math.min(5, shuffled.length));
+            
+            if (randomPrompts.length > 0) {
+                // Set the first random prompt as the current one
+                setCurrentPrompt(randomPrompts[0].id);
+                
+                // Find which page contains this prompt and navigate to it
+                let filteredPrompts = [];
+                if (currentCategory === "all") {
+                    filteredPrompts = allPrompts.filter(p => p.id >= 261 && p.id <= 264);
+                    filteredPrompts = filteredPrompts.concat(allPrompts.filter(p => p.id < 261));
+                } else if (currentCategory === "common") {
+                    filteredPrompts = allPrompts.filter(p => p.id >= 261 && p.id <= 264);
+                    filteredPrompts = filteredPrompts.concat(allPrompts.filter(p => p.category === "common" && p.id < 261));
+                } else {
+                    filteredPrompts = allPrompts.filter(p => p.category === currentCategory);
+                }
+                
+                const index = filteredPrompts.findIndex(p => p.id === randomPrompts[0].id);
+                if (index !== -1) {
+                    currentPage = Math.floor(index / itemsPerPage) + 1;
+                    filterAndRenderPrompts();
+                }
+                
+                showStatusMessage(`Regenerated prompt list. Selected the first one.`);
+            } else {
+                showStatusMessage('No unevaluated prompts available in this category.', 'error');
+            }
+        }
+        
+        // Reset evaluation form values to defaults
+        function resetEvaluationFormValues() {
+            // Reset all sliders to default value (3)
+            document.querySelectorAll('.evaluation-form .slider').forEach(slider => {
+                slider.value = '3';
+                slider.disabled = false;
+                const valueId = slider.id + '-value';
+                document.getElementById(valueId).textContent = '3';
+            });
+            
+            // Clear textareas
+            document.getElementById('response-text').value = '';
+            document.getElementById('additional-notes').value = '';
+        }
+        
+        // Load a saved evaluation into the form
+        function loadEvaluation(promptId) {
+            const evaluation = evaluations[promptId];
+            if (!evaluation) return;
+            
+            // Reset form first
+            resetEvaluationFormValues();
+            
+            // Load response text and notes
+            document.getElementById('response-text').value = evaluation.responseText || '';
+            document.getElementById('additional-notes').value = evaluation.notes || '';
+            
+            // Set values for all criteria
+            Object.keys(evaluation).forEach(key => {
+                if (key !== 'notes' && key !== 'responseText' && key !== 'promptId' && key !== 'promptText') {
+                    const element = document.getElementById(key);
+                    const valueElement = document.getElementById(`${key}-value`);
+                    
+                    if (element && valueElement) {
+                        // Set numeric value
+                        element.value = evaluation[key];
+                        valueElement.textContent = evaluation[key];
+                    }
+                }
+            });
+        }
+        
+        // Save the current evaluation
+        function saveCurrentEvaluation() {
+            const promptTextDiv = document.getElementById('current-prompt-text');
+            const promptId = parseInt(promptTextDiv.dataset.id);
+            
+            if (!promptId) {
+                showStatusMessage('No prompt selected for evaluation.', 'error');
+                return;
+            }
+            
+            const responseText = document.getElementById('response-text').value;
+            if (!responseText.trim()) {
+                showStatusMessage('Please paste the GPT response before saving.', 'error');
+                return;
+            }
+            
+            // Collect all ratings
+            const evaluation = {
+                promptId: promptId,
+                promptText: promptTextDiv.textContent,
+                responseText: responseText,
+                notes: document.getElementById('additional-notes').value
+            };
+            
+            // Get values from sliders for the new criteria
+            const criteriaIds = [
+                'accuracy-factual',
+                'relevance-prompt',
+                'clarity-usability',
+                'appropriateness-purpose'
+            ];
+            
+            criteriaIds.forEach(id => {
+                const slider = document.getElementById(id);
+                evaluation[id] = slider.value;
+            });
+            
+            // Save the evaluation
+            evaluations[promptId] = evaluation;
+            
+            // Update UI to reflect evaluated status
+            filterAndRenderPrompts();
+            
+            // Find the next unevaluated prompt in the current category
+            let filteredPrompts = [];
+            if (currentCategory === "all") {
+                filteredPrompts = allPrompts;
+            } else {
+                filteredPrompts = allPrompts.filter(prompt => prompt.category === currentCategory);
+            }
+            
+            const nextUnevaluatedPrompt = filteredPrompts.find(p => !isPromptEvaluated(p.id));
+            
+            if (nextUnevaluatedPrompt) {
+                setCurrentPrompt(nextUnevaluatedPrompt.id);
+                
+                // Find which page contains this prompt and navigate to it
+                const index = filteredPrompts.findIndex(p => p.id === nextUnevaluatedPrompt.id);
+                if (index !== -1) {
+                    currentPage = Math.floor(index / itemsPerPage) + 1;
+                    filterAndRenderPrompts();
+                }
+                
+                showStatusMessage('Evaluation saved! Moved to next prompt.');
+            } else {
+                showStatusMessage('Evaluation saved! All prompts in this category have been evaluated.');
+            }
+            
+            // Update results view
+            renderResults();
+        }
+        
+        // Render the results view
+        function renderResults() {
+            const resultsContainer = document.getElementById('results-container');
+            
+            if (Object.keys(evaluations).length === 0) {
+                resultsContainer.innerHTML = '<p>No evaluations saved yet.</p>';
+                return;
+            }
+            
+            let html = '<div class="evaluations-summary">';
+            
+            // For each evaluated prompt
+            Object.values(evaluations).forEach(evaluation => {
+                html += `
+                    <div class="evaluation-result">
+                        <h3>Prompt #${evaluation.promptId}</h3>
+                        <p><strong>Prompt:</strong> ${evaluation.promptText}</p>
+                        
+                        <h4>Response</h4>
+                        <div class="response-text">${evaluation.responseText ? evaluation.responseText.replace(/\n/g, '<br>') : 'No response recorded'}</div>
+                        
+                        <h4>Evaluation Criteria</h4>
+                        <ul>
+                            <li>Accuracy and Factual Integrity: ${evaluation['accuracy-factual'] || 'N/A'}</li>
+                            <li>Relevance to the Prompt/Context: ${evaluation['relevance-prompt'] || 'N/A'}</li>
+                            <li>Clarity and Usability: ${evaluation['clarity-usability'] || 'N/A'}</li>
+                            <li>Appropriateness to Purpose and Audience: ${evaluation['appropriateness-purpose'] || 'N/A'}</li>
+                        </ul>
+                        
+                        ${evaluation.notes ? `<h4>Additional Notes</h4><p>${evaluation.notes}</p>` : ''}
+                    </div>
+                    <hr>
+                `;
+            });
+            
+            html += '</div>';
+            resultsContainer.innerHTML = html;
+        }
+        
+        // Export evaluations as CSV
+        function exportAsCSV() {
+            if (Object.keys(evaluations).length === 0) {
+                showStatusMessage('No evaluations to export.', 'error');
+                return;
+            }
+            
+            // Define CSV headers
+            const headers = [
+                'Prompt ID', 
+                'Prompt Text',
+                'Response Text',
+                'Accuracy and Factual Integrity',
+                'Relevance to the Prompt/Context',
+                'Clarity and Usability',
+                'Appropriateness to Purpose and Audience',
+                'Additional Notes'
+            ];
+            
+            // Create CSV content
+            let csvContent = headers.join(',') + '\n';
+            
+            Object.values(evaluations).forEach(evaluation => {
+                const row = [
+                    evaluation.promptId,
+                    `"${evaluation.promptText.replace(/"/g, '""')}"`,
+                    `"${(evaluation.responseText || '').replace(/"/g, '""')}"`,
+                    evaluation['accuracy-factual'] || '',
+                    evaluation['relevance-prompt'] || '',
+                    evaluation['clarity-usability'] || '',
+                    evaluation['appropriateness-purpose'] || '',
+                    `"${(evaluation.notes || '').replace(/"/g, '""')}"`
+                ];
+                
+                csvContent += row.join(',') + '\n';
+            });
+            
+            // Create download link
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gpt_evaluations.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showStatusMessage('Evaluations exported as CSV.');
+        }
+        
+        // Export evaluations as JSON
+        function exportAsJSON() {
+            if (Object.keys(evaluations).length === 0) {
+                showStatusMessage('No evaluations to export.', 'error');
+                return;
+            }
+            
+            const jsonString = JSON.stringify(evaluations, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'gpt_evaluations.json');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showStatusMessage('Evaluations exported as JSON.');
+        }
+        
+        // Clear all results
+        function clearAllResults() {
+            if (Object.keys(evaluations).length === 0) {
+                showStatusMessage('No evaluations to clear.', 'error');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear all evaluation results? This cannot be undone.')) {
+                evaluations = {};
+                renderResults();
+                filterAndRenderPrompts(); // Refresh the prompt list
+                showStatusMessage('All evaluation results cleared.');
+            }
+        }
+        
+        // Show status message
+        function showStatusMessage(message, type = 'success') {
+            const statusElement = document.getElementById('status-message');
+            statusElement.textContent = message;
+            statusElement.style.display = 'block';
+            
+            if (type === 'error') {
+                statusElement.style.backgroundColor = '#ffecec';
+                statusElement.style.color = '#d8000c';
+            } else {
+                statusElement.style.backgroundColor = '#e8f4ff';
+                statusElement.style.color = '#31708f';
+            }
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+
+
+</body></html>
