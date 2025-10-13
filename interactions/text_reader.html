@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Text Reader — Tabs + Word Highlight</title>
+<style>
+  :root{
+    --bg:#f8fafc;
+    --text:#111827;
+    --muted:#6b7280;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --illinois-blue:#13294B;
+    --illinois-orange:#E84A27;
+    --hl-bg:rgba(19,41,75,.12);
+    --hl-border:rgba(19,41,75,.45);
+    --hl-word-bg:rgba(232,74,39,.16);
+    --hl-word-border:rgba(232,74,39,.55);
+  }
+  html,body{height:100%;background:var(--bg);color:var(--text);margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";line-height:1.6;}
+  .container{max-width:1000px;margin:24px auto 64px;padding:0 16px;}
+  .header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;}
+  h1{font-size:clamp(1.25rem,2.5vw,1.75rem);margin:0;font-weight:700;}
+  .tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);}  
+  .tab{appearance:none;border:none;background:transparent;padding:10px 14px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;}
+  .tab[aria-selected="true"]{color:var(--text);border-color:var(--illinois-blue);}  
+  .grid{display:grid;gap:12px;}
+  @media(min-width:980px){.grid{grid-template-columns:2fr 1fr;}}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:0 6px 18px rgba(0,0,0,.05);} 
+  .card.pad{padding:16px;}
+  textarea{width:100%;min-height:300px;resize:vertical;background:#f9fafb;color:var(--text);border:1px solid var(--border);border-radius:12px;padding:12px;font-size:16px;}
+  label{font-size:14px;color:var(--muted);display:block;margin-bottom:6px;}
+  .controls{display:grid;gap:10px;}
+  .inputs{display:grid;gap:10px;grid-template-columns:1fr 1fr;}
+  select,input[type="range"]{width:100%;}
+  select,.control,button{background:#f9fafb;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:10px;font-size:14px;}
+  button{font-weight:600;cursor:pointer;}
+  button:hover{border-color:#d1d5db;}
+  .buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+  .hint{font-size:13px;color:var(--muted);margin-top:6px;}
+  .progress{height:8px;background:#eef2f7;border-radius:999px;overflow:hidden;margin-top:10px;}
+  .progress>div{height:100%;width:0%;background:linear-gradient(90deg,var(--illinois-blue),var(--illinois-orange));transition:width .25s ease;}
+  .reader{background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:16px;max-height:420px;overflow:auto;}
+  .sentence{border-radius:8px;padding:1px 3px;transition:background .15s ease, box-shadow .15s ease;}
+  .sentence.active{background:var(--hl-bg);box-shadow:0 0 0 2px var(--hl-border) inset;}
+  .word{border-radius:6px;padding:0 2px;margin-right:2px;display:inline-block;}
+  .word.active{background:var(--hl-word-bg);box-shadow:0 0 0 2px var(--hl-word-border) inset;}
+  .row{display:grid;grid-template-columns:1fr;gap:12px;}
+  .sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Text Reader</h1>
+      <div class="tabs" role="tablist" aria-label="Mode">
+        <button id="tab-edit" role="tab" class="tab" aria-selected="true" aria-controls="panel-edit">Edit</button>
+        <button id="tab-read" role="tab" class="tab" aria-selected="false" aria-controls="panel-read">Read</button>
+      </div>
+    </div>
+
+    <div id="panel-edit" role="tabpanel" aria-labelledby="tab-edit" class="card pad" tabindex="0">
+      <label for="text">Passage (editable)</label>
+      <textarea id="text" placeholder="Paste or type text here…"></textarea>
+      <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+      <div class="hint">Muted UI; Illinois colors only used for highlights.</div>
+    </div>
+
+    <div id="panel-read" role="tabpanel" aria-labelledby="tab-read" class="card pad" hidden tabindex="0">
+      <div class="grid">
+        <div>
+          <div class="reader" id="reader" aria-live="polite" aria-label="Reading view with word highlighting"></div>
+        </div>
+        <div class="controls">
+          <div class="inputs">
+            <div>
+              <label for="voices">Voice</label>
+              <select id="voices" class="control" aria-label="Voice"></select>
+            </div>
+            <div>
+              <label for="rate">Rate: <span id="rateVal">1.0</span></label>
+              <input id="rate" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+            </div>
+          </div>
+          <div>
+            <label for="pitch">Pitch: <span id="pitchVal">1.0</span></label>
+            <input id="pitch" type="range" min="0.5" max="2" step="0.05" value="1" />
+          </div>
+          <div class="buttons">
+            <button id="play">Play</button>
+            <button id="pause">Pause</button>
+            <button id="resume">Resume</button>
+            <button id="stop">Stop</button>
+          </div>
+          <div class="hint">Tip: Best in Chrome/Edge. Safari supports fewer boundary events.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const DEFAULT_TEXT = ``;
+
+  const tabEdit = document.getElementById("tab-edit");
+  const tabRead = document.getElementById("tab-read");
+  const panelEdit = document.getElementById("panel-edit");
+  const panelRead = document.getElementById("panel-read");
+  const textEl = document.getElementById("text");
+  const reader = document.getElementById("reader");
+  const voiceSel = document.getElementById("voices");
+  const playBtn = document.getElementById("play");
+  const pauseBtn = document.getElementById("pause");
+  const resumeBtn = document.getElementById("resume");
+  const stopBtn = document.getElementById("stop");
+  const rate = document.getElementById("rate");
+  const rateVal = document.getElementById("rateVal");
+  const pitch = document.getElementById("pitch");
+  const pitchVal = document.getElementById("pitchVal");
+  const bar = document.getElementById("bar");
+
+  let voices = [];
+  let utterances = [];
+  let sentenceMap = [];
+  let globalWordCounter = 0;
+  let speaking = false;
+  let currentUtterance = 0;
+
+  function setTab(which){
+    const edit = which === "edit";
+    tabEdit.setAttribute("aria-selected", edit ? "true" : "false");
+    tabRead.setAttribute("aria-selected", edit ? "false" : "true");
+    panelEdit.hidden = !edit;
+    panelRead.hidden = edit;
+    (edit ? panelEdit : panelRead).focus();
+  }
+  tabEdit.addEventListener("click", () => setTab("edit"));
+  tabRead.addEventListener("click", () => setTab("read"));
+  setTab("edit");
+
+  function loadVoices(){
+    voices = window.speechSynthesis.getVoices();
+    voiceSel.innerHTML = "";
+    const preferred = ["en-US","en-GB","en"];
+    voices.sort((a,b)=>(a.lang||"").localeCompare(b.lang||""))
+      .forEach((v,i)=>{
+        const opt = document.createElement("option");
+        opt.value = String(i);
+        opt.textContent = v.name + " — " + v.lang + (v.default ? " (default)" : "");
+        if (preferred.some(p => v.lang && v.lang.startsWith(p)) && !voiceSel.value) opt.selected = true;
+        voiceSel.appendChild(opt);
+      });
+    if (!voices.length){
+      const opt = document.createElement("option");
+      opt.textContent = "No voices available";
+      voiceSel.appendChild(opt);
+    }
+  }
+  loadVoices();
+  if (typeof speechSynthesis !== "undefined") speechSynthesis.onvoiceschanged = loadVoices;
+
+  const sentenceSeg = ("Intl" in window && Intl.Segmenter) ? new Intl.Segmenter("en", {granularity:"sentence"}) : null;
+  const wordSeg = ("Intl" in window && Intl.Segmenter) ? new Intl.Segmenter("en", {granularity:"word"}) : null;
+
+  function getSentences(text){
+    if (!sentenceSeg){
+      const arr = text.split(". ").map(s => s.trim()).filter(Boolean);
+      return arr.map((s,i)=>({segment:s+(s.endsWith(".")?"":"."), index:i}));
+    }
+    const iter = sentenceSeg.segment(text);
+    const out = [];
+    for (const s of iter) if (s.segment.trim().length) out.push(s);
+    return out;
+  }
+  function getWords(text){
+    const out = [];
+    if (!wordSeg){
+      text.split(" ").forEach((w,idx)=>{
+        const start = text.indexOf(w, out.length ? out[out.length-1].index + out[out.length-1].segment.length : 0);
+        if (w.trim()) out.push({segment:w, index:start, isWordLike:true});
+      });
+      return out;
+    }
+    const iter = wordSeg.segment(text);
+    for (const s of iter) out.push(s);
+    return out;
+  }
+
+  function renderReader(text){
+    reader.innerHTML = "";
+    globalWordCounter = 0;
+    const sentences = getSentences(text);
+    sentences.forEach((sObj, sIdx)=>{
+      const sWrap = document.createElement("span");
+      sWrap.className = "sentence";
+      const words = getWords(sObj.segment);
+      words.forEach(w => {
+        if (w.isWordLike){
+          const span = document.createElement("span");
+          span.className = "word";
+          span.dataset.id = String(globalWordCounter);
+          span.textContent = w.segment + " ";
+          sWrap.appendChild(span);
+          globalWordCounter += 1;
+        } else {
+          const t = document.createTextNode(w.segment);
+          sWrap.appendChild(t);
+        }
+      });
+      reader.appendChild(sWrap);
+      reader.appendChild(document.createTextNode(" "));
+    });
+  }
+
+  function buildUtterances(text){
+    utterances = [];
+    sentenceMap = [];
+    currentUtterance = 0;
+    const sentences = getSentences(text);
+    let runningWordId = 0;
+    sentences.forEach((sObj, sIdx)=>{
+      const u = new SpeechSynthesisUtterance(sObj.segment);
+      const v = voices[voiceSel.value] || voices.find(x => (x.lang||"").startsWith("en")) || null;
+      if (v) u.voice = v;
+      u.rate = parseFloat(rate.value);
+      u.pitch = parseFloat(pitch.value);
+
+      const words = getWords(sObj.segment).filter(w => w.isWordLike);
+      const mapping = [];
+      words.forEach((w)=>{
+        mapping.push({start:w.index, end:w.index + w.segment.length, globalWordId: runningWordId});
+        runningWordId += 1;
+      });
+
+      u.onstart = () => {
+        setActiveSentenceByWord(mapping.length ? mapping[0].globalWordId : null);
+        updateProgress(currentUtterance);
+      };
+      u.onboundary = (e) => {
+        if (e.name === "word"){
+          const pos = e.charIndex || 0;
+          let target = null;
+          for (let i=mapping.length-1;i>=0;i--){
+            if (pos >= mapping[i].start){ target = mapping[i]; break; }
+          }
+          if (target) setActiveWord(target.globalWordId);
+        }
+      };
+      u.onend = () => {
+        currentUtterance += 1;
+        if (currentUtterance < utterances.length){
+          speechSynthesis.speak(utterances[currentUtterance]);
+        } else {
+          speaking = false;
+          updateProgress(utterances.length);
+        }
+      };
+
+      utterances.push(u);
+      sentenceMap.push({globalSentenceIndex:sIdx, words:mapping});
+    });
+  }
+
+  function setActiveSentenceByWord(globalWordId){
+    if (globalWordId == null) return;
+    const words = Array.from(reader.querySelectorAll(".word"));
+    const target = words.find(w => Number(w.dataset.id) === globalWordId);
+    if (!target) return;
+    const sentence = target.closest(".sentence");
+    const prevS = reader.querySelector(".sentence.active");
+    if (prevS) prevS.classList.remove("active");
+    if (sentence){
+      sentence.classList.add("active");
+      const r = reader.getBoundingClientRect();
+      const e = sentence.getBoundingClientRect();
+      if (e.top < r.top || e.bottom > r.bottom) sentence.scrollIntoView({block:"center"});
+    }
+  }
+
+  function setActiveWord(globalWordId){
+    const prev = reader.querySelector(".word.active");
+    if (prev) prev.classList.remove("active");
+    const el = reader.querySelector('.word[data-id="' + globalWordId + '"]');
+    if (el) {
+      el.classList.add("active");
+      setActiveSentenceByWord(globalWordId);
+    }
+  }
+
+  function updateProgress(idx){
+    const pct = utterances.length ? Math.min(100, Math.round((idx/utterances.length)*100)) : 0;
+    bar.style.width = pct + "%";
+  }
+
+  function stopAll(){
+    if (typeof speechSynthesis !== "undefined") speechSynthesis.cancel();
+    speaking = false;
+    currentUtterance = 0;
+    updateProgress(0);
+    const aW = reader.querySelector(".word.active");
+    if (aW) aW.classList.remove("active");
+    const aS = reader.querySelector(".sentence.active");
+    if (aS) aS.classList.remove("active");
+  }
+
+  rate.addEventListener("input", ()=> rateVal.textContent = rate.value);
+  pitch.addEventListener("input", ()=> pitchVal.textContent = pitch.value);
+
+  playBtn.addEventListener("click", ()=>{
+    if (!("speechSynthesis" in window)){ alert("Speech Synthesis API not supported."); return; }
+    stopAll();
+    const txt = textEl.value;
+    renderReader(txt);
+    buildUtterances(txt);
+    if (utterances.length){
+      speaking = true;
+      setTab("read");
+      speechSynthesis.speak(utterances[currentUtterance]);
+    }
+  });
+  pauseBtn.addEventListener("click", ()=>{ if (speaking && !speechSynthesis.paused) speechSynthesis.pause(); });
+  resumeBtn.addEventListener("click", ()=>{ if (speaking && speechSynthesis.paused) speechSynthesis.resume(); });
+  stopBtn.addEventListener("click", stopAll);
+
+  textEl.value = DEFAULT_TEXT;
+  renderReader(DEFAULT_TEXT);
+})();
+</script>
+</body>
+</html>
