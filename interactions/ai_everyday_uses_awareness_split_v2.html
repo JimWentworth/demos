@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Everyday AI Awareness — How Many Uses Can You Name?</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:1200px; margin:0 auto; padding:1.25rem }
+  .layout { display:block; gap:1rem }
+  @media (min-width: 980px) {
+    .layout { display:grid; grid-template-columns: 1fr 1fr; gap:1rem; align-items:start; }
+  }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  h2 { margin:.2rem 0 .6rem; font-size:1.1rem }
+  .muted { color:var(--muted) }
+  textarea { width:100%; min-height:260px; font-size:1.05rem; line-height:1.6; padding:.75rem; }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.55rem .85rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button:focus, input:focus, textarea:focus, summary:focus { outline:3px solid #E84A27; outline-offset:2px }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  details { border:1px solid #e5e7eb; border-radius:10px; padding:.6rem .75rem; background:#fbfdff }
+  details + details { margin-top:.6rem }
+  details > summary { cursor:pointer; font-weight:700 }
+  ul { margin:.4rem 0 .2rem 1.25rem }
+  .hint { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .6rem; background:#f8fafc; font-size:.85rem }
+  footer { padding:2rem 1.25rem; color:#666; text-align:center }
+</style>
+</head>
+<body>
+<header><h1>Everyday AI Awareness — How Many Uses Can You Name?</h1></header>
+<main class="layout">
+
+<section aria-labelledby="promptHeading">
+  <h2 id="promptHeading">1) Your list</h2>
+  <p class="muted">Prompt: <strong>“List all the uses of AI you can think of in everyday life.”</strong> Think broadly, consider all the different uses across sectors.</p>
+  <textarea id="notes" placeholder="Type your list here..."></textarea>
+  <div class="row" style="margin-top:.6rem">
+    <button id="see" type="button" aria-controls="catalogWrap" aria-expanded="false">See Uses</button>
+    <button id="reset" type="button" class="secondary">Reset</button>
+  </div>
+</section>
+
+<section id="catalogPane">
+  <div id="catalogWrap" aria-live="polite" style="display:none">
+    <h2>2) Extensive list of everyday AI uses</h2>
+    <p class="muted">Compare your list with the extensive scope of AI use in our daily tools and services.</p>
+
+    <!-- (same details content from previous version) -->
+    <details open>
+      <summary>Personal & Home</summary>
+      <ul>
+        <li>Smart speakers and voice assistants (Alexa, Siri, Google Assistant)</li>
+        <li>Smart home hubs coordinating lights, plugs, and scenes</li>
+        <li>Thermostats that learn schedules and optimize heating/cooling</li>
+        <li>Robot vacuums mapping rooms and planning routes</li>
+        <li>Security cams with motion/person/package detection</li>
+        <li>Doorbells with face/visitor recognition and alerts</li>
+        <li>Photo apps with face clustering and object search</li>
+        <li>Automatic album curation and “best shot” selection</li>
+        <li>Health and fitness wearables (sleep staging, workout detection)</li>
+        <li>Smart scales estimating body metrics and trends</li>
+        <li>Recipe recommenders and meal planners based on preferences</li>
+        <li>Shopping list prediction from past purchases</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Search, Feeds, and Online Behavior</summary>
+      <ul>
+        <li>Search ranking and query expansion/autocomplete</li>
+        <li>Generative answers and summaries in search experiences</li>
+        <li>Content recommendation on social platforms</li>
+        <li>Ad targeting and lookalike audience modeling</li>
+        <li>Spam and bot detection in comments and messages</li>
+        <li>News personalization and topic clustering</li>
+        <li>Content moderation (nudity, hate speech, malware links)</li>
+        <li>Fraud signals for fake accounts and coordinated behavior</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Commerce & Finance</summary>
+      <ul>
+        <li>Product recommendations and “people also bought”</li>
+        <li>Dynamic pricing, coupons, and deal targeting</li>
+        <li>Search within stores (“find similar”, visual search)</li>
+        <li>Personalized marketing emails and subject-line testing</li>
+        <li>Fraud detection for card transactions</li>
+        <li>Credit scoring and risk assessment</li>
+        <li>Budgeting apps auto-categorizing transactions</li>
+        <li>Chatbots for customer support and returns</li>
+        <li>Buy-now-pay-later risk checks</li>
+        <li>Receipt and invoice OCR with line-item extraction</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Communication & Productivity</summary>
+      <ul>
+        <li>Email spam filters and priority inbox</li>
+        <li>Predictive text and autocomplete in messaging</li>
+        <li>Grammar/style suggestions and tone rewriting</li>
+        <li>Speech-to-text transcription for meetings/notes</li>
+        <li>Auto-summarization of threads and documents</li>
+        <li>Calendar scheduling assistants and smart suggestions</li>
+        <li>Document templates and auto-formatting helpers</li>
+        <li>Optical character recognition for scans and forms</li>
+        <li>Real-time translation and subtitling</li>
+        <li>Slide layout and design suggestions</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Navigation, Travel & Transport</summary>
+      <ul>
+        <li>GPS routing with live traffic prediction</li>
+        <li>Lane and exit guidance, speed trap detection signals</li>
+        <li>Rideshare matching and surge pricing</li>
+        <li>Public transit ETAs and route optimization</li>
+        <li>Parking availability prediction</li>
+        <li>Flight delay prediction and rebooking suggestions</li>
+        <li>Driver-assist features (lane keep, adaptive cruise, auto-park)</li>
+        <li>Dashcams with incident detection</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Media, Entertainment & Creativity</summary>
+      <ul>
+        <li>Streaming recommendations and “because you watched”</li>
+        <li>Personalized playlists and radio stations</li>
+        <li>Photo enhancement, filters, and background removal</li>
+        <li>Auto-captioning and highlight reels</li>
+        <li>Gaming NPC behavior and difficulty balancing</li>
+        <li>Generative tools for text, images, music, and video</li>
+        <li>Meme and thumbnail generation assistance</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Health, Safety & Wellbeing</summary>
+      <ul>
+        <li>Telehealth symptom checkers and triage chat</li>
+        <li>Activity and heart-rate irregularity alerts from wearables</li>
+        <li>Fall detection and emergency contacts</li>
+        <li>Air quality alerts and exposure recommendations</li>
+        <li>Medication reminders and interaction checks</li>
+        <li>Food logging with image recognition</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Work & Learning</summary>
+      <ul>
+        <li>Meeting transcription and action item extraction</li>
+        <li>Knowledge base search and answer bots</li>
+        <li>Drafting emails, reports, and outlines</li>
+        <li>ATS resume screening and job matching</li>
+        <li>Adaptive learning paths and practice quizzes</li>
+        <li>Plagiarism detection and originality checks</li>
+        <li>Code completion and error explanation tools</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Security & Identity</summary>
+      <ul>
+        <li>Multi-factor prompts and risk-based authentication</li>
+        <li>Face and fingerprint unlock on devices</li>
+        <li>Fraud alerts on accounts and transactions</li>
+        <li>Spam/scam call detection and filtering</li>
+        <li>Email phishing detection and safe link checks</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Cities & Infrastructure</summary>
+      <ul>
+        <li>Traffic light timing optimization</li>
+        <li>Smart meters and grid load forecasting</li>
+        <li>Transit demand prediction and fleet routing</li>
+        <li>Waste collection route optimization</li>
+        <li>Weather nowcasting and severe alert systems</li>
+        <li>Public safety camera analytics (with oversight)</li>
+      </ul>
+    </details>
+
+    <details>
+      <summary>Emerging & Edge</summary>
+      <ul>
+        <li>Conversational agents and copilots for tasks</li>
+        <li>Personal knowledge assistants (search + notes + reminders)</li>
+        <li>Digital accessibility (live captions, alt text suggestions)</li>
+        <li>AR try-on for clothing and furniture</li>
+        <li>Smart agriculture sensors and crop models</li>
+        <li>Autonomous/assisted robots in stores and warehouses</li>
+        <li>Climate and disaster simulation models</li>
+        <li>Deepfake detection and provenance tools</li>
+      </ul>
+    </details>
+
+    <p class="muted">Reflection: How many of these did you already list? Which categories surprised you?</p>
+  </div>
+</section>
+
+</main>
+<footer><small>Everyday AI Awareness | 2025-10-16</small></footer>
+
+<script>
+const notes = document.getElementById('notes');
+const seeBtn = document.getElementById('see');
+const resetBtn = document.getElementById('reset');
+const catalog = document.getElementById('catalogWrap');
+
+seeBtn.addEventListener('click', ()=>{
+  const hidden = catalog.style.display === 'none' || catalog.style.display === '';
+  catalog.style.display = hidden ? 'block' : 'none';
+  seeBtn.textContent = hidden ? 'Hide Uses' : 'See Uses';
+  seeBtn.setAttribute('aria-expanded', hidden ? 'true' : 'false');
+  if (hidden) catalog.parentElement.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+resetBtn.addEventListener('click', ()=>{
+  notes.value = '';
+  catalog.style.display = 'none';
+  seeBtn.textContent = 'See Uses';
+  seeBtn.setAttribute('aria-expanded', 'false');
+});
+</script>
+</body>
+</html>
