@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1200px;
             margin: 0 auto;
         }
 
@@ -43,7 +43,7 @@
         .cards-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
             padding: 1rem;
         }
 
@@ -92,9 +92,9 @@
         }
 
         .logo-container {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 1.5rem;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -104,6 +104,14 @@
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
+        }
+
+        .core-func {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 0.75rem;
+            padding: 0 1rem;
         }
 
         .tool-name {
@@ -207,12 +215,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M381.37 221.02c17.3-29.95 14.89-67.45-7.08-94.95-29.07-36.42-82.04-42.3-118.45-13.23-9.69-5.17-20.46-8.38-31.76-9.32-50.17-4.17-94.1 32.71-98.27 82.88-1.21 14.54 1.01 28.6 6.11 41.59-17.3 29.95-14.89 67.45 7.08 94.95 29.07 36.42 82.04 42.3 118.45 13.23 9.69 5.17 20.46 8.38 31.76 9.32 50.17 4.17 94.1-32.71 98.27-82.88 1.21-14.54-1.01-28.6-6.11-41.59zm-99.99-52.8c9.14 15.82 18.28 31.65 27.42 47.47-18.28 10.56-36.56 21.11-54.84 31.67-9.14-15.82-18.28-31.65-27.42-47.47 18.28-10.56 36.56-21.11 54.84-31.67zm-68.42 118.11c-15.82-9.14-31.65-18.28-47.47-27.42 10.56-18.28 21.11-36.56 31.67-54.84 15.82 9.14 31.65 18.28 47.47 27.42-10.56 18.28-21.11 36.56-31.67 54.84zm31.67-124.07c-10.56-18.28-21.11-36.56-31.67-54.84 18.28-10.56 36.56-21.11 54.84-31.67 10.56 18.28 21.11 36.56 31.67 54.84-18.28 10.56-36.56 21.11-54.84 31.67zm86.94 50.22c10.56 18.28 21.11 36.56 31.67 54.84-18.28 10.56-36.56 21.11-54.84 31.67-10.56-18.28-21.11-36.56-31.67-54.84 18.28-10.56 36.56-21.11 54.84-31.67z" fill="#000"/>
-                            </svg>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/ChatGPT-Logo.svg/1024px-ChatGPT-Logo.svg.png?20240214002031" alt="ChatGPT Logo">
                         </div>
                         <h2 class="tool-name">ChatGPT</h2>
-                        <p class="tool-category">Core Model Access</p>
+                       <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">General-purpose conversational AI for brainstorming, drafting, explaining, and revising with multimodal support.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -234,13 +241,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <rect width="120" height="120" rx="20" fill="#D97757"/>
-                                <path d="M45 85L30 40h12l10 30l10-30h12L59 85H45z" fill="#FFF"/>
-                            </svg>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/2560px-Claude_AI_logo.svg.png" alt="Claude Logo">
                         </div>
                         <h2 class="tool-name">Claude</h2>
-                        <p class="tool-category">Core Model Access</p>
+                        <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">Excels at processing long documents with structured, careful reasoning and emphasis on transparency.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -262,20 +267,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="gemini-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#4285F4"/>
-                                        <stop offset="50%" style="stop-color:#9B72CB"/>
-                                        <stop offset="100%" style="stop-color:#D96570"/>
-                                    </linearGradient>
-                                </defs>
-                                <path d="M60 20L40 60L60 100L80 60L60 20Z" fill="url(#gemini-grad)"/>
-                                <circle cx="60" cy="60" r="15" fill="#FFF"/>
-                            </svg>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/2560px-Google_Gemini_logo.svg.png" alt="Gemini Logo">
                         </div>
                         <h2 class="tool-name">Gemini</h2>
-                        <p class="tool-category">Core Model Access</p>
+                          <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">Multimodal reasoning with deep Google Workspace integration for context-aware drafting and analysis.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -297,21 +293,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="copilot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#0078D4"/>
-                                        <stop offset="100%" style="stop-color:#00BCF2"/>
-                                    </linearGradient>
-                                </defs>
-                                <rect width="120" height="120" rx="20" fill="url(#copilot-grad)"/>
-                                <circle cx="45" cy="50" r="8" fill="#FFF"/>
-                                <circle cx="75" cy="50" r="8" fill="#FFF"/>
-                                <path d="M40 70Q60 85 80 70" stroke="#FFF" stroke-width="6" fill="none" stroke-linecap="round"/>
-                            </svg>
+                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYKvCngP_MQo6HpnKUepGqPlZYFdjHhUwzA&s" alt="Copilot Logo">
                         </div>
                         <h2 class="tool-name">Copilot</h2>
-                        <p class="tool-category">Integrated Productivity</p>
+                          <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">AI integrated into Microsoft 365 apps for drafting, summarizing, and analyzing within your workflow.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -333,16 +319,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <rect x="25" y="20" width="70" height="80" rx="4" fill="#FFF" stroke="#333" stroke-width="3"/>
-                                <rect x="35" y="35" width="50" height="3" rx="1.5" fill="#4285F4"/>
-                                <rect x="35" y="45" width="50" height="3" rx="1.5" fill="#34A853"/>
-                                <rect x="35" y="55" width="50" height="3" rx="1.5" fill="#FBBC04"/>
-                                <rect x="35" y="65" width="35" height="3" rx="1.5" fill="#EA4335"/>
-                            </svg>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/NotebookLM_logo.svg/1024px-NotebookLM_logo.svg.png?20241229091149" alt="Notebook LM Logo">
                         </div>
                         <h2 class="tool-name">Notebook LM</h2>
                         <p class="tool-category">Contextual Intelligence</p>
+                        <p class="core-func">Private AI workspace that works only with your uploaded materials for grounded research assistance.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -364,19 +345,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="firefly-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#FF0000"/>
-                                        <stop offset="100%" style="stop-color:#FF6B00"/>
-                                    </linearGradient>
-                                </defs>
-                                <rect width="120" height="120" rx="20" fill="url(#firefly-grad)"/>
-                                <path d="M40 80L60 40L80 80M50 65h20" stroke="#FFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                            </svg>
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Adobe_Firefly_Logo.svg/1024px-Adobe_Firefly_Logo.svg.png?20250303041603" alt="Adobe Firefly Logo">
                         </div>
                         <h2 class="tool-name">Adobe Firefly</h2>
                         <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Text-to-image and design generation with commercially safe training and Creative Cloud integration.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -398,20 +371,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient id="heygen-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" style="stop-color:#7C3AED"/>
-                                        <stop offset="100%" style="stop-color:#A78BFA"/>
-                                    </linearGradient>
-                                </defs>
-                                <rect width="120" height="120" rx="20" fill="url(#heygen-grad)"/>
-                                <circle cx="60" cy="45" r="15" fill="#FFF"/>
-                                <rect x="40" y="65" width="40" height="25" rx="12.5" fill="#FFF"/>
-                            </svg>
+                            <img src="https://images.seeklogo.com/logo-png/61/1/heygen-logo-png_seeklogo-617924.png" alt="HeyGen Logo">
                         </div>
                         <h2 class="tool-name">HeyGen</h2>
                         <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Turns scripts into videos using lifelike avatars and voices for quick multilingual content creation.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -433,16 +397,11 @@
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-                                <rect width="120" height="120" rx="20" fill="#000"/>
-                                <rect x="35" y="70" width="8" height="30" rx="4" fill="#FFF"/>
-                                <rect x="48" y="60" width="8" height="40" rx="4" fill="#FFF"/>
-                                <rect x="61" y="50" width="8" height="50" rx="4" fill="#FFF"/>
-                                <rect x="74" y="65" width="8" height="35" rx="4" fill="#FFF"/>
-                            </svg>
+                            <img src="https://eleven-public-cdn.elevenlabs.io/payloadcms/9trrmnj2sj8-logo-logo.svg" alt="Eleven Labs Logo">
                         </div>
                         <h2 class="tool-name">Eleven Labs</h2>
                         <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Converts text into lifelike speech across languages with custom voices for accessible audio production.</p>
                     </div>
                     <div class="card-back">
                         <h3>Core Functionality</h3>
@@ -456,6 +415,8 @@
                         </ul>
                         <a href="https://elevenlabs.io" target="_blank" class="card-link">Visit Eleven Labs</a>
                     </div>
+                </div>
+            </div>>
                 </div>
             </div>
         </div>
