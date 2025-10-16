@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenAI Basics — Multiple Choice</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  button:focus { outline:3px solid #E84A27; outline-offset:2px }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .drag { padding:.5rem .6rem; border:1px dashed #cbd5e1; border-radius:10px; background:#f8fafc; cursor:grab }
+  .drop { padding:1rem; border:2px dashed #94a3b8; border-radius:10px; min-height:60px }
+  .hidden { display:none }
+  footer { padding:2rem 1.25rem; color:#666; text-align:center }
+  .center { text-align:center }
+  .tag { font-size:.8rem; color:#555 }
+  .small { font-size:.9rem }
+  .hr { height:1px; background:#e5e7eb; margin:.75rem 0 }
+  .flashcard { border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; cursor:pointer }
+  .flashcard .front { font-weight:700 }
+  .badge { background:#E84A27; color:#fff; border-radius:999px; padding:.1rem .5rem; font-size:.75rem }
+  .slider-wrap { display:flex; align-items:center; gap:.75rem }
+  input[type="range"] { width:200px }
+  .hotspot { position:relative; display:grid; gap:.5rem }
+  .hot-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem }
+  .hot-cell { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; height:80px; position:relative; cursor:pointer }
+  .hot-cell span { position:absolute; inset:auto 8px 8px auto; font-size:.75rem; background:#13294B; color:#fff; padding:.1rem .35rem; border-radius:6px }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>GenAI Basics — Multiple Choice</h1></header>
+<main>
+
+<section>
+  <p class="muted">Pick the best answer. Immediate feedback appears under each question.</p>
+</section>
+
+<section id="quiz"></section>
+
+<section class="row">
+  <button id="check">Check all</button>
+  <button id="reset" class="secondary">Reset</button>
+  <span class="pill">Focus: foundational concepts</span>
+</section>
+
+<script>
+const qs = [
+  { q: "What is a 'model' in generative AI?", options: [
+      "A fixed set of rules for answering questions",
+      "A statistical system that predicts the next token based on patterns in data",
+      "A database of facts retrieved on demand",
+      "A web service for searching the internet"
+    ], a: 1, why:"GenAI models learn patterns and predict continuations; they are not just rule lists or search engines." },
+  { q: "Which is the safest claim?", options: [
+      "Generative AI outputs are always factual",
+      "Generative AI can reason like a human",
+      "Generative AI can produce fluent text that sometimes includes errors",
+      "Generative AI understands the world directly"
+    ], a: 2, why:"Fluency does not guarantee accuracy; human verification is required." },
+  { q: "Best use case for GenAI:", options: [
+      "Making final medical decisions",
+      "Brainstorming options with constraints",
+      "Resetting a bank password",
+      "Posting private IDs for summarization"
+    ], a: 1, why:"Divergent idea generation is a good fit; sensitive or high-stakes actions are not." }
+];
+
+function render(){
+  const host = document.getElementById('quiz');
+  host.innerHTML = '';
+  qs.forEach((item, i)=>{
+    const sec = document.createElement('section');
+    sec.className = 'card';
+    sec.innerHTML = `<div><strong>${i+1}.</strong> ${item.q}</div>` + item.options.map((opt, j)=>`
+      <label class="row small"><input type="radio" name="q${i}" value="${j}"> ${opt}</label>
+    `).join('') + `<div id="fb${i}" class="fb hidden"></div>`;
+    host.appendChild(sec);
+  });
+}
+render();
+
+document.getElementById('check').addEventListener('click', ()=>{
+  qs.forEach((item,i)=>{
+    const chosen = document.querySelector(`input[name="q${i}"]:checked`);
+    const fb = document.getElementById(`fb${i}`);
+    fb.classList.remove('hidden','ok','bad');
+    if(!chosen){ fb.textContent='Pick one to get feedback.'; fb.classList.add('warn'); return; }
+    const correct = Number(chosen.value)===item.a;
+    fb.textContent = (correct?'Correct. ':'Not quite. ') + item.why;
+    fb.classList.add(correct?'ok':'bad');
+  });
+});
+document.getElementById('reset').addEventListener('click', ()=>{ render(); });
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

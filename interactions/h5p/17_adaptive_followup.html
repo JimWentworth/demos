@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Adaptive Follow‑Up</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timer { font-weight:700 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Adaptive Follow‑Up</h1></header>
+<main>
+
+<section><p class="muted">Your next question adapts based on your answer.</p></section>
+<section id="stage" class="card"></section>
+<script>
+const flow = {
+  start:{ q:"Define 'grounding' in GenAI.", a:/source|document|retriev/i, next:{ok:'ok1', bad:'bad1'} },
+  ok1:{ q:"Name one benefit of grounding.", a:/reduce|halluc|accuracy|trace/i, next:{ok:'ok2', bad:'bad2'} },
+  bad1:{ q:"Hint: think RAG. Try again—what is grounding?", a:/source|document|retriev/i, next:{ok:'ok1', bad:'bad1'} },
+  ok2:{ q:"When might grounding still fail?", a:/outdated|low\squality|mismatch|poor/i, next:{ok:'end', bad:'end'} },
+  bad2:{ q:"Grounding helps reduce what common risk?", a:/halluc|error|fabricat/i, next:{ok:'end', bad:'end'} },
+  end:{ end:true, text:"Nice work—notice how the path shifted based on your inputs." }
+};
+let node='start';
+function render(){
+  const host=document.getElementById('stage');
+  const s=flow[node];
+  if(s.end){ host.innerHTML = `<div>${s.text}</div>`; return; }
+  host.innerHTML = `<div><strong>Q:</strong> ${s.q}</div>
+  <label class="small">Answer: <input type="text" id="a"></label>
+  <div class="row"><button id="go">Submit</button></div>
+  <div id="fb" class="fb hidden"></div>`;
+  host.querySelector('#go').addEventListener('click',()=>{
+    const val=host.querySelector('#a').value.trim();
+    const fb=host.querySelector('#fb'); const ok = s.a.test(val);
+    fb.classList.remove('hidden','ok','bad'); fb.classList.add(ok?'ok':'bad');
+    fb.textContent = ok?'Yes.':'Not quite—check the hint embedded in the question.';
+    node = s.next[ok?'ok':'bad'];
+    setTimeout(render, 700);
+  });
+}
+render();
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

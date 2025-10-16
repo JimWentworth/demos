@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Image-Based Multiple Choice</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timer { font-weight:700 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Image-Based Multiple Choice</h1></header>
+<main>
+
+<section><p class="muted">Click the image that best matches the prompt engineering principle described.</p></section>
+<section id="quiz" class="grid grid-3"></section>
+<script>
+const items = [
+  {q:"Which image best represents <em>“constrain the output format”</em>?", imgs:[
+    {src:"https://via.placeholder.com/300x160?text=Freeform", correct:false},
+    {src:"https://via.placeholder.com/300x160?text=Template+{}+[]", correct:true},
+    {src:"https://via.placeholder.com/300x160?text=Storybook", correct:false}
+  ], why:"Specifying JSON tables or bullet formats constrains structure."},
+  {q:"Which image fits <em>“provide exemplars”</em>?", imgs:[
+    {src:"https://via.placeholder.com/300x160?text=Example+A%0AExample+B", correct:true},
+    {src:"https://via.placeholder.com/300x160?text=Random", correct:false},
+    {src:"https://via.placeholder.com/300x160?text=Silence", correct:false}
+  ], why:"Few-shot prompts demonstrate the target pattern."}
+];
+const host = document.getElementById('quiz');
+items.forEach((it, idx)=>{
+  const card = document.createElement('section'); card.className='card'; card.innerHTML = `<div>${idx+1}. ${it.q}</div>`;
+  const wrap = document.createElement('div'); wrap.className='row'; wrap.style.flexWrap='wrap';
+  it.imgs.forEach((im,i)=>{
+    const b = document.createElement('button'); b.className='ghost';
+    b.innerHTML = `<img src="${im.src}" alt="option ${i+1}" style="display:block; width:260px; height:auto; border-radius:10px;"><div class="small">Option ${i+1}</div>`;
+    b.addEventListener('click',()=>{
+      const fb = card.querySelector('.fb') || (()=>{const d=document.createElement('div'); d.className='fb'; card.appendChild(d); return d;})();
+      fb.className = 'fb ' + (im.correct?'ok':'bad');
+      fb.innerHTML = (im.correct?'Correct. ':'Try another. ') + it.why;
+    });
+    wrap.appendChild(b);
+  });
+  card.appendChild(wrap);
+  host.appendChild(card);
+});
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

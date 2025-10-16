@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generate & Evaluate — Compare & Revise</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timer { font-weight:700 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Generate & Evaluate — Compare & Revise</h1></header>
+<main>
+
+<section><p class="muted">Write your response, then reveal a <em>sample</em> model-style response and a checklist to revise yours.</p></section>
+<section class="grid">
+  <section class="card">
+    <label class="small">Prompt:</label>
+    <div class="fb">Explain the difference between <strong>model</strong>, <strong>tool</strong>, and <strong>agent</strong> in 4–6 sentences for a general audience.</div>
+    <label class="small">Your draft:</label>
+    <textarea id="mine" rows="8"></textarea>
+    <div class="row"><button id="show">Show sample + checklist</button></div>
+  </section>
+  <section class="card hidden" id="sample"></section>
+</section>
+<script>
+const sample = `A <em>model</em> is a statistical system that predicts the next token based on patterns in data. A <em>tool</em> is a specific capability the model can call, such as a web search or calculator. An <em>agent</em> is a higher‑level system that plans steps and uses tools and models to pursue a goal. Models generate; tools extend capability; agents orchestrate. In practice, an agent might call a model to draft text, then a browser tool to verify facts, and loop until it meets criteria.`;
+
+document.getElementById('show').addEventListener('click',()=>{
+  const box=document.getElementById('sample'); box.classList.remove('hidden');
+  const mine=document.getElementById('mine').value;
+  const checks = [
+    {k:/general|audience|plain/i, text:"Plain language for general audience."},
+    {k:/model|tool|agent/i, text:"Defines all three terms."},
+    {k:/example|for example/i, text:"Includes at least one example."},
+    {k:/verify|fact|source/i, text:"Mentions verification or tools (optional bonus)."}
+  ];
+  const misses = checks.filter(c=>!c.k.test(mine)).map(c=>c.text);
+  box.innerHTML = `<div><strong>Sample response:</strong></div><div class="small">${sample}</div><div class="hr"></div>
+  <div><strong>Revise checklist (from your draft):</strong></div>
+  <ul class="small">${checks.map(c=>`<li>${c.text} — ${c.k.test(mine)?'✅':'❌'}</li>`).join('')}</ul>
+  <div class="fb ${misses.length? 'warn':'ok'}">${misses.length? 'Consider adding: '+misses.join(' • ') : 'Looks solid—polish for clarity and flow.'}</div>`;
+});
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

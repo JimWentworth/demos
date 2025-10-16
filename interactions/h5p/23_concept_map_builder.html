@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Concept Map Builder</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timeline { display:grid; gap:.5rem }
+  .tick { display:flex; align-items:center; gap:.5rem }
+  .tick .bar { height:6px; background:#e5e7eb; border-radius:999px; flex:1 }
+  .tick .bar .fill { height:6px; background:var(--accent2); border-radius:999px; width:0% }
+  .drop { padding:1rem; border:2px dashed #94a3b8; border-radius:10px; min-height:120px }
+  .drag { padding:.5rem .6rem; border:1px dashed #cbd5e1; border-radius:10px; background:#f8fafc; cursor:grab }
+  .hot { background:#fff7ed; }
+  .accordion details { border:1px solid #e5e7eb; border-radius:10px; padding:.5rem .75rem }
+  .accordion summary { cursor:pointer; font-weight:700 }
+  .video-wrap { position:relative }
+  .overlay { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.4) }
+  .overlay .panel { background:#fff; padding:1rem; border-radius:12px; width:min(520px,90%); }
+  .chat {
+    border:1px solid #e5e7eb; border-radius:12px; padding:1rem; background:#fff; max-height:480px; overflow:auto
+  }
+  .msg { margin:.35rem 0; display:flex; gap:.5rem }
+  .msg .me { background:#e6eef7; padding:.5rem .7rem; border-radius:10px 10px 2px 10px; }
+  .msg .bot { background:#f3f4f6; padding:.5rem .7rem; border-radius:10px 10px 10px 2px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Concept Map Builder</h1></header>
+<main>
+
+<section><p class="muted">Create nodes and draw labeled connections. Export as an image (PNG).</p></section>
+<section class="row">
+  <input id="nodeText" type="text" placeholder="Node label (e.g., RAG)">
+  <button id="addNode">Add node</button>
+  <button id="connect" class="secondary">Connect (pick 2 nodes)</button>
+  <button id="export">Export PNG</button>
+</section>
+<section class="card">
+  <svg id="canvas" width="900" height="520" style="width:100%;height:520px;border:1px solid #e5e7eb;border-radius:12px;background:#fff"></svg>
+</section>
+<div id="fb" class="fb warn">Tip: drag nodes to reposition; click two nodes after pressing “Connect.”</div>
+<script>
+const svg=document.getElementById('canvas');
+let nodes=[], edges=[], mode='idle', pending=[];
+
+function addNode(label,x=80+Math.random()*700,y=80+Math.random()*360){
+  const g=elt('g',{transform:`translate(${x},${y})`, cursor:'move'});
+  const r=elt('rect',{x:-50,y:-18,rx:10,ry:10,width:100,height:36,fill:'#e6eef7',stroke:'#13294B'});
+  const t=elt('text',{x:0,y:4,'text-anchor':'middle',style:'font-weight:700;fill:#13294B'},label);
+  g.appendChild(r); g.appendChild(t); svg.appendChild(g);
+  const node={g,label,x,y}; nodes.push(node);
+  dragify(g,node);
+  g.addEventListener('click',()=> nodeClicked(node));
+}
+
+function elt(tag,attrs,txt){
+  const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+  for(const k in attrs){ e.setAttribute(k, attrs[k]); }
+  if(txt) e.textContent=txt;
+  return e;
+}
+function nodeClicked(n){
+  if(mode!=='connect') return;
+  pending.push(n);
+  if(pending.length===2){
+    const label=prompt('Relation label (optional):','relates to')||'';
+    addEdge(pending[0],pending[1],label);
+    pending=[]; mode='idle'; document.getElementById('connect').disabled=false;
+  }
+}
+function addEdge(a,b,label){
+  const path=elt('path',{stroke:'#E84A27','stroke-width':'2',fill:'none'});
+  const text=elt('text',{'text-anchor':'middle',fill:'#E84A27',style:'font-size:12px'} ,label);
+  svg.insertBefore(path, svg.firstChild);
+  svg.appendChild(text);
+  edges.push({a,b,path,label,text});
+  update();
+}
+function update(){
+  edges.forEach(e=>{
+    const d=`M ${e.a.x} ${e.a.y} L ${e.b.x} ${e.b.y}`;
+    e.path.setAttribute('d',d);
+    const mx=(e.a.x+e.b.x)/2, my=(e.a.y+e.b.y)/2;
+    e.text.setAttribute('x',mx); e.text.setAttribute('y',my-6);
+  });
+  nodes.forEach(n=>{
+    n.g.setAttribute('transform',`translate(${n.x},${n.y})`);
+  });
+}
+function dragify(g,node){
+  let ox=0, oy=0, dragging=false;
+  g.addEventListener('mousedown',e=>{ dragging=true; ox=e.clientX-node.x; oy=e.clientY-node.y; });
+  window.addEventListener('mousemove',e=>{ if(!dragging) return; node.x=e.clientX-ox; node.y=e.clientY-oy; update(); });
+  window.addEventListener('mouseup',()=> dragging=false);
+}
+document.getElementById('addNode').addEventListener('click',()=>{
+  const txt=(document.getElementById('nodeText').value||'Concept').trim();
+  addNode(txt);
+  document.getElementById('nodeText').value='';
+});
+document.getElementById('connect').addEventListener('click',()=>{
+  mode='connect'; pending=[]; document.getElementById('connect').disabled=true;
+});
+document.getElementById('export').addEventListener('click',()=>{
+  const xml=new XMLSerializer().serializeToString(svg);
+  const svg64 = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(xml)));
+  const img=new Image(); img.onload=()=>{
+    const c=document.createElement('canvas'); c.width=svg.clientWidth; c.height=svg.clientHeight;
+    const ctx=c.getContext('2d'); ctx.fillStyle='#fff'; ctx.fillRect(0,0,c.width,c.height);
+    ctx.drawImage(img,0,0,c.width,c.height);
+    const a=document.createElement('a'); a.download='concept_map.png'; a.href=c.toDataURL('image/png'); a.click();
+  };
+  img.src=svg64;
+});
+
+// Seed a few nodes
+addNode('Prompt');
+addNode('RAG');
+addNode('Evaluation');
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

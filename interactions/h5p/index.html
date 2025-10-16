@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GenAI Fluency — Interaction Library</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timer { font-weight:700 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>GenAI Fluency — Interaction Library</h1></header>
+<main>
+
+<section>
+  <p class="muted">A mini-library of H5P-style, standalone HTML interactions for teaching GenAI fluency. Open any file directly in a browser or embed in Canvas as an HTML page.</p>
+  <div class="pill">Style: UIUC palette; lightweight, no external deps.</div>
+</section>
+<section class="grid grid-2">
+  <div class="card"><strong>01 — Multiple Choice</strong><div class="small">Foundations quiz with instant feedback.</div><div class="hr"></div><a href="./01_mcq_basics.html">Open</a></div>
+  <div class="card"><strong>02 — True/False Guardrails</strong><div class="small">Safety and policy checks.</div><div class="hr"></div><a href="./02_true_false_guardrails.html">Open</a></div>
+  <div class="card"><strong>03 — Drag & Drop Match</strong><div class="small">Terms ↔ definitions.</div><div class="hr"></div><a href="./03_drag_match_terms.html">Open</a></div>
+  <div class="card"><strong>04 — Fill in the Blank</strong><div class="small">Regex-friendly answers.</div><div class="hr"></div><a href="./04_fill_in_blank.html">Open</a></div>
+  <div class="card"><strong>05 — Sort Workflow</strong><div class="small">Arrange GenAI workflow steps.</div><div class="hr"></div><a href="./05_sort_workflow.html">Open</a></div>
+  <div class="card"><strong>06 — Scenario Branching</strong><div class="small">Short research use-case pathing.</div><div class="hr"></div><a href="./06_scenario_branching.html">Open</a></div>
+  <div class="card"><strong>07 — Prompt Improvement Lab</strong><div class="small">CRISP checklist guidance.</div><div class="hr"></div><a href="./07_prompt_improvement_lab.html">Open</a></div>
+  <div class="card"><strong>08 — Bias Probe (Simulated)</strong><div class="small">Next-word + temperature demo.</div><div class="hr"></div><a href="./08_bias_probe_next_word.html">Open</a></div>
+  <div class="card"><strong>09 — Flashcards</strong><div class="small">Model vs tool vs agent.</div><div class="hr"></div><a href="./09_flashcards_model_tool_agent.html">Open</a></div>
+  <div class="card"><strong>10 — Hotspots</strong><div class="small">Click-to-reveal risk areas.</div><div class="hr"></div><a href="./10_hotspots_risks.html">Open</a></div>
+  <div class="card"><strong>11 — Definition Pairs</strong><div class="small">Match via two-click pairs.</div><div class="hr"></div><a href="./11_pairs_click_match.html">Open</a></div>
+  <div class="card"><strong>12 — Ethics Self-Check</strong><div class="small">Likert + notes + export.</div><div class="hr"></div><a href="./12_ethics_self_check.html">Open</a></div>
+
+  <div class="card"><strong>13 — Image MCQ</strong><div class="small">Picture options for concepts.</div><div class="hr"></div><a href="./13_image_mcq.html">Open</a></div>
+  <div class="card"><strong>14 — Select All That Apply</strong><div class="small">Multiple-correct checkbox quiz.</div><div class="hr"></div><a href="./14_select_all_apply.html">Open</a></div>
+  <div class="card"><strong>15 — Confidence‑Based Question</strong><div class="small">Answer + certainty → tailored feedback.</div><div class="hr"></div><a href="./15_confidence_question.html">Open</a></div>
+  <div class="card"><strong>16 — Timed Quickfire</strong><div class="small">45‑second rapid Q&A.</div><div class="hr"></div><a href="./16_timed_quickfire.html">Open</a></div>
+  <div class="card"><strong>17 — Adaptive Follow‑Up</strong><div class="small">Next question changes based on answer.</div><div class="hr"></div><a href="./17_adaptive_followup.html">Open</a></div>
+  <div class="card"><strong>18 — Short Answer Keywords</strong><div class="small">Keyword rubric feedback.</div><div class="hr"></div><a href="./18_short_answer_keywords.html">Open</a></div>
+  <div class="card"><strong>19 — Scenario Reflection Journal</strong><div class="small">Write + export plan.</div><div class="hr"></div><a href="./19_scenario_reflection_journal.html">Open</a></div>
+  <div class="card"><strong>20 — Generate & Evaluate</strong><div class="small">Compare to sample + revise checklist.</div><div class="hr"></div><a href="./20_generate_evaluate_compare.html">Open</a></div>
+
+  <div class="card"><strong>21 — Timeline / Slider</strong><div class="small">Reveal milestones by year.</div><div class="hr"></div><a href="./21_timeline_milestones.html">Open</a></div>
+  <div class="card"><strong>22 — Categorize into Buckets</strong><div class="small">Drag statements into bins.</div><div class="hr"></div><a href="./22_categorize_buckets.html">Open</a></div>
+  <div class="card"><strong>23 — Concept Map Builder</strong><div class="small">Create nodes, connect, export PNG.</div><div class="hr"></div><a href="./23_concept_map_builder.html">Open</a></div>
+  <div class="card"><strong>24 — Step-by-Step Reveal</strong><div class="small">Accordion walkthrough.</div><div class="hr"></div><a href="./24_step_by_step_accordion.html">Open</a></div>
+  <div class="card"><strong>25 — Interactive Video</strong><div class="small">Pause-and-respond overlays.</div><div class="hr"></div><a href="./25_interactive_video.html">Open</a></div>
+  <div class="card"><strong>26 — Chat Simulation</strong><div class="small">Role prompting practice.</div><div class="hr"></div><a href="./26_chat_simulation_role_prompt.html">Open</a></div>
+  <div class="card"><strong>27 — Audio Prompt + Response</strong><div class="small">TTS prompt; export answer.</div><div class="hr"></div><a href="./27_audio_prompt_response.html">Open</a></div>
+</section>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

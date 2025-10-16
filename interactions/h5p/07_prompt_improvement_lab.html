@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prompt Improvement Lab</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  button:focus { outline:3px solid #E84A27; outline-offset:2px }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .drag { padding:.5rem .6rem; border:1px dashed #cbd5e1; border-radius:10px; background:#f8fafc; cursor:grab }
+  .drop { padding:1rem; border:2px dashed #94a3b8; border-radius:10px; min-height:60px }
+  .hidden { display:none }
+  footer { padding:2rem 1.25rem; color:#666; text-align:center }
+  .center { text-align:center }
+  .tag { font-size:.8rem; color:#555 }
+  .small { font-size:.9rem }
+  .hr { height:1px; background:#e5e7eb; margin:.75rem 0 }
+  .flashcard { border:1px solid #e5e7eb; border-radius:12px; padding:1.25rem; cursor:pointer }
+  .flashcard .front { font-weight:700 }
+  .badge { background:#E84A27; color:#fff; border-radius:999px; padding:.1rem .5rem; font-size:.75rem }
+  .slider-wrap { display:flex; align-items:center; gap:.75rem }
+  input[type="range"] { width:200px }
+  .hotspot { position:relative; display:grid; gap:.5rem }
+  .hot-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:.5rem }
+  .hot-cell { background:#f3f4f6; border:1px solid #e5e7eb; border-radius:10px; height:80px; position:relative; cursor:pointer }
+  .hot-cell span { position:absolute; inset:auto 8px 8px auto; font-size:.75rem; background:#13294B; color:#fff; padding:.1rem .35rem; border-radius:6px }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Prompt Improvement Lab</h1></header>
+<main>
+
+<section><p class="muted">Paste a prompt. Get structured suggestions using the CRISP checklist (Context, Role, Input, Steps, Parameters).</p></section>
+<section class="grid">
+  <textarea id="src" rows="6" placeholder="Paste your prompt here..."></textarea>
+  <div class="row"><button id="analyze">Suggest improvements</button><button id="clear" class="secondary">Clear</button></div>
+  <section id="out" class="card hidden"></section>
+</section>
+<script>
+function analyzePrompt(p){
+  const hasRole = /(as\s+a|role:)/i.test(p);
+  const hasSteps = /(step|outline|bullets)/i.test(p);
+  const hasInput = /(context:|data:|examples?:)/i.test(p);
+  const hasParams = /(style:|length:|format:|temperature|top\-p|seed)/i.test(p);
+  const gaps = [];
+  if(!hasRole) gaps.push("Specify a role or audience.");
+  if(!hasInput) gaps.push("Provide context/data/examples explicitly.");
+  if(!hasSteps) gaps.push("Ask for steps or structure.");
+  if(!hasParams) gaps.push("Constrain format/length or parameters.");
+  return { hasRole, hasSteps, hasInput, hasParams, gaps };
+}
+document.getElementById('analyze').addEventListener('click',()=>{
+  const p = document.getElementById('src').value.trim();
+  const out=document.getElementById('out');
+  if(!p){ out.className='card bad'; out.textContent='Add a prompt first.'; out.classList.remove('hidden'); return; }
+  const r=analyzePrompt(p);
+  out.className='card';
+  out.innerHTML = `<div><strong>Checklist:</strong></div>
+  <ul class="small">
+    <li>Role/audience: ${r.hasRole?'✅':'❌'}</li>
+    <li>Context/data/examples: ${r.hasInput?'✅':'❌'}</li>
+    <li>Steps/structure: ${r.hasSteps?'✅':'❌'}</li>
+    <li>Parameters/format: ${r.hasParams?'✅':'❌'}</li>
+  </ul>
+  <div class="fb ${r.gaps.length? 'warn':'ok'}">${r.gaps.length? 'Add: '+r.gaps.join(' • ') : 'Looks solid. Try it!'}</div>`;
+  out.classList.remove('hidden');
+});
+document.getElementById('clear').addEventListener('click',()=>{ document.getElementById('src').value=''; document.getElementById('out').classList.add('hidden'); });
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

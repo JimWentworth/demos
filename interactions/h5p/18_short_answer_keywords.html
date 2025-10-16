@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Short Answer — Keyword Check</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #e5e7eb; border-radius:999px; padding:.2rem .55rem; background:#f8fafc; font-size:.85rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  input[type="text"], textarea { width:100%; padding:.6rem .7rem; border:1px solid #e5e7eb; border-radius:10px; font-size:1rem }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .grid-3 { grid-template-columns:repeat(3,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem }
+  .timer { font-weight:700 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+</style>
+</head>
+<body>
+<header><h1>Short Answer — Keyword Check</h1></header>
+<main>
+
+<section><p class="muted">Write a short explanation. We’ll check for key ideas and show targeted hints.</p></section>
+<section class="card" id="wrap"></section>
+<script>
+const rubric=[
+  {k:/define|task|success|criteria/i, hint:"State the task and success criteria."},
+  {k:/context|data|examples?|constraints?/i, hint:"Mention context/data/examples or constraints."},
+  {k:/verify|source|cite|ground/i, hint:"Include verification or grounding."}
+];
+function render(){
+  const host=document.getElementById('wrap');
+  host.innerHTML = `<label class="small">Prompt: Explain a robust GenAI workflow in 2–3 sentences.</label>
+  <textarea id="txt" rows="6" placeholder="Type your answer..."></textarea>
+  <div class="row"><button id="check">Check</button><button id="clear" class="secondary">Clear</button></div>
+  <div id="fb" class="fb hidden"></div>`;
+  host.querySelector('#check').addEventListener('click',()=>{
+    const v=host.querySelector('#txt').value;
+    const misses = rubric.filter(r=>!r.k.test(v)).map(r=>r.hint);
+    const fb=host.querySelector('#fb'); fb.classList.remove('hidden','ok','warn');
+    if(misses.length===0){ fb.classList.add('ok'); fb.textContent='Nice coverage—hits the major elements.'; }
+    else { fb.classList.add('warn'); fb.innerHTML = 'Consider adding: • '+misses.join(' • '); }
+  });
+  host.querySelector('#clear').addEventListener('click',()=>render());
+}
+render();
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>
