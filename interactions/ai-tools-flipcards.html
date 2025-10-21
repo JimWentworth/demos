@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Fluency - Tool Profiles</title>
+    <title>AI Fluency Toolkit</title>
     <style>
         * {
             margin: 0;
@@ -38,6 +38,7 @@
         .subtitle {
             font-size: 1rem;
             color: #666;
+            margin-bottom: 2rem;
         }
 
         .cards-grid {
@@ -203,58 +204,13 @@
     </style>
 </head>
 <body>
-    <div>
-     <p>We'll explore the latest available versions of the following tools. Keep in mind this is a very rapidly changing field so new tools may be introducted that are not listed here. </p>
-    </div>
+    <div class="container">
+        <header>
+  
+            <p class="subtitle">We'll explore the latest available versions of the following tools. Keep in mind this is a very rapidly changing field so new tools may be introduced that are not listed here.</p>
+        </header>
+        
         <div class="cards-grid">
-            <!-- ChatGPT -->
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="logo-container">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/ChatGPT-Logo.svg/1024px-ChatGPT-Logo.svg.png?20240214002031" alt="ChatGPT Logo">
-                        </div>
-                        <h2 class="tool-name">ChatGPT</h2>
-                       <p class="tool-category">Large Language Model</p>
-                        <p class="core-func">General-purpose conversational AI for brainstorming, drafting, explaining, and revising with multimodal support.</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Key Use Cases</h3>
-                        <ul class="use-cases">
-                            <li>Brainstorming essays and lesson plans</li>
-                            <li>Refining writing style and structure</li>
-                            <li>Creating interactive simulations</li>
-                            <li>Document analysis and summarization</li>
-                        </ul>
-                        <a href="https://chat.openai.com" target="_blank" class="card-link">Visit ChatGPT</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Claude -->
-            <div class="card">
-                <div class="card-inner">
-                    <div class="card-front">
-                        <div class="logo-container">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/2560px-Claude_AI_logo.svg.png" alt="Claude Logo">
-                        </div>
-                        <h2 class="tool-name">Claude</h2>
-                        <p class="tool-category">Large Language Model</p>
-                        <p class="core-func">Excels at processing long documents with structured, careful reasoning and emphasis on transparency.</p>
-                    </div>
-                    <div class="card-back">
-                        <h3>Key Use Cases</h3>
-                        <ul class="use-cases">
-                            <li>Reviewing extended research articles</li>
-                            <li>Comparing multiple policy documents</li>
-                            <li>Generating ethical/policy analyses</li>
-                            <li>Modeling careful reasoning</li>
-                        </ul>
-                        <a href="https://claude.ai" target="_blank" class="card-link">Visit Claude</a>
-                    </div>
-                </div>
-            </div>
-
             <!-- Gemini -->
             <div class="card">
                 <div class="card-inner">
@@ -263,16 +219,19 @@
                             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Google_Gemini_logo.svg/2560px-Google_Gemini_logo.svg.png" alt="Gemini Logo">
                         </div>
                         <h2 class="tool-name">Gemini</h2>
-                          <p class="tool-category">Large Language Model</p>
-                        <p class="core-func">Multimodal reasoning with deep Google Workspace integration for context-aware drafting and analysis.</p>
+                        <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">Google's multimodal AI with deep integration into Workspace apps, featuring advanced reasoning, real-time web access, and native collaboration tools.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Seamlessly works within Google Docs, Sheets, Gmail, and Drive. Strong multimodal capabilities with image understanding, video analysis, and code execution for data analysis tasks.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Drafting in Google Docs</li>
-                            <li>Generating visuals and diagrams</li>
-                            <li>Synthesizing from Drive folders</li>
-                            <li>Translating for accessibility</li>
+                            <li>Drafting and editing directly in Google Docs</li>
+                            <li>Analyzing data in Google Sheets</li>
+                            <li>Synthesizing information from Drive folders</li>
+                            <li>Email composition and summarization in Gmail</li>
+                            <li>Creating presentations with visual content</li>
                         </ul>
                         <a href="https://gemini.google.com" target="_blank" class="card-link">Visit Gemini</a>
                     </div>
@@ -287,42 +246,102 @@
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSNYKvCngP_MQo6HpnKUepGqPlZYFdjHhUwzA&s" alt="Copilot Logo">
                         </div>
                         <h2 class="tool-name">Copilot</h2>
-                          <p class="tool-category">Large Language Model</p>
-                        <p class="core-func">AI integrated into Microsoft 365 apps for drafting, summarizing, and analyzing within your workflow.</p>
+                        <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">Microsoft's AI assistant powered by GPT-4, integrated across Microsoft 365 apps with enterprise-grade security and organizational knowledge access.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Native integration with Word, Excel, PowerPoint, Outlook, and Teams. Accesses organizational data securely, creates professional documents, and automates workflow tasks within familiar Microsoft tools.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Drafting reports in Word</li>
-                            <li>Creating slides in PowerPoint</li>
-                            <li>Summarizing meetings in Teams</li>
-                            <li>Data analysis in Excel</li>
+                            <li>Generating and editing reports in Word</li>
+                            <li>Creating presentation decks in PowerPoint</li>
+                            <li>Data analysis and formula generation in Excel</li>
+                            <li>Meeting transcription and summaries in Teams</li>
+                            <li>Email drafting and management in Outlook</li>
                         </ul>
                         <a href="https://copilot.microsoft.com" target="_blank" class="card-link">Visit Copilot</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Notebook LM -->
+            <!-- ChatGPT -->
             <div class="card">
                 <div class="card-inner">
                     <div class="card-front">
                         <div class="logo-container">
-                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/NotebookLM_logo.svg/1024px-NotebookLM_logo.svg.png?20241229091149" alt="Notebook LM Logo">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/ChatGPT-Logo.svg/1024px-ChatGPT-Logo.svg.png?20240214002031" alt="ChatGPT Logo">
                         </div>
-                        <h2 class="tool-name">Notebook LM</h2>
-                        <p class="tool-category">Contextual Intelligence</p>
-                        <p class="core-func">Private AI workspace that works only with your uploaded materials for grounded research assistance.</p>
+                        <h2 class="tool-name">ChatGPT</h2>
+                        <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">OpenAI's versatile conversational AI with GPT-4o, capable of text, image, and voice interactions with web browsing and real-time information access.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Excels at creative writing, coding assistance, and complex problem-solving. Features memory across conversations, custom GPTs for specialized tasks, and DALL-E integration for image generation.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Literature review preparation</li>
-                            <li>Topic summaries for discussions</li>
-                            <li>Comparing theoretical frameworks</li>
-                            <li>Building study guides</li>
+                            <li>Brainstorming and iterative writing projects</li>
+                            <li>Code generation and debugging</li>
+                            <li>Creating custom chatbots for specific topics</li>
+                            <li>Quick research with web search capability</li>
+                            <li>Interactive tutoring and explanations</li>
                         </ul>
-                        <a href="https://notebooklm.google.com" target="_blank" class="card-link">Visit Notebook LM</a>
+                        <a href="https://chatgpt.com" target="_blank" class="card-link">Visit ChatGPT</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claude -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Claude_AI_logo.svg/2560px-Claude_AI_logo.svg.png" alt="Claude Logo">
+                        </div>
+                        <h2 class="tool-name">Claude</h2>
+                        <p class="tool-category">Large Language Model</p>
+                        <p class="core-func">Anthropic's AI assistant with exceptional long-context understanding (200K tokens), careful reasoning, and strong capabilities in analysis and structured thinking.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Key Strengths</h3>
+                        <p>Superior at processing lengthy documents, providing nuanced analysis, and maintaining context. Strong ethical reasoning, detailed explanations, and artifact creation for code and documents.</p>
+                        <h3>Best Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Analyzing multiple long research papers</li>
+                            <li>Document comparison and synthesis</li>
+                            <li>Complex reasoning and step-by-step analysis</li>
+                            <li>Creating interactive code artifacts</li>
+                            <li>Policy and ethical framework development</li>
+                        </ul>
+                        <a href="https://claude.ai" target="_blank" class="card-link">Visit Claude</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NotebookLM -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/NotebookLM_logo.svg/1024px-NotebookLM_logo.svg.png?20241229091149" alt="NotebookLM Logo">
+                        </div>
+                        <h2 class="tool-name">NotebookLM</h2>
+                        <p class="tool-category">Contextual Intelligence</p>
+                        <p class="core-func">Google's AI research assistant that works exclusively with your uploaded sources, providing grounded answers, summaries, and even audio podcast-style overviews.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Key Strengths</h3>
+                        <p>Creates private notebooks that only reference your documents. Generates study guides, FAQ sheets, and engaging audio discussions. All responses cite specific sources, ensuring accuracy and transparency.</p>
+                        <h3>Best Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Literature review and research synthesis</li>
+                            <li>Creating study materials from course readings</li>
+                            <li>Generating audio overviews of complex topics</li>
+                            <li>Comparing multiple theoretical frameworks</li>
+                            <li>Building annotated bibliographies</li>
+                        </ul>
+                        <a href="https://notebooklm.google.com" target="_blank" class="card-link">Visit NotebookLM</a>
                     </div>
                 </div>
             </div>
@@ -336,15 +355,18 @@
                         </div>
                         <h2 class="tool-name">Adobe Firefly</h2>
                         <p class="tool-category">Multimodal Creation</p>
-                        <p class="core-func">Text-to-image and design generation with commercially safe training and Creative Cloud integration.</p>
+                        <p class="core-func">Adobe's generative AI for creating images, text effects, and design assets, trained on licensed content with commercial safety and Creative Cloud integration.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Ethically trained on Adobe Stock and public domain content. Seamless integration with Photoshop, Illustrator, and Express. Offers style matching, generative fill, and text-to-image with commercial use rights.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Visual assets for presentations</li>
-                            <li>Prototyping design ideas</li>
-                            <li>Exploring composition and color</li>
-                            <li>Teaching ethical AI image generation</li>
+                            <li>Creating presentation visuals and graphics</li>
+                            <li>Generating background images and textures</li>
+                            <li>Prototyping design concepts quickly</li>
+                            <li>Teaching responsible AI image generation</li>
+                            <li>Producing social media content assets</li>
                         </ul>
                         <a href="https://firefly.adobe.com" target="_blank" class="card-link">Visit Firefly</a>
                     </div>
@@ -360,15 +382,18 @@
                         </div>
                         <h2 class="tool-name">HeyGen</h2>
                         <p class="tool-category">Multimodal Creation</p>
-                        <p class="core-func">Turns scripts into videos using lifelike avatars and voices for quick multilingual content creation.</p>
+                        <p class="core-func">AI video platform that creates professional videos with realistic avatars and voices, supporting 40+ languages with lip-sync translation and custom avatar creation.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Rapidly produces talking-head style videos from text scripts. Offers diverse avatar library, voice cloning, and automatic translation with accurate lip-syncing for multilingual content at scale.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Instructor intros and announcements</li>
-                            <li>Multilingual video summaries</li>
-                            <li>Prototyping online course media</li>
-                            <li>Demonstrating synthetic video ethics</li>
+                            <li>Course announcements and instructor intros</li>
+                            <li>Multilingual educational content</li>
+                            <li>Training videos and onboarding materials</li>
+                            <li>Social media explainer videos</li>
+                            <li>Demonstrating synthetic media literacy</li>
                         </ul>
                         <a href="https://www.heygen.com" target="_blank" class="card-link">Visit HeyGen</a>
                     </div>
@@ -382,22 +407,23 @@
                         <div class="logo-container">
                             <img src="https://eleven-public-cdn.elevenlabs.io/payloadcms/9trrmnj2sj8-logo-logo.svg" alt="Eleven Labs Logo">
                         </div>
-                        <h2 class="tool-name">Eleven Labs</h2>
+                        <h2 class="tool-name">ElevenLabs</h2>
                         <p class="tool-category">Multimodal Creation</p>
-                        <p class="core-func">Converts text into lifelike speech across languages with custom voices for accessible audio production.</p>
+                        <p class="core-func">Advanced AI voice generation platform that converts text to remarkably natural speech in 32 languages with voice cloning and fine-tuned emotional control.</p>
                     </div>
                     <div class="card-back">
-                        <h3>Key Use Cases</h3>
+                        <h3>Key Strengths</h3>
+                        <p>Industry-leading voice quality with emotional expressiveness. Create custom voices, clone your own voice, or use extensive voice library. Supports long-form content with consistent quality.</p>
+                        <h3>Best Use Cases</h3>
                         <ul class="use-cases">
-                            <li>Narrated lectures or tutorials</li>
-                            <li>Accessible audio alternatives</li>
-                            <li>Language-learning exercises</li>
-                            <li>Voiceovers for media projects</li>
+                            <li>Narrating lectures and tutorials</li>
+                            <li>Creating accessible audio versions of text</li>
+                            <li>Producing language learning materials</li>
+                            <li>Voicing educational videos and podcasts</li>
+                            <li>Generating audiobook-style content</li>
                         </ul>
-                        <a href="https://elevenlabs.io" target="_blank" class="card-link">Visit Eleven Labs</a>
+                        <a href="https://elevenlabs.io" target="_blank" class="card-link">Visit ElevenLabs</a>
                     </div>
-                </div>
-            </div>
                 </div>
             </div>
         </div>
