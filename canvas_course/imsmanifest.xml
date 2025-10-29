@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="course_manifest_001"
+          xmlns="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1"
+          xmlns:lom="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource"
+          xmlns:lomimscc="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd
+                              http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd
+                              http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd">
+
+  <metadata>
+    <schema>IMS Common Cartridge</schema>
+    <schemaversion>1.3.0</schemaversion>
+    <lomimscc:lom>
+      <lomimscc:general>
+        <lomimscc:title>
+          <lomimscc:string language="en">Machine Learning Case Studies Course</lomimscc:string>
+        </lomimscc:title>
+        <lomimscc:description>
+          <lomimscc:string language="en">A 15-week course exploring machine learning through case-based learning. Students develop critical thinking skills by working through multiple ML approaches and methods.</lomimscc:string>
+        </lomimscc:description>
+      </lomimscc:general>
+    </lomimscc:lom>
+  </metadata>
+
+  <organizations>
+    <organization identifier="org_001" structure="rooted-hierarchy">
+      <item identifier="module_001">
+        <title>Week 1: Opening the Case — What does it mean to "see" a pattern?</title>
+        <item identifier="item_week01" identifierref="res_week01">
+          <title>Week 1 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_002">
+        <title>Week 2: The Shared Case File — Features, labels, targets</title>
+        <item identifier="item_week02" identifierref="res_week02">
+          <title>Week 2 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_003">
+        <title>Week 3: Case 1 (Student-Selected Path) — Core Concepts</title>
+        <item identifier="item_week03" identifierref="res_week03">
+          <title>Week 3 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_004">
+        <title>Week 4: Case 1 Deep Dive — Evidence and uncertainty</title>
+        <item identifier="item_week04" identifierref="res_week04">
+          <title>Week 4 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_005">
+        <title>Week 5: Case 1 Wrap — Your first Case File</title>
+        <item identifier="item_week05" identifierref="res_week05">
+          <title>Week 5 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_006">
+        <title>Week 6: Cross-Case Checkpoint 1 — Sharing what you've seen</title>
+        <item identifier="item_week06" identifierref="res_week06">
+          <title>Week 6 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_007">
+        <title>Week 7: Case 2 (Your Second Path) — New lens, same data</title>
+        <item identifier="item_week07" identifierref="res_week07">
+          <title>Week 7 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_008">
+        <title>Week 8: Case 2 Deep Dive — Interpreting behavior</title>
+        <item identifier="item_week08" identifierref="res_week08">
+          <title>Week 8 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_009">
+        <title>Week 9: Case 2 Wrap — Finishing your second Case File</title>
+        <item identifier="item_week09" identifierref="res_week09">
+          <title>Week 9 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_010">
+        <title>Week 10: Cross-Case Checkpoint 2 — Bias, overfitting, false leads</title>
+        <item identifier="item_week10" identifierref="res_week10">
+          <title>Week 10 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_011">
+        <title>Week 11: Case 3 (Your Final Path) — Closing the loop</title>
+        <item identifier="item_week11" identifierref="res_week11">
+          <title>Week 11 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_012">
+        <title>Week 12: Case 3 Deep Dive — Blind spots and strengths</title>
+        <item identifier="item_week12" identifierref="res_week12">
+          <title>Week 12 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_013">
+        <title>Week 13: Case 3 Wrap — Final Case File</title>
+        <item identifier="item_week13" identifierref="res_week13">
+          <title>Week 13 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_014">
+        <title>Week 14: The Network of Clues — Putting models together</title>
+        <item identifier="item_week14" identifierref="res_week14">
+          <title>Week 14 Content</title>
+        </item>
+      </item>
+
+      <item identifier="module_015">
+        <title>Week 15: The Reveal — What was actually learned?</title>
+        <item identifier="item_week15" identifierref="res_week15">
+          <title>Week 15 Content</title>
+        </item>
+      </item>
+    </organization>
+  </organizations>
+
+  <resources>
+    <resource identifier="res_week01" type="webcontent" href="web_resources/week01.html">
+      <file href="web_resources/week01.html"/>
+    </resource>
+
+    <resource identifier="res_week02" type="webcontent" href="web_resources/week02.html">
+      <file href="web_resources/week02.html"/>
+    </resource>
+
+    <resource identifier="res_week03" type="webcontent" href="web_resources/week03.html">
+      <file href="web_resources/week03.html"/>
+    </resource>
+
+    <resource identifier="res_week04" type="webcontent" href="web_resources/week04.html">
+      <file href="web_resources/week04.html"/>
+    </resource>
+
+    <resource identifier="res_week05" type="webcontent" href="web_resources/week05.html">
+      <file href="web_resources/week05.html"/>
+    </resource>
+
+    <resource identifier="res_week06" type="webcontent" href="web_resources/week06.html">
+      <file href="web_resources/week06.html"/>
+    </resource>
+
+    <resource identifier="res_week07" type="webcontent" href="web_resources/week07.html">
+      <file href="web_resources/week07.html"/>
+    </resource>
+
+    <resource identifier="res_week08" type="webcontent" href="web_resources/week08.html">
+      <file href="web_resources/week08.html"/>
+    </resource>
+
+    <resource identifier="res_week09" type="webcontent" href="web_resources/week09.html">
+      <file href="web_resources/week09.html"/>
+    </resource>
+
+    <resource identifier="res_week10" type="webcontent" href="web_resources/week10.html">
+      <file href="web_resources/week10.html"/>
+    </resource>
+
+    <resource identifier="res_week11" type="webcontent" href="web_resources/week11.html">
+      <file href="web_resources/week11.html"/>
+    </resource>
+
+    <resource identifier="res_week12" type="webcontent" href="web_resources/week12.html">
+      <file href="web_resources/week12.html"/>
+    </resource>
+
+    <resource identifier="res_week13" type="webcontent" href="web_resources/week13.html">
+      <file href="web_resources/week13.html"/>
+    </resource>
+
+    <resource identifier="res_week14" type="webcontent" href="web_resources/week14.html">
+      <file href="web_resources/week14.html"/>
+    </resource>
+
+    <resource identifier="res_week15" type="webcontent" href="web_resources/week15.html">
+      <file href="web_resources/week15.html"/>
+    </resource>
+  </resources>
+</manifest>
