@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Common Cartridge Packager - Multi-Page</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .module-entry {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .module-entry h3 {
+            color: #495057;
+            font-size: 16px;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .page-item {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            padding-right: 50px;
+        }
+        
+        .page-item label {
+            display: block;
+            font-size: 12px;
+            color: #495057;
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+        
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .remove-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+            transition: background 0.2s;
+        }
+        
+        .remove-btn:hover {
+            background: #c82333;
+        }
+        
+        .add-page-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .add-page-btn:hover {
+            background: #218838;
+        }
+        
+        .add-module-btn, .generate-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 600;
+        }
+        
+        .add-module-btn:hover, .generate-btn:hover {
+            background: #5568d3;
+        }
+        
+        .add-module-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            margin-top: 30px;
+            padding: 16px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .generate-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .module-topic {
+            margin-bottom: 15px;
+        }
+        
+        .pages-list {
+            border-top: 2px solid #dee2e6;
+            padding-top: 15px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Canvas Common Cartridge Packager</h1>
+        <p class="subtitle">Create modules with multiple pages for Canvas LMS</p>
+        
+        <div id="modules-container"></div>
+        
+        <button class="add-module-btn" onclick="addModule()">+ Add Module</button>
+        <button class="generate-btn" onclick="generateCartridge()">Generate Common Cartridge</button>
+    </div>
+
+    <script>
+        let moduleCount = 0;
+        let pageCounters = {};
+
+        function addModule() {
+            moduleCount++;
+            pageCounters[moduleCount] = 0;
+            
+            const container = document.getElementById('modules-container');
+            const module = document.createElement('div');
+            module.className = 'module-entry';
+            module.id = `module-${moduleCount}`;
+            module.innerHTML = `
+                <button class="remove-btn" onclick="removeModule(${moduleCount})">&times;</button>
+                <h3>Week ${moduleCount}</h3>
+                <div class="module-topic">
+                    <label for="topic-${moduleCount}">Week Topic</label>
+                    <input type="text" id="topic-${moduleCount}" placeholder="Enter week topic">
+                </div>
+                <div class="pages-list" id="pages-${moduleCount}"></div>
+                <button class="add-page-btn" onclick="addPage(${moduleCount})">+ Add Page</button>
+            `;
+            container.appendChild(module);
+            
+            // Add first page automatically
+            addPage(moduleCount);
+        }
+
+        function removeModule(moduleId) {
+            const module = document.getElementById(`module-${moduleId}`);
+            module.remove();
+        }
+
+        function addPage(moduleId) {
+            pageCounters[moduleId]++;
+            const pageId = `page-${moduleId}-${pageCounters[moduleId]}`;
+            const container = document.getElementById(`pages-${moduleId}`);
+            
+            const page = document.createElement('div');
+            page.className = 'page-item';
+            page.id = pageId;
+            page.innerHTML = `
+                <button class="remove-btn" onclick="removePage('${pageId}')">&times;</button>
+                <label for="${pageId}-title">Page Title</label>
+                <input type="text" id="${pageId}-title" placeholder="Enter page title">
+            `;
+            container.appendChild(page);
+        }
+
+        function removePage(pageId) {
+            const page = document.getElementById(pageId);
+            page.remove();
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function generateCartridge() {
+            const moduleEntries = document.querySelectorAll('.module-entry');
+            
+            if (moduleEntries.length === 0) {
+                alert('Please add at least one module');
+                return;
+            }
+
+            const modules = [];
+            
+            for (let moduleEntry of moduleEntries) {
+                const moduleId = moduleEntry.id.split('-')[1];
+                const topic = document.getElementById(`topic-${moduleId}`).value.trim();
+                const moduleTitle = topic ? `Week ${moduleId}: ${topic}` : `Week ${moduleId}`;
+                
+                const pageItems = moduleEntry.querySelectorAll('.page-item');
+                const pages = [];
+                
+                let pageNum = 1;
+                for (let pageItem of pageItems) {
+                    const pageId = pageItem.id;
+                    const pageTitle = document.getElementById(`${pageId}-title`).value.trim();
+                    // Use module title + page number if no title provided
+                    const finalTitle = pageTitle || `${moduleTitle} - Page ${pageNum}`;
+                    pages.push({ title: finalTitle });
+                    pageNum++;
+                }
+                
+                if (pages.length > 0) {
+                    modules.push({ title: moduleTitle, pages: pages });
+                }
+            }
+
+            if (modules.length === 0) {
+                alert('Please add at least one page to a module');
+                return;
+            }
+
+            const zip = new JSZip();
+            const resources = [];
+            let pageCounter = 0;
+
+            const manifestId = generateUUID();
+            
+            let manifestXml = `<?xml version="1.0" encoding="UTF-8"?>
+<manifest identifier="${manifestId}" xmlns="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1" xmlns:lom="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource" xmlns:lomimscc="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd">
+  <metadata>
+    <schema>IMS Common Cartridge</schema>
+    <schemaversion>1.3.0</schemaversion>
+  </metadata>
+  <organizations>
+    <organization identifier="org_1" structure="rooted-hierarchy">
+      <item identifier="root_item">`;
+
+            modules.forEach((module, moduleIndex) => {
+                const moduleId = `module_${moduleIndex + 1}`;
+                
+                manifestXml += `
+        <item identifier="${moduleId}" title="${module.title}">
+          <title>${module.title}</title>`;
+
+                module.pages.forEach((page, pageIndex) => {
+                    pageCounter++;
+                    const pageId = `page_${pageCounter}`;
+                    const pageIdentifier = generateUUID();
+                    
+                    const htmlContent = '<!DOCTYPE html>\n' +
+'<html lang="en">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <title>' + page.title + '</title>\n' +
+'</head>\n' +
+'<body>\n' +
+'    <div id="dp-wrapper" class="dp-wrapper dp-colored-headings variation-2" data-header-class="dp-header dp-colored-headings variation-2" data-nav-class="container-fluid dp-link-grid dp-colored-headings variation-2 dp-ch-2" data-img-url="https://designtools.ciditools.com/css/images/banner_desert_sky.png">\n' +
+'        <header class="dp-header dp-colored-headings variation-2">\n' +
+'            <h2 style="text-align: center;">' + page.title + '</h2>\n' +
+'            <h2 class="dp-heading"><span class="dp-header-title">&nbsp;</span></h2>\n' +
+'        </header>\n' +
+'        <h3>heading</h3>\n' +
+'        <p>This week covers the essential concepts and skills you need to master.</p>\n' +
+'        <p>&nbsp;</p>\n' +
+'        <p>&nbsp;</p>\n' +
+'        <div class="dp-progress-placeholder dp-module-progress-icons" style="display: none;">Icon Progress Bar (browser only)</div>\n' +
+'        <p>&nbsp;</p>\n' +
+'    </div>\n' +
+'</body>\n' +
+'</html>';
+                    
+                    zip.file(`${pageId}.html`, htmlContent);
+                    
+                    resources.push({
+                        identifier: pageIdentifier,
+                        id: pageId
+                    });
+                    
+                    manifestXml += `
+          <item identifier="${moduleId}_item_${pageIndex + 1}" identifierref="${pageIdentifier}">
+            <title>${page.title}</title>
+          </item>`;
+                });
+
+                manifestXml += `
+        </item>`;
+            });
+
+            manifestXml += `
+      </item>
+    </organization>
+  </organizations>
+  <resources>`;
+
+            resources.forEach((resource) => {
+                manifestXml += `
+    <resource identifier="${resource.identifier}" type="webcontent" href="${resource.id}.html">
+      <file href="${resource.id}.html"/>
+    </resource>`;
+            });
+
+            manifestXml += `
+  </resources>
+</manifest>`;
+
+            zip.file('imsmanifest.xml', manifestXml);
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'canvas_package.imscc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Add initial 8 modules
+        for (let i = 0; i < 8; i++) {
+            addModule();
+        }
+    </script>
+</body>
+</html>
