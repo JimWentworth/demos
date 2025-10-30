@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canvas Common Cartridge - File Upload</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .upload-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 20px;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        
+        .upload-btn:hover {
+            background: #5568d3;
+        }
+        
+        .template-section {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .template-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .template-code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .format-rules {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        
+        .format-rules h4 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+        
+        .format-rules ul {
+            margin-left: 20px;
+            color: #333;
+        }
+        
+        .format-rules li {
+            margin-bottom: 8px;
+        }
+        
+        .preview-section {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .preview-section h3 {
+            color: #495057;
+            margin-bottom: 15px;
+        }
+        
+        .module-preview {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .module-preview h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+        
+        .page-preview {
+            color: #666;
+            padding-left: 20px;
+            font-size: 14px;
+        }
+        
+        .generate-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+        }
+        
+        .generate-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .generate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .download-template-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+        
+        .download-template-btn:hover {
+            background: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Canvas Common Cartridge - File Upload</h1>
+        <p class="subtitle">Upload a text file with your course structure</p>
+        
+        <div class="upload-section">
+            <h2>Upload Your Course Structure File</h2>
+            <p style="color: #666; margin-bottom: 20px;">Select a .txt file formatted with MODULE: and PAGE: lines</p>
+            <input type="file" id="fileInput" accept=".txt" onchange="handleFileUpload(event)">
+            <label for="fileInput">
+                <span class="upload-btn">Choose File</span>
+            </label>
+            <p id="fileName" style="margin-top: 15px; color: #495057;"></p>
+        </div>
+        
+        <div class="preview-section" id="previewSection">
+            <h3>Preview - Course Structure</h3>
+            <div id="previewContent"></div>
+        </div>
+        
+        <button class="generate-btn" id="generateBtn" disabled onclick="generateCartridge()">Generate Common Cartridge</button>
+    </div>
+
+    <script>
+        let courseData = null;
+
+        function downloadTemplate() {
+            const templateContent = `# Canvas Course Structure Template
+# 
+# Format Rules:
+# - MODULE: starts a new module (e.g., MODULE: Week 1: Introduction)
+# - PAGE: adds a page to the current module (e.g., PAGE: Overview)
+# - Lines starting with # are comments
+# - Blank lines are ignored
+
+MODULE: Week 1: Introduction to Course
+PAGE: Course Overview
+PAGE: Syllabus
+PAGE: Getting Started
+
+MODULE: Week 2: Basic Concepts
+PAGE: Key Definitions
+PAGE: Practice Examples
+
+MODULE: Week 3: Advanced Topics
+PAGE: Lecture Notes
+PAGE: Discussion Questions
+
+MODULE: Week 4
+PAGE: Assignment Instructions
+
+# Add more modules and pages as needed
+`;
+            const blob = new Blob([templateContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'canvas_course_template.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            document.getElementById('fileName').textContent = 'Loading: ' + file.name;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const content = e.target.result;
+                parseFile(content);
+                document.getElementById('fileName').textContent = 'Loaded: ' + file.name;
+            };
+            reader.readAsText(file);
+        }
+
+        function parseFile(content) {
+            const lines = content.split('\n');
+            const modules = [];
+            let currentModule = null;
+            
+            for (let line of lines) {
+                line = line.trim();
+                
+                // Skip empty lines and comments
+                if (!line || line.startsWith('#')) continue;
+                
+                if (line.startsWith('MODULE:')) {
+                    const moduleName = line.substring(7).trim();
+                    currentModule = {
+                        title: moduleName,
+                        pages: []
+                    };
+                    modules.push(currentModule);
+                } else if (line.startsWith('PAGE:')) {
+                    if (currentModule) {
+                        const pageName = line.substring(5).trim();
+                        if (pageName) {
+                            currentModule.pages.push({ title: pageName });
+                        }
+                    }
+                }
+            }
+            
+            if (modules.length === 0) {
+                alert('No valid MODULE entries found in file. Please check the format.');
+                return;
+            }
+            
+            courseData = modules;
+            displayPreview(modules);
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        function displayPreview(modules) {
+            const previewSection = document.getElementById('previewSection');
+            const previewContent = document.getElementById('previewContent');
+            
+            previewContent.innerHTML = '';
+            
+            modules.forEach(module => {
+                const moduleDiv = document.createElement('div');
+                moduleDiv.className = 'module-preview';
+                
+                let html = '<h4>📁 ' + module.title + '</h4>';
+                
+                if (module.pages.length > 0) {
+                    module.pages.forEach(page => {
+                        html += '<div class="page-preview">📄 ' + page.title + '</div>';
+                    });
+                } else {
+                    html += '<div class="page-preview" style="color: #dc3545;">⚠️ No pages in this module</div>';
+                }
+                
+                moduleDiv.innerHTML = html;
+                previewContent.appendChild(moduleDiv);
+            });
+            
+            previewSection.style.display = 'block';
+        }
+
+        function generateUUID() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                const r = Math.random() * 16 | 0;
+                const v = c === 'x' ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        async function generateCartridge() {
+            if (!courseData || courseData.length === 0) {
+                alert('No course data loaded');
+                return;
+            }
+
+            const zip = new JSZip();
+            const resources = [];
+            let pageCounter = 0;
+
+            const manifestId = generateUUID();
+            
+            let manifestXml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+'<manifest identifier="' + manifestId + '" xmlns="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1" xmlns:lom="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource" xmlns:lomimscc="http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd">\n' +
+'  <metadata>\n' +
+'    <schema>IMS Common Cartridge</schema>\n' +
+'    <schemaversion>1.3.0</schemaversion>\n' +
+'  </metadata>\n' +
+'  <organizations>\n' +
+'    <organization identifier="org_1" structure="rooted-hierarchy">\n' +
+'      <item identifier="root_item">\n';
+
+            courseData.forEach((module, moduleIndex) => {
+                const moduleId = 'module_' + (moduleIndex + 1);
+                
+                manifestXml += '        <item identifier="' + moduleId + '" title="' + module.title + '">\n' +
+'          <title>' + module.title + '</title>\n';
+
+                module.pages.forEach((page, pageIndex) => {
+                    pageCounter++;
+                    const pageId = 'page_' + pageCounter;
+                    const pageIdentifier = generateUUID();
+                    
+                    const htmlContent = '<!DOCTYPE html>\n' +
+'<html lang="en">\n' +
+'<head>\n' +
+'    <meta charset="UTF-8">\n' +
+'    <title>' + page.title + '</title>\n' +
+'</head>\n' +
+'<body>\n' +
+'    <div id="dp-wrapper" class="dp-wrapper dp-colored-headings variation-2" data-header-class="dp-header dp-colored-headings variation-2" data-nav-class="container-fluid dp-link-grid dp-colored-headings variation-2 dp-ch-2" data-img-url="https://designtools.ciditools.com/css/images/banner_desert_sky.png">\n' +
+'        <header class="dp-header dp-colored-headings variation-2">\n' +
+'            <h2 style="text-align: center;">' + page.title + '</h2>\n' +
+'            <h2 class="dp-heading"><span class="dp-header-title">&nbsp;</span></h2>\n' +
+'        </header>\n' +
+'        <h3>heading</h3>\n' +
+'        <p>This week covers the essential concepts and skills you need to master.</p>\n' +
+'        <p>&nbsp;</p>\n' +
+'        <p>&nbsp;</p>\n' +
+'        <div class="dp-progress-placeholder dp-module-progress-icons" style="display: none;">Icon Progress Bar (browser only)</div>\n' +
+'        <p>&nbsp;</p>\n' +
+'    </div>\n' +
+'</body>\n' +
+'</html>';
+                    
+                    zip.file(pageId + '.html', htmlContent);
+                    
+                    resources.push({
+                        identifier: pageIdentifier,
+                        id: pageId
+                    });
+                    
+                    manifestXml += '          <item identifier="' + moduleId + '_item_' + (pageIndex + 1) + '" identifierref="' + pageIdentifier + '">\n' +
+'            <title>' + page.title + '</title>\n' +
+'          </item>\n';
+                });
+
+                manifestXml += '        </item>\n';
+            });
+
+            manifestXml += '      </item>\n' +
+'    </organization>\n' +
+'  </organizations>\n' +
+'  <resources>\n';
+
+            resources.forEach((resource) => {
+                manifestXml += '    <resource identifier="' + resource.identifier + '" type="webcontent" href="' + resource.id + '.html">\n' +
+'      <file href="' + resource.id + '.html"/>\n' +
+'    </resource>\n';
+            });
+
+            manifestXml += '  </resources>\n' +
+'</manifest>';
+
+            zip.file('imsmanifest.xml', manifestXml);
+
+            const blob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'canvas_package.imscc';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
