@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Conceptual Atlas – 101 concepts (zoom • drag • highlight • search)</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root { --sidebar-w: 360px; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: #f3f4f6;
+    }
+    body {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      overflow: hidden;
+    }
+    /* Sidebar */
+    #sidebar {
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    #sidebar h2 { margin: 0 0 8px; font-size: 1.15rem; }
+    #count { display:inline-block; margin-left:8px; font-size:.85rem; color:#6b7280;}
+    #sidebar p { font-size: 0.92rem; line-height: 1.45; }
+    /* Search */
+    #search-wrap { display:flex; gap:6px; margin:8px 0 10px; }
+    #search { flex:1; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:.95rem; }
+    #clear-btn { padding:8px 10px; border:1px solid #d1d5db; background:#fff; border-radius:8px; font-size:.9rem; cursor:pointer; }
+    /* Legend */
+    .legend { background:#fff; border:1px solid #ddd; border-radius:6px; padding:6px 8px; font-size:12px; max-width:320px; }
+    .legend-item { display:flex; align-items:center; gap:6px; margin-bottom:4px; line-height:1.2; cursor:pointer; }
+    .legend-swatch { width:12px; height:12px; border-radius:999px; }
+    /* Main panel */
+    #main { padding: 12px; }
+    #map-panel {
+      position: relative; width: 100%; height: calc(100vh - 24px);
+      background:#fff; border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;
+    }
+    .tooltip {
+      position:absolute; background:#fff; border:1px solid #ccc; border-radius:6px;
+      padding:4px 8px; font-size:11px; pointer-events:none; opacity:0;
+      box-shadow:0 2px 4px rgba(0,0,0,.12);
+    }
+    .label { font-size: 11px; fill:#2b2b2b; pointer-events:none; user-select:none; font-weight:500; text-shadow:0 1px 2px #fff; }
+    .hint {
+      position:absolute; right:10px; bottom:10px; font-size:12px; color:#6b7280;
+      background:rgba(255,255,255,.9); border:1px solid #e5e7eb; border-radius:6px; padding:4px 8px;
+    }
+    /* Panning cursor */
+    .pan-bg { cursor: grab; }
+    .pan-bg.grabbing { cursor: grabbing; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h2>Conceptual Atlas <span id="count"></span></h2>
+    <div id="search-wrap">
+      <input id="search" type="search" placeholder="Search concepts or categories…" />
+      <button id="clear-btn" title="Clear search">Clear</button>
+    </div>
+    <p><em>Click a node to see details.</em> Pan: drag the white background • Zoom: scroll • Drag nodes to arrange.</p>
+    <p>This demo maps <strong>universal constructs</strong> across identity, learning, systems, bias, communication, and social lenses.</p>
+    <div id="legend" class="legend"></div>
+    <div id="details"></div>
+  </div>
+
+  <div id="main">
+    <div id="map-panel">
+      <svg id="chart" width="100%" height="100%"></svg>
+      <div id="tooltip" class="tooltip"></div>
+      <div class="hint">Pan: drag background • Zoom: scroll • Drag nodes to adjust</div>
+    </div>
+  </div>
+
+  <script>
+    // ========= 1) DATA (raw, may contain accidental duplicates) =========
+    const conceptsRaw = [
+      /* --- Core set (identity, learning, systems, bias, social, comms) --- */
+      { name:"Visual Perception", category:"Foundations", description:"How the brain interprets visual stimuli to create meaning.", connections:["Gestalt Principles","Figure–Ground","Contrast"] },
+{ name:"Gestalt Principles", category:"Foundations", description:"Humans perceive patterns as unified wholes through proximity, similarity, closure, and continuity.", connections:["Visual Perception","Hierarchy","Composition"] },
+{ name:"Figure–Ground", category:"Foundations", description:"Viewers distinguish an object (figure) from its background (ground).", connections:["Contrast","Gestalt Principles","Emphasis"] },
+{ name:"Contrast", category:"Foundations", description:"Difference in visual elements creates focus and clarity.", connections:["Emphasis","Color Theory","Hierarchy"] },
+{ name:"Hierarchy", category:"Foundations", description:"Visual arrangement guides the viewer’s attention and reading order.", connections:["Composition","Typography","Balance"] },
+
+{ name:"Composition", category:"Design Structure", description:"Arrangement of elements to achieve visual coherence and intent.", connections:["Balance","Alignment","Proportion"] },
+{ name:"Balance", category:"Design Structure", description:"Visual equilibrium achieved through symmetry, asymmetry, or radial organization.", connections:["Composition","Proportion","Tension"] },
+{ name:"Alignment", category:"Design Structure", description:"Visual connection between elements through shared edges or axes.", connections:["Composition","Grid Systems","Whitespace"] },
+{ name:"Proportion", category:"Design Structure", description:"Relationship between sizes of elements within a design.", connections:["Scale","Balance","Golden Ratio"] },
+{ name:"Grid Systems", category:"Design Structure", description:"Frameworks that organize layout and spacing relationships.", connections:["Alignment","Hierarchy","Typography"] },
+
+{ name:"Typography", category:"Communication Systems", description:"Art and technique of arranging type for readability and expression.", connections:["Hierarchy","Contrast","Legibility"] },
+{ name:"Legibility", category:"Communication Systems", description:"Ease with which individual characters can be distinguished.", connections:["Typography","Contrast","Medium"] },
+{ name:"Readability", category:"Communication Systems", description:"Ease with which text blocks can be read and understood.", connections:["Typography","Hierarchy","Information Design"] },
+{ name:"Information Design", category:"Communication Systems", description:"Structuring data visually to clarify relationships and insights.", connections:["Visual Hierarchy","Semiotics","Data Visualization"] },
+{ name:"Semiotics", category:"Communication Systems", description:"Study of signs and symbols and how they communicate meaning.", connections:["Iconography","Color Psychology","Cultural Context"] },
+
+{ name:"Color Theory", category:"Color & Emotion", description:"Study of how colors mix, interact, and convey emotion.", connections:["Contrast","Harmony","Color Psychology"] },
+{ name:"Color Harmony", category:"Color & Emotion", description:"Pleasing arrangement of colors creating balance and unity.", connections:["Color Theory","Mood","Brand Identity"] },
+{ name:"Color Psychology", category:"Color & Emotion", description:"Colors evoke emotional and cultural associations.", connections:["Semiotics","Brand Identity","User Experience"] },
+{ name:"Saturation & Value", category:"Color & Emotion", description:"Intensity and brightness of color influence visual impact.", connections:["Color Theory","Contrast","Mood"] },
+{ name:"Mood", category:"Color & Emotion", description:"Emotional tone or atmosphere of a design.", connections:["Color Psychology","Composition","Narrative Framing"] },
+
+{ name:"User Experience (UX)", category:"Interaction & Meaning", description:"Designing with user needs, emotions, and flow in mind.", connections:["Affordance","Visual Hierarchy","Feedback Loops"] },
+{ name:"Affordance", category:"Interaction & Meaning", description:"Visual cues that suggest how an element should be used.", connections:["User Experience (UX)","Gestalt Principles","Feedback Loops"] },
+{ name:"Feedback Loops", category:"Interaction & Meaning", description:"System responses that confirm user actions.", connections:["Affordance","Usability","System Thinking"] },
+{ name:"Usability", category:"Interaction & Meaning", description:"Effectiveness and efficiency with which users achieve goals.", connections:["UX","Information Design","Accessibility"] },
+{ name:"Accessibility", category:"Interaction & Meaning", description:"Designing for inclusivity across physical and cognitive differences.", connections:["Contrast","Typography","Usability"] },
+
+{ name:"Narrative Framing", category:"Concept & Context", description:"Visual storytelling that shapes interpretation and emotion.", connections:["Mood","Symbolism","Cultural Context"] },
+{ name:"Symbolism", category:"Concept & Context", description:"Use of imagery to represent ideas beyond the literal.", connections:["Semiotics","Narrative Framing","Metaphor"] },
+{ name:"Metaphor", category:"Concept & Context", description:"Transfer of meaning from one context to another to enhance understanding.", connections:["Symbolism","Conceptual Design","Cultural Context"] },
+{ name:"Cultural Context", category:"Concept & Context", description:"Social and historical factors influencing design meaning.", connections:["Semiotics","Symbolism","Brand Identity"] },
+{ name:"Brand Identity", category:"Concept & Context", description:"Visual and conceptual system expressing a brand’s personality.", connections:["Color Psychology","Typography","Cultural Context"] }
+
+    ];
+
+    // ========= 2) Deduplicate + build links =========
+    const byName = new Map();
+    for (const c of conceptsRaw) { if (!byName.has(c.name)) byName.set(c.name, c); }
+    const concepts = Array.from(byName.values());
+
+    const valid = new Set(concepts.map(c => c.name));
+    const nodes = concepts.map(d => ({ id: d.name, category: d.category, description: d.description }));
+    const links = concepts.flatMap(d =>
+      (d.connections || [])
+        .filter(t => valid.has(t))
+        .map(t => ({ source: d.name, target: t }))
+    );
+
+    // ========= 3) SVG, pan/zoom =========
+    const width = 1700, height = 950;
+    const svg = d3.select("#chart").attr("viewBox", [0,0,width,height]);
+    const panBg = svg.append("rect").attr("class","pan-bg").attr("x",0).attr("y",0).attr("width",width).attr("height",height).attr("fill","transparent");
+    const g = svg.append("g");
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.25, 4])
+      .filter((event) => {
+        if (event.type === "wheel") return true; // allow wheel anywhere
+        if (event.type === "mousedown") return event.target.classList.contains("pan-bg"); // drag-pan only on bg
+        if (event.type === "touchstart") return event.target.classList.contains("pan-bg");
+        return true;
+      })
+      .on("zoom", (event) => g.attr("transform", event.transform));
+    svg.call(zoom);
+
+    panBg.on("mousedown", () => panBg.classed("grabbing", true));
+    svg.on("mouseup", () => panBg.classed("grabbing", false));
+    svg.on("mouseleave", () => panBg.classed("grabbing", false));
+
+    // ========= 4) Colors, categories, legend =========
+    const categories = [...new Set(nodes.map(n => n.category))];
+    const color = d3.scaleOrdinal()
+      .domain(categories)
+      .range(["#2563eb","#f97316","#10b981","#a855f7","#ef4444","#0ea5e9","#facc15","#ec4899","#14b8a6","#6b7280"]);
+
+    const tooltip = d3.select("#tooltip");
+    const countEl = document.getElementById("count");
+    countEl.textContent = `(${nodes.length})`;
+
+    // Neighbor map
+    const getId = v => (typeof v === "object" ? v.id : v);
+    const neighbors = new Map(); nodes.forEach(n => neighbors.set(n.id, new Set()));
+    links.forEach(l => { const a=getId(l.source), b=getId(l.target); neighbors.get(a).add(b); neighbors.get(b).add(a); });
+
+    // ========= 5) Draw links/nodes/labels =========
+    const link = g.append("g")
+      .attr("stroke", "#d1d5db")
+      .attr("stroke-width", 1.2)
+      .selectAll("line")
+      .data(links)
+      .join("line");
+
+    const node = g.append("g")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("r", 16)
+      .attr("fill", d => color(d.category))
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5)
+      .on("mouseover", (event, d) => {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.id}</strong><br>${d.category}`)
+          .style("left", (event.pageX + 10) + "px")
+          .style("top", (event.pageY + 10) + "px");
+      })
+      .on("mousemove", (event) => {
+        tooltip.style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY + 10) + "px");
+      })
+      .on("mouseout", () => tooltip.style("opacity", 0))
+      .on("click", (_, d) => showDetails(d))
+      .call(d3.drag()
+        .on("start", (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag",  (event, d) => { d.fx = event.x; d.fy = event.y; })
+        .on("end",   (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+      );
+
+    const label = g.append("g")
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+      .attr("class", "label")
+      .attr("text-anchor", "middle")
+      .text(d => d.id);
+
+    // ========= 6) Force simulation =========
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(185))
+      .force("charge", d3.forceManyBody().strength(-310))
+      .force("center", d3.forceCenter(width/2, height/2))
+      .force("collide", d3.forceCollide().radius(34));
+
+    simulation.on("tick", () => {
+      link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+      node.attr("cx", d => d.x).attr("cy", d => d.y);
+      label.attr("x", d => d.x).attr("y", d => d.y - 18);
+    });
+
+    // ========= 7) Legend (click to highlight) =========
+    let selectedCategory = null;
+    function buildLegend() {
+      const legend = d3.select("#legend");
+      legend.html("");
+      categories.forEach(cat => {
+        const item = legend.append("div").attr("class","legend-item");
+        item.append("div").attr("class","legend-swatch").style("background", color(cat));
+        item.append("div").text(cat);
+        item.on("click", () => { selectedCategory = (selectedCategory === cat ? null : cat); searchQuery = ""; syncSearchBox(); updateHighlight(); });
+      });
+      highlightLegend();
+    }
+    function highlightLegend() {
+      d3.select("#legend").selectAll(".legend-item")
+        .style("opacity", (_, i) => (!selectedCategory || selectedCategory === categories[i]) ? 1 : 0.35)
+        .style("outline", (_, i) => (selectedCategory === categories[i]) ? "2px solid #9ca3af" : "none");
+    }
+
+    // ========= 8) Search (filter + auto-zoom) =========
+    let searchQuery = "";
+    function syncSearchBox() { const el = document.getElementById("search"); if (el) el.value = searchQuery; }
+
+    function applySearchHighlight() {
+      if (!searchQuery) { // nothing searched
+        selectedCategory = null;
+        updateHighlight();
+        return;
+      }
+      const q = searchQuery.toLowerCase();
+      const matched = new Set(nodes.filter(d => d.id.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)).map(d => d.id));
+      const nbrs = new Set(); matched.forEach(id => neighbors.get(id)?.forEach(n => nbrs.add(n)));
+
+      node.transition().duration(200).style("opacity", d => (matched.has(d.id) || nbrs.has(d.id)) ? 1 : 0.12);
+      label.transition().duration(200).style("opacity", d => (matched.has(d.id) || nbrs.has(d.id)) ? 1 : 0.12);
+      link.transition().duration(200)
+        .style("opacity", d => (matched.has(getId(d.source)) || matched.has(getId(d.target))) ? 0.9 : 0.08)
+        .style("stroke-width", d => (matched.has(getId(d.source)) || matched.has(getId(d.target))) ? 2.2 : 1.0);
+
+      // auto-zoom to matched nodes
+      const mNodes = nodes.filter(d => matched.has(d.id));
+      if (mNodes.length) {
+        const xs = mNodes.map(n => n.x), ys = mNodes.map(n => n.y);
+        const minX = Math.min(...xs), maxX = Math.max(...xs);
+        const minY = Math.min(...ys), maxY = Math.max(...ys);
+        const dx = maxX - minX || 1, dy = maxY - minY || 1;
+        const margin = 80;
+        const k = Math.min((width - margin*2) / dx, (height - margin*2) / dy, 3);
+        const tx = (width - k * (minX + maxX)) / 2;
+        const ty = (height - k * (minY + maxY)) / 2;
+        svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+      }
+      highlightLegend();
+    }
+
+    function updateHighlight() {
+      if (searchQuery) return applySearchHighlight();
+      if (!selectedCategory) {
+        node.transition().duration(250).style("opacity", 1);
+        label.transition().duration(250).style("opacity", 1);
+        link.transition().duration(250).style("opacity", 0.9).style("stroke-width", 1.2);
+        highlightLegend();
+        return;
+      }
+      const inCat = new Set(nodes.filter(d => d.category === selectedCategory).map(d => d.id));
+      const nbrs = new Set(); inCat.forEach(id => neighbors.get(id)?.forEach(n => nbrs.add(n)));
+      node.transition().duration(250).style("opacity", d => (inCat.has(d.id) || nbrs.has(d.id)) ? 1 : 0.15);
+      label.transition().duration(250).style("opacity", d => (inCat.has(d.id) || nbrs.has(d.id)) ? 1 : 0.15);
+      link.transition().duration(250)
+        .style("opacity", d => (inCat.has(getId(d.source)) || inCat.has(getId(d.target))) ? 0.9 : 0.12)
+        .style("stroke-width", d => (inCat.has(getId(d.source)) || inCat.has(getId(d.target))) ? 2.4 : 1.0);
+      highlightLegend();
+    }
+
+    function wireSearch() {
+      const inp = d3.select("#search");
+      const clear = d3.select("#clear-btn");
+      let t;
+      function handle() {
+        searchQuery = (inp.property("value") || "").trim();
+        selectedCategory = null;
+        applySearchHighlight();
+      }
+      inp.on("input", () => { clearTimeout(t); t = setTimeout(handle, 200); });
+      clear.on("click", () => {
+        inp.property("value", "");
+        searchQuery = "";
+        fitToNodes();
+        updateHighlight();
+      });
+    }
+
+    // ========= 9) Sidebar details =========
+    function showDetails(d) {
+      const full = concepts.find(c => c.name === d.id);
+      const details = d3.select("#details");
+      details.html("");
+      details.append("h3").text(full?.name || d.id);
+      if (full?.category) details.append("p").html(`<strong>Category:</strong> ${full.category}`);
+      if (full?.description) details.append("p").text(full.description);
+      if (full?.connections?.length) details.append("p").html(`<strong>Connections:</strong> ${full.connections.join(", ")}`);
+    }
+
+    // ========= 10) Fit once after initial layout =========
+    function fitToNodes() {
+      const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      const dx = maxX - minX || 1, dy = maxY - minY || 1;
+      const margin = 70;
+      const k = Math.min((width - margin*2)/dx, (height - margin*2)/dy, 3);
+      const tx = (width - k * (minX + maxX)) / 2;
+      const ty = (height - k * (minY + maxY)) / 2;
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    }
+
+    // Boot
+    buildLegend();
+    wireSearch();
+    setTimeout(fitToNodes, 1200);
+  </script>
+</body>
+</html>

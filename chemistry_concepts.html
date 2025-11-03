@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Conceptual Atlas – 101 concepts (zoom • drag • highlight • search)</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root { --sidebar-w: 360px; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background: #f3f4f6;
+    }
+    body {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      overflow: hidden;
+    }
+    /* Sidebar */
+    #sidebar {
+      background: #fff;
+      border-right: 1px solid #e5e7eb;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    #sidebar h2 { margin: 0 0 8px; font-size: 1.15rem; }
+    #count { display:inline-block; margin-left:8px; font-size:.85rem; color:#6b7280;}
+    #sidebar p { font-size: 0.92rem; line-height: 1.45; }
+    /* Search */
+    #search-wrap { display:flex; gap:6px; margin:8px 0 10px; }
+    #search { flex:1; padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; font-size:.95rem; }
+    #clear-btn { padding:8px 10px; border:1px solid #d1d5db; background:#fff; border-radius:8px; font-size:.9rem; cursor:pointer; }
+    /* Legend */
+    .legend { background:#fff; border:1px solid #ddd; border-radius:6px; padding:6px 8px; font-size:12px; max-width:320px; }
+    .legend-item { display:flex; align-items:center; gap:6px; margin-bottom:4px; line-height:1.2; cursor:pointer; }
+    .legend-swatch { width:12px; height:12px; border-radius:999px; }
+    /* Main panel */
+    #main { padding: 12px; }
+    #map-panel {
+      position: relative; width: 100%; height: calc(100vh - 24px);
+      background:#fff; border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;
+    }
+    .tooltip {
+      position:absolute; background:#fff; border:1px solid #ccc; border-radius:6px;
+      padding:4px 8px; font-size:11px; pointer-events:none; opacity:0;
+      box-shadow:0 2px 4px rgba(0,0,0,.12);
+    }
+    .label { font-size: 11px; fill:#2b2b2b; pointer-events:none; user-select:none; font-weight:500; text-shadow:0 1px 2px #fff; }
+    .hint {
+      position:absolute; right:10px; bottom:10px; font-size:12px; color:#6b7280;
+      background:rgba(255,255,255,.9); border:1px solid #e5e7eb; border-radius:6px; padding:4px 8px;
+    }
+    /* Panning cursor */
+    .pan-bg { cursor: grab; }
+    .pan-bg.grabbing { cursor: grabbing; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h2>Conceptual Atlas <span id="count"></span></h2>
+    <div id="search-wrap">
+      <input id="search" type="search" placeholder="Search concepts or categories…" />
+      <button id="clear-btn" title="Clear search">Clear</button>
+    </div>
+    <p><em>Click a node to see details.</em> Pan: drag the white background • Zoom: scroll • Drag nodes to arrange.</p>
+    <p>This demo maps <strong>universal constructs</strong> across identity, learning, systems, bias, communication, and social lenses.</p>
+    <div id="legend" class="legend"></div>
+    <div id="details"></div>
+  </div>
+
+  <div id="main">
+    <div id="map-panel">
+      <svg id="chart" width="100%" height="100%"></svg>
+      <div id="tooltip" class="tooltip"></div>
+      <div class="hint">Pan: drag background • Zoom: scroll • Drag nodes to adjust</div>
+    </div>
+  </div>
+
+  <script>
+    // ========= 1) DATA (raw, may contain accidental duplicates) =========
+    const conceptsRaw = [
+      /* --- Core set (identity, learning, systems, bias, social, comms) --- */
+{ name:"Atomic Structure", category:"Foundations", description:"Atoms consist of protons, neutrons, and electrons with quantized energy levels.", connections:["Periodic Trends","Electron Configuration","Quantum Numbers"] },
+{ name:"Periodic Trends", category:"Foundations", description:"Properties such as ionization energy and electronegativity vary predictably across the periodic table.", connections:["Atomic Structure","Bond Polarity","Chemical Reactivity"] },
+{ name:"Quantum Numbers", category:"Foundations", description:"Define allowed states for electrons in atoms.", connections:["Electron Configuration","Atomic Orbitals","Spectroscopy"] },
+{ name:"Electron Configuration", category:"Foundations", description:"Distribution of electrons among orbitals determines chemical behavior.", connections:["Periodic Trends","Bond Formation","Hybridization"] },
+{ name:"Atomic Orbitals", category:"Foundations", description:"Regions of space where electrons are most likely found.", connections:["Molecular Orbitals","Hybridization","Quantum Numbers"] },
+
+{ name:"Bond Formation", category:"Structure & Bonding", description:"Chemical bonds form through electron sharing or transfer.", connections:["Electronegativity","Ionic vs Covalent Bonding","Molecular Geometry"] },
+{ name:"Electronegativity", category:"Structure & Bonding", description:"Measure of an atom’s ability to attract electrons.", connections:["Bond Polarity","Intermolecular Forces","Reactivity"] },
+{ name:"Bond Polarity", category:"Structure & Bonding", description:"Unequal electron sharing creates dipoles.", connections:["Intermolecular Forces","Molecular Geometry","Solubility"] },
+{ name:"Hybridization", category:"Structure & Bonding", description:"Mixing of atomic orbitals to form bonding orbitals.", connections:["Molecular Geometry","Sigma and Pi Bonds","Resonance"] },
+{ name:"Molecular Geometry", category:"Structure & Bonding", description:"Spatial arrangement of atoms determines molecular properties.", connections:["Bond Polarity","Hybridization","Intermolecular Forces"] },
+
+{ name:"Intermolecular Forces", category:"States & Interactions", description:"Attractive forces between molecules influence phase behavior.", connections:["Phase Transitions","Boiling Point","Solubility"] },
+{ name:"Solubility", category:"States & Interactions", description:"Extent to which a substance dissolves in a solvent.", connections:["Intermolecular Forces","Concentration","Colligative Properties"] },
+{ name:"Phase Transitions", category:"States & Interactions", description:"Changes between solid, liquid, and gas involve energy exchange.", connections:["Enthalpy","Entropy","Intermolecular Forces"] },
+{ name:"Colligative Properties", category:"States & Interactions", description:"Depend on solute particle number, not identity.", connections:["Solutions","Concentration","Boiling Point"] },
+{ name:"Solutions", category:"States & Interactions", description:"Homogeneous mixtures with uniform composition.", connections:["Solubility","Molarity","Colligative Properties"] },
+
+{ name:"Chemical Equilibrium", category:"Reactivity & Change", description:"Forward and reverse reaction rates are equal at equilibrium.", connections:["Le Chatelier’s Principle","Reaction Rate","Thermodynamics"] },
+{ name:"Le Chatelier’s Principle", category:"Reactivity & Change", description:"Systems adjust to minimize disturbance at equilibrium.", connections:["Chemical Equilibrium","Temperature","Pressure"] },
+{ name:"Reaction Rate", category:"Reactivity & Change", description:"Speed of chemical change depends on concentration, temperature, and catalysts.", connections:["Activation Energy","Catalysis","Kinetics"] },
+{ name:"Activation Energy", category:"Reactivity & Change", description:"Minimum energy needed for reaction to occur.", connections:["Reaction Rate","Catalysis","Temperature"] },
+{ name:"Catalysis", category:"Reactivity & Change", description:"Catalysts lower activation energy without being consumed.", connections:["Reaction Rate","Enzymes","Industrial Chemistry"] },
+
+{ name:"Thermodynamics", category:"Energy & Entropy", description:"Energy transformations obey laws of thermodynamics.", connections:["Enthalpy","Entropy","Gibbs Free Energy"] },
+{ name:"Enthalpy", category:"Energy & Entropy", description:"Heat content of a system at constant pressure.", connections:["Thermodynamics","Exothermic vs Endothermic","Calorimetry"] },
+{ name:"Entropy", category:"Energy & Entropy", description:"Measure of disorder or energy dispersal.", connections:["Thermodynamics","Spontaneity","Gibbs Free Energy"] },
+{ name:"Gibbs Free Energy", category:"Energy & Entropy", description:"Predicts spontaneity using enthalpy and entropy changes.", connections:["Thermodynamics","Chemical Equilibrium","Entropy"] },
+{ name:"Calorimetry", category:"Energy & Entropy", description:"Measurement of heat transfer during chemical processes.", connections:["Enthalpy","Specific Heat","Phase Transitions"] },
+
+{ name:"Oxidation-Reduction", category:"Chemical Systems", description:"Transfer of electrons between species.", connections:["Electrochemistry","Corrosion","Energy Conversion"] },
+{ name:"Electrochemistry", category:"Chemical Systems", description:"Chemical reactions produce or use electrical energy.", connections:["Oxidation-Reduction","Batteries","Energy Conversion"] },
+{ name:"Acid-Base Reactions", category:"Chemical Systems", description:"Proton transfer defines acid-base chemistry.", connections:["pH","Buffers","Equilibrium"] },
+{ name:"Buffers", category:"Chemical Systems", description:"Resist pH changes upon addition of acid or base.", connections:["Acid-Base Reactions","Le Chatelier’s Principle","Equilibrium"] },
+{ name:"Stoichiometry", category:"Quantitative Reasoning", description:"Relates quantities of reactants and products in reactions.", connections:["Molarity","Conservation of Mass","Reaction Yield"] },
+{ name:"Molarity", category:"Quantitative Reasoning", description:"Moles of solute per liter of solution.", connections:["Solutions","Stoichiometry","Concentration"] }
+      
+    ];
+
+    // ========= 2) Deduplicate + build links =========
+    const byName = new Map();
+    for (const c of conceptsRaw) { if (!byName.has(c.name)) byName.set(c.name, c); }
+    const concepts = Array.from(byName.values());
+
+    const valid = new Set(concepts.map(c => c.name));
+    const nodes = concepts.map(d => ({ id: d.name, category: d.category, description: d.description }));
+    const links = concepts.flatMap(d =>
+      (d.connections || [])
+        .filter(t => valid.has(t))
+        .map(t => ({ source: d.name, target: t }))
+    );
+
+    // ========= 3) SVG, pan/zoom =========
+    const width = 1700, height = 950;
+    const svg = d3.select("#chart").attr("viewBox", [0,0,width,height]);
+    const panBg = svg.append("rect").attr("class","pan-bg").attr("x",0).attr("y",0).attr("width",width).attr("height",height).attr("fill","transparent");
+    const g = svg.append("g");
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.25, 4])
+      .filter((event) => {
+        if (event.type === "wheel") return true; // allow wheel anywhere
+        if (event.type === "mousedown") return event.target.classList.contains("pan-bg"); // drag-pan only on bg
+        if (event.type === "touchstart") return event.target.classList.contains("pan-bg");
+        return true;
+      })
+      .on("zoom", (event) => g.attr("transform", event.transform));
+    svg.call(zoom);
+
+    panBg.on("mousedown", () => panBg.classed("grabbing", true));
+    svg.on("mouseup", () => panBg.classed("grabbing", false));
+    svg.on("mouseleave", () => panBg.classed("grabbing", false));
+
+    // ========= 4) Colors, categories, legend =========
+    const categories = [...new Set(nodes.map(n => n.category))];
+    const color = d3.scaleOrdinal()
+      .domain(categories)
+      .range(["#2563eb","#f97316","#10b981","#a855f7","#ef4444","#0ea5e9","#facc15","#ec4899","#14b8a6","#6b7280"]);
+
+    const tooltip = d3.select("#tooltip");
+    const countEl = document.getElementById("count");
+    countEl.textContent = `(${nodes.length})`;
+
+    // Neighbor map
+    const getId = v => (typeof v === "object" ? v.id : v);
+    const neighbors = new Map(); nodes.forEach(n => neighbors.set(n.id, new Set()));
+    links.forEach(l => { const a=getId(l.source), b=getId(l.target); neighbors.get(a).add(b); neighbors.get(b).add(a); });
+
+    // ========= 5) Draw links/nodes/labels =========
+    const link = g.append("g")
+      .attr("stroke", "#d1d5db")
+      .attr("stroke-width", 1.2)
+      .selectAll("line")
+      .data(links)
+      .join("line");
+
+    const node = g.append("g")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+      .attr("r", 16)
+      .attr("fill", d => color(d.category))
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5)
+      .on("mouseover", (event, d) => {
+        tooltip.style("opacity", 1)
+          .html(`<strong>${d.id}</strong><br>${d.category}`)
+          .style("left", (event.pageX + 10) + "px")
+          .style("top", (event.pageY + 10) + "px");
+      })
+      .on("mousemove", (event) => {
+        tooltip.style("left", (event.pageX + 10) + "px")
+               .style("top", (event.pageY + 10) + "px");
+      })
+      .on("mouseout", () => tooltip.style("opacity", 0))
+      .on("click", (_, d) => showDetails(d))
+      .call(d3.drag()
+        .on("start", (event, d) => { if (!event.active) simulation.alphaTarget(0.3).restart(); d.fx = d.x; d.fy = d.y; })
+        .on("drag",  (event, d) => { d.fx = event.x; d.fy = event.y; })
+        .on("end",   (event, d) => { if (!event.active) simulation.alphaTarget(0); d.fx = null; d.fy = null; })
+      );
+
+    const label = g.append("g")
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+      .attr("class", "label")
+      .attr("text-anchor", "middle")
+      .text(d => d.id);
+
+    // ========= 6) Force simulation =========
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(185))
+      .force("charge", d3.forceManyBody().strength(-310))
+      .force("center", d3.forceCenter(width/2, height/2))
+      .force("collide", d3.forceCollide().radius(34));
+
+    simulation.on("tick", () => {
+      link.attr("x1", d => d.source.x).attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+      node.attr("cx", d => d.x).attr("cy", d => d.y);
+      label.attr("x", d => d.x).attr("y", d => d.y - 18);
+    });
+
+    // ========= 7) Legend (click to highlight) =========
+    let selectedCategory = null;
+    function buildLegend() {
+      const legend = d3.select("#legend");
+      legend.html("");
+      categories.forEach(cat => {
+        const item = legend.append("div").attr("class","legend-item");
+        item.append("div").attr("class","legend-swatch").style("background", color(cat));
+        item.append("div").text(cat);
+        item.on("click", () => { selectedCategory = (selectedCategory === cat ? null : cat); searchQuery = ""; syncSearchBox(); updateHighlight(); });
+      });
+      highlightLegend();
+    }
+    function highlightLegend() {
+      d3.select("#legend").selectAll(".legend-item")
+        .style("opacity", (_, i) => (!selectedCategory || selectedCategory === categories[i]) ? 1 : 0.35)
+        .style("outline", (_, i) => (selectedCategory === categories[i]) ? "2px solid #9ca3af" : "none");
+    }
+
+    // ========= 8) Search (filter + auto-zoom) =========
+    let searchQuery = "";
+    function syncSearchBox() { const el = document.getElementById("search"); if (el) el.value = searchQuery; }
+
+    function applySearchHighlight() {
+      if (!searchQuery) { // nothing searched
+        selectedCategory = null;
+        updateHighlight();
+        return;
+      }
+      const q = searchQuery.toLowerCase();
+      const matched = new Set(nodes.filter(d => d.id.toLowerCase().includes(q) || d.category.toLowerCase().includes(q)).map(d => d.id));
+      const nbrs = new Set(); matched.forEach(id => neighbors.get(id)?.forEach(n => nbrs.add(n)));
+
+      node.transition().duration(200).style("opacity", d => (matched.has(d.id) || nbrs.has(d.id)) ? 1 : 0.12);
+      label.transition().duration(200).style("opacity", d => (matched.has(d.id) || nbrs.has(d.id)) ? 1 : 0.12);
+      link.transition().duration(200)
+        .style("opacity", d => (matched.has(getId(d.source)) || matched.has(getId(d.target))) ? 0.9 : 0.08)
+        .style("stroke-width", d => (matched.has(getId(d.source)) || matched.has(getId(d.target))) ? 2.2 : 1.0);
+
+      // auto-zoom to matched nodes
+      const mNodes = nodes.filter(d => matched.has(d.id));
+      if (mNodes.length) {
+        const xs = mNodes.map(n => n.x), ys = mNodes.map(n => n.y);
+        const minX = Math.min(...xs), maxX = Math.max(...xs);
+        const minY = Math.min(...ys), maxY = Math.max(...ys);
+        const dx = maxX - minX || 1, dy = maxY - minY || 1;
+        const margin = 80;
+        const k = Math.min((width - margin*2) / dx, (height - margin*2) / dy, 3);
+        const tx = (width - k * (minX + maxX)) / 2;
+        const ty = (height - k * (minY + maxY)) / 2;
+        svg.transition().duration(450).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+      }
+      highlightLegend();
+    }
+
+    function updateHighlight() {
+      if (searchQuery) return applySearchHighlight();
+      if (!selectedCategory) {
+        node.transition().duration(250).style("opacity", 1);
+        label.transition().duration(250).style("opacity", 1);
+        link.transition().duration(250).style("opacity", 0.9).style("stroke-width", 1.2);
+        highlightLegend();
+        return;
+      }
+      const inCat = new Set(nodes.filter(d => d.category === selectedCategory).map(d => d.id));
+      const nbrs = new Set(); inCat.forEach(id => neighbors.get(id)?.forEach(n => nbrs.add(n)));
+      node.transition().duration(250).style("opacity", d => (inCat.has(d.id) || nbrs.has(d.id)) ? 1 : 0.15);
+      label.transition().duration(250).style("opacity", d => (inCat.has(d.id) || nbrs.has(d.id)) ? 1 : 0.15);
+      link.transition().duration(250)
+        .style("opacity", d => (inCat.has(getId(d.source)) || inCat.has(getId(d.target))) ? 0.9 : 0.12)
+        .style("stroke-width", d => (inCat.has(getId(d.source)) || inCat.has(getId(d.target))) ? 2.4 : 1.0);
+      highlightLegend();
+    }
+
+    function wireSearch() {
+      const inp = d3.select("#search");
+      const clear = d3.select("#clear-btn");
+      let t;
+      function handle() {
+        searchQuery = (inp.property("value") || "").trim();
+        selectedCategory = null;
+        applySearchHighlight();
+      }
+      inp.on("input", () => { clearTimeout(t); t = setTimeout(handle, 200); });
+      clear.on("click", () => {
+        inp.property("value", "");
+        searchQuery = "";
+        fitToNodes();
+        updateHighlight();
+      });
+    }
+
+    // ========= 9) Sidebar details =========
+    function showDetails(d) {
+      const full = concepts.find(c => c.name === d.id);
+      const details = d3.select("#details");
+      details.html("");
+      details.append("h3").text(full?.name || d.id);
+      if (full?.category) details.append("p").html(`<strong>Category:</strong> ${full.category}`);
+      if (full?.description) details.append("p").text(full.description);
+      if (full?.connections?.length) details.append("p").html(`<strong>Connections:</strong> ${full.connections.join(", ")}`);
+    }
+
+    // ========= 10) Fit once after initial layout =========
+    function fitToNodes() {
+      const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      const dx = maxX - minX || 1, dy = maxY - minY || 1;
+      const margin = 70;
+      const k = Math.min((width - margin*2)/dx, (height - margin*2)/dy, 3);
+      const tx = (width - k * (minX + maxX)) / 2;
+      const ty = (height - k * (minY + maxY)) / 2;
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    }
+
+    // Boot
+    buildLegend();
+    wireSearch();
+    setTimeout(fitToNodes, 1200);
+  </script>
+</body>
+</html>
