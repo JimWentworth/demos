@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prompt Engineering Patterns</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        /* Tabs */
+        .tabs-container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            padding: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #666;
+            transition: all 0.3s;
+            font-weight: 400;
+        }
+
+        .tab:hover {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .tab.active {
+            background: #333;
+            color: white;
+        }
+
+        /* Cards Grid */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .card {
+            perspective: 1000px;
+            height: 320px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-front {
+            background: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .pattern-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .pattern-name {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .pattern-category {
+            font-size: 0.8rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.75rem;
+        }
+
+        .pattern-brief {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .card-back h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .card-back p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .card-back ul {
+            list-style: none;
+            margin-bottom: 1rem;
+        }
+
+        .card-back ul li {
+            font-size: 0.85rem;
+            color: #666;
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .card-back ul li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .example-box {
+            background: #f8f9fa;
+            border-left: 3px solid #333;
+            padding: 0.75rem;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: #555;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        @media (max-width: 1200px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .tab {
+                width: 100%;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                height: 380px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Prompt Engineering Patterns</h1>
+            <p class="subtitle">Explore 19 powerful prompt patterns organized by category. Hover over each card to learn more.</p>
+        </header>
+
+        <div class="tabs-container">
+            <div class="tabs">
+                <button class="tab active" data-tab="basic">Basic Patterns</button>
+                <button class="tab" data-tab="interactive">Interactive Patterns</button>
+                <button class="tab" data-tab="reasoning">Reasoning Patterns</button>
+                <button class="tab" data-tab="structured">Structured Output</button>
+                <button class="tab" data-tab="quality">Quality Control</button>
+            </div>
+        </div>
+
+        <!-- Basic Patterns Tab -->
+        <div id="basic" class="tab-content active">
+            <div class="cards-grid">
+                <!-- Persona Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">👤</div>
+                            <h2 class="pattern-name">Persona Pattern</h2>
+                            <p class="pattern-category">Basic Pattern</p>
+                            <p class="pattern-brief">Create a "persona" for the language model to help it select the appropriate response style and expertise.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Instructs the AI to adopt a specific role, expertise level, or character to frame its responses appropriately.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Tailors tone and complexity</li>
+                                <li>Provides domain expertise</li>
+                                <li>Creates consistent character</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Act as a senior software architect with 15 years of experience. Explain microservices to me."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audience Persona Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🎯</div>
+                            <h2 class="pattern-name">Audience Persona Pattern</h2>
+                            <p class="pattern-category">Basic Pattern</p>
+                            <p class="pattern-brief">Consider the audience for the response and tailor the prompt to their knowledge level and needs.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Specifies the target audience so the AI can adjust complexity, terminology, and examples accordingly.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Appropriate complexity level</li>
+                                <li>Relevant examples and analogies</li>
+                                <li>Suitable vocabulary</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Explain quantum computing for a 10-year-old who loves video games."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Template Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">📋</div>
+                            <h2 class="pattern-name">Template Pattern</h2>
+                            <p class="pattern-category">Basic Pattern</p>
+                            <p class="pattern-brief">Use a pre-defined template to structure the prompt and generate a specific type of response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Provides a structured format with placeholders that the AI fills in to create consistent, formatted outputs.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Consistent output format</li>
+                                <li>Reusable structure</li>
+                                <li>Easy to customize</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Use this template: Problem: [X], Solution: [Y], Benefits: [Z]. Fill it in for email marketing."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Few Shot Prompting -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🎓</div>
+                            <h2 class="pattern-name">Few Shot Prompting</h2>
+                            <p class="pattern-category">Basic Pattern</p>
+                            <p class="pattern-brief">Provide a small number of examples to guide the language model toward the desired response pattern.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Shows the AI several examples of input-output pairs so it can learn the pattern and apply it to new inputs.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Clear pattern demonstration</li>
+                                <li>Improved accuracy</li>
+                                <li>Reduced ambiguity</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "happy → 😊, sad → 😢, excited → 🎉. Now convert: surprised →"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Interactive Patterns Tab -->
+        <div id="interactive" class="tab-content">
+            <div class="cards-grid">
+                <!-- Flipped Interaction Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔄</div>
+                            <h2 class="pattern-name">Flipped Interaction Pattern</h2>
+                            <p class="pattern-category">Interactive Pattern</p>
+                            <p class="pattern-brief">Ask the GenAI to ask you questions to create a more comprehensive and tailored response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Reverses the typical interaction by having the AI ask clarifying questions before providing an answer.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>More precise outputs</li>
+                                <li>Identifies missing context</li>
+                                <li>Interactive refinement</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "I need help planning a trip. Ask me questions to understand my preferences before suggesting destinations."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ask for Input Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">💬</div>
+                            <h2 class="pattern-name">Ask for Input Pattern</h2>
+                            <p class="pattern-category">Interactive Pattern</p>
+                            <p class="pattern-brief">Prompt the language model to ask for input or feedback to generate a more interactive response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Instructs the AI to request specific information or feedback throughout the conversation.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Collaborative problem-solving</li>
+                                <li>Iterative improvement</li>
+                                <li>User engagement</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Help me write a cover letter. Ask me for details about the job and my experience as we go."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Refinement Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔍</div>
+                            <h2 class="pattern-name">Question Refinement Pattern</h2>
+                            <p class="pattern-category">Interactive Pattern</p>
+                            <p class="pattern-brief">Structure a statement to give users more control over the output by refining the question.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Has the AI suggest better ways to phrase your question to get more useful answers.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Improves question quality</li>
+                                <li>Clarifies intent</li>
+                                <li>Teaches effective prompting</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "When I ask a question, suggest a better version of my question and answer both."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Play Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🎮</div>
+                            <h2 class="pattern-name">Game Play Pattern</h2>
+                            <p class="pattern-category">Interactive Pattern</p>
+                            <p class="pattern-brief">Create a game to practice effective prompting with ChatGPT or other language models.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Transforms the interaction into a game format to make learning or practice more engaging.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Engaging learning format</li>
+                                <li>Skill development</li>
+                                <li>Fun and memorable</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Let's play 20 questions. You think of an animal and I'll try to guess it."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reasoning Patterns Tab -->
+        <div id="reasoning" class="tab-content">
+            <div class="cards-grid">
+                <!-- Chain of Thought Prompting -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔗</div>
+                            <h2 class="pattern-name">Chain of Thought Prompting</h2>
+                            <p class="pattern-category">Reasoning Pattern</p>
+                            <p class="pattern-brief">Prompt the model with a series of related questions to generate a more comprehensive response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Encourages the AI to show its reasoning process step-by-step, leading to more accurate and explainable answers.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Improved accuracy on complex tasks</li>
+                                <li>Transparent reasoning</li>
+                                <li>Better problem decomposition</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Solve this step by step: If a train travels 120 miles in 2 hours, how far will it go in 5 hours?"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ReAct Prompting -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">⚡</div>
+                            <h2 class="pattern-name">ReAct Prompting</h2>
+                            <p class="pattern-category">Reasoning Pattern</p>
+                            <p class="pattern-brief">Prompt the model with a response to its previous output to generate a more focused response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Combines reasoning traces with actions, allowing the AI to reason about what to do and then act on that reasoning iteratively.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Dynamic problem-solving</li>
+                                <li>Adaptive reasoning</li>
+                                <li>Action-oriented outputs</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Think about what information you need, then ask for it. Based on my answer, decide the next step."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cognitive Verifier Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">✓</div>
+                            <h2 class="pattern-name">Cognitive Verifier Pattern</h2>
+                            <p class="pattern-category">Reasoning Pattern</p>
+                            <p class="pattern-brief">Ask ChatGPT about the criteria used to generate each output to ensure quality and accuracy.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Prompts the AI to explain its reasoning criteria and decision-making process for verification purposes.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Validates reasoning process</li>
+                                <li>Identifies potential biases</li>
+                                <li>Improves transparency</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "After answering, explain what criteria you used to determine this was the best answer."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Structured Output Tab -->
+        <div id="structured" class="tab-content">
+            <div class="cards-grid">
+                <!-- Recipe Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">📝</div>
+                            <h2 class="pattern-name">Recipe Pattern</h2>
+                            <p class="pattern-category">Structured Output</p>
+                            <p class="pattern-brief">Provide a step-by-step process or instructions to prompt the model for a specific type of response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Guides the AI to produce procedural, step-by-step instructions similar to a recipe format.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Clear sequential steps</li>
+                                <li>Easy to follow format</li>
+                                <li>Complete procedures</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Create a recipe-style guide for setting up a new laptop, including prerequisites and step-by-step instructions."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outline Expansion Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">📊</div>
+                            <h2 class="pattern-name">Outline Expansion Pattern</h2>
+                            <p class="pattern-category">Structured Output</p>
+                            <p class="pattern-brief">Prompt the model to expand on a given outline or structure to generate a more detailed response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Takes a basic outline structure and asks the AI to develop each section with full details and content.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Organized development</li>
+                                <li>Maintains structure</li>
+                                <li>Progressive elaboration</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Here's an outline for an article. Expand each section into 2-3 paragraphs with supporting details."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Menu Actions Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">📱</div>
+                            <h2 class="pattern-name">Menu Actions Pattern</h2>
+                            <p class="pattern-category">Structured Output</p>
+                            <p class="pattern-brief">Prompt the language model with a menu of actions to generate a specific type of response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Provides the AI with a set of predefined options or actions to choose from in its response.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Controlled response options</li>
+                                <li>Consistent action format</li>
+                                <li>Clear choices</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "After each response, offer a menu: 1) Expand on this, 2) Show an example, 3) Try a different approach."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alternative Approaches Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔀</div>
+                            <h2 class="pattern-name">Alternative Approaches Pattern</h2>
+                            <p class="pattern-category">Structured Output</p>
+                            <p class="pattern-brief">Prompt the model with alternative approaches or perspectives to generate diverse responses.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Asks the AI to provide multiple different solutions or perspectives on the same problem.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Multiple solution options</li>
+                                <li>Diverse perspectives</li>
+                                <li>Creative exploration</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Suggest three different approaches to solve this problem, each with different trade-offs."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Control Tab -->
+        <div id="quality" class="tab-content">
+            <div class="cards-grid">
+                <!-- Fact Check List Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">📋</div>
+                            <h2 class="pattern-name">Fact Check List Pattern</h2>
+                            <p class="pattern-category">Quality Control</p>
+                            <p class="pattern-brief">Prompt the model to fact-check a given statement or claim to generate a more accurate response.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Instructs the AI to verify claims against known facts and provide accuracy assessments.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Improved accuracy</li>
+                                <li>Identifies misinformation</li>
+                                <li>Evidence-based validation</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "After providing your answer, list the key facts and rate your confidence in each one."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Semantic Filter Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔒</div>
+                            <h2 class="pattern-name">Semantic Filter Pattern</h2>
+                            <p class="pattern-category">Quality Control</p>
+                            <p class="pattern-brief">Prompt the model to filter out irrelevant or inappropriate responses based on semantic criteria.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Sets up criteria for the AI to filter out content that doesn't meet specific semantic or contextual requirements.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Content relevance control</li>
+                                <li>Filters inappropriate content</li>
+                                <li>Maintains focus</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Only include information directly related to renewable energy. Filter out all mentions of fossil fuels."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tail Generation Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🎯</div>
+                            <h2 class="pattern-name">Tail Generation Pattern</h2>
+                            <p class="pattern-category">Quality Control</p>
+                            <p class="pattern-brief">Prompt the model to generate a response tailored to a specific context or situation.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Focuses on generating contextually appropriate endings or continuations that fit specific scenarios.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Context-aware outputs</li>
+                                <li>Situation-specific responses</li>
+                                <li>Coherent conclusions</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Generate three different endings for this email, each appropriate for different relationship levels: formal, professional, casual."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meta Language Creation Pattern -->
+                <div class="card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="pattern-icon">🔤</div>
+                            <h2 class="pattern-name">Meta Language Creation Pattern</h2>
+                            <p class="pattern-category">Quality Control</p>
+                            <p class="pattern-brief">Create a new language or vocabulary to prompt the model and generate more specific responses.</p>
+                        </div>
+                        <div class="card-back">
+                            <h3>What It Does</h3>
+                            <p>Establishes custom notation, shorthand, or vocabulary system for more efficient and precise communication with the AI.</p>
+                            <h3>Key Benefits</h3>
+                            <ul>
+                                <li>Precise communication</li>
+                                <li>Efficient notation</li>
+                                <li>Custom workflows</li>
+                            </ul>
+                            <div class="example-box">
+                                <strong>Example:</strong> "Use this notation: [E] = explain, [S] = summarize, [C] = critique. Now [E] quantum computing, then [S] in one sentence."
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const tabId = tab.getAttribute('data-tab');
+
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
