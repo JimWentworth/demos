@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI Literacy: Empowering UIUC Students</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom font import and base styling */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        
+        /* Using UIUC-inspired colors: Orange (#FF5F05) and Blue (#003366) */
+        .uiuc-blue { color: #003366; }
+        .uiuc-orange-bg { background-color: #FF5F05; }
+        .uiuc-blue-bg { background-color: #003366; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; /* Light gray background */
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Navigation/Header Bar -->
+    <nav class="uiuc-blue-bg shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <h1 class="text-2xl font-extrabold text-white tracking-wide">
+                <span class="text-3xl font-black mr-2">i</span>GenAI Initiative
+            </h1>
+            <div class="hidden sm:flex space-x-4">
+                <a href="#gap" class="text-white hover:text-gray-300 transition duration-300">The Gap</a>
+                <a href="#benefits" class="text-white hover:text-gray-300 transition duration-300">Why Act?</a>
+                <a href="#cta" class="text-white hover:text-gray-300 transition duration-300">Next Steps</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative uiuc-blue-bg pt-16 pb-24 sm:pt-24 sm:pb-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+            <p class="text-base font-semibold text-gray-200 tracking-wider uppercase mb-3">A Necessary Conversation</p>
+            <h2 class="text-5xl md:text-6xl font-extrabold text-white mb-6 leading-tight">
+                Empowering the Next Generation:
+                <br class="hidden md:block">
+                GenAI Literacy for UIUC Faculty
+            </h2>
+            <p class="mt-4 max-w-3xl mx-auto text-xl text-gray-200">
+                Generative AI is not coming—it's here. As educators, our responsibility is to guide students in leveraging these powerful tools responsibly, critically, and ethically.
+            </p>
+            <div class="mt-10">
+                <a href="#cta" class="uiuc-orange-bg inline-flex items-center justify-center px-8 py-3 border border-transparent text-lg font-medium rounded-xl text-white shadow-xl hover:bg-opacity-90 transition duration-300 transform hover:scale-[1.02]">
+                    Explore Resources Now
+                </a>
+            </div>
+        </div>
+        <!-- Simple background graphic (simulating data/networks) -->
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" fill="none" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <defs>
+                    <pattern id="dot-pattern" width="10" height="10" patternUnits="userSpaceOnUse">
+                        <circle cx="1" cy="1" r="0.5" fill="currentColor" class="text-gray-300" />
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#dot-pattern)" />
+            </svg>
+        </div>
+    </header>
+
+    <!-- The Literacy Gap Section -->
+    <section id="gap" class="py-16 sm:py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h3 class="text-3xl font-extrabold text-uiuc-blue tracking-tight sm:text-4xl">
+                    The Critical Literacy Gap
+                </h3>
+                <p class="mt-4 max-w-2xl text-xl text-gray-500 lg:mx-auto">
+                    Our students are early adopters. The challenge isn't preventing AI use, but addressing the gap between student adoption and faculty integration.
+                </p>
+            </div>
+
+            <div class="mt-12 grid grid-cols-1 gap-10 md:grid-cols-3">
+                
+                <!-- Card 1: Adoption Rate -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border-t-4 border-uiuc-blue">
+                    <h4 class="text-2xl font-bold uiuc-blue mb-3">Ubiquitous Use</h4>
+                    <p class="text-gray-600">
+                        Surveys show a vast majority of students are **already using LLMs** for research, brainstorming, and drafting. Ignoring this usage means ignoring a core part of their modern learning experience.
+                    </p>
+                </div>
+
+                <!-- Card 2: Guidance Required -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border-t-4 border-uiuc-blue">
+                    <h4 class="text-2xl font-bold uiuc-blue mb-3">Ethical Blind Spots</h4>
+                    <p class="text-gray-600">
+                        Students often lack the framework to evaluate GenAI outputs for **bias, accuracy, or proper citation**. Faculty must provide this critical, ethical guidance—but only if we know how the tools operate.
+                    </p>
+                </div>
+                
+                <!-- Card 3: Equity Challenge -->
+                <div class="p-6 bg-gray-50 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 border-t-4 border-uiuc-blue">
+                    <h4 class="text-2xl font-bold uiuc-blue mb-3">The Equity Imperative</h4>
+                    <p class="text-gray-600">
+                        If we ban AI use, we penalize students who rely on it for accessibility or socio-economic reasons. If we don't guide it, students with access to better prompts or paid tools gain an unfair advantage. **Guidance ensures equity.**
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Key Benefits Section -->
+    <section id="benefits" class="py-16 sm:py-24 uiuc-blue-bg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="lg:text-center">
+                <h3 class="text-3xl font-extrabold text-white tracking-tight sm:text-4xl">
+                    Why Faculty Must Lead
+                </h3>
+                <p class="mt-4 max-w-2xl text-xl text-gray-300 lg:mx-auto">
+                    Learning basic GenAI principles is not an obligation—it’s an opportunity to deepen pedagogy and future-proof our curriculum.
+                </p>
+            </div>
+
+            <div class="mt-12 space-y-10">
+                
+                <!-- Benefit 1 -->
+                <div class="flex flex-col lg:flex-row items-start lg:items-center bg-white p-8 rounded-xl shadow-2xl">
+                    <div class="flex-shrink-0 mb-4 lg:mb-0 lg:mr-6">
+                        <span class="uiuc-orange-bg text-white text-3xl p-3 inline-block rounded-full shadow-md">✓</span>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold uiuc-blue mb-2">Refining Academic Integrity</h4>
+                        <p class="text-lg text-gray-600">
+                            When you understand GenAI, you shift the focus from detection to **design**. Create assignments that are inherently AI-resistant by requiring personal reflection, contextual application, or integration of course-specific, real-time data that LLMs cannot mimic.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Benefit 2 -->
+                <div class="flex flex-col lg:flex-row items-start lg:items-center bg-white p-8 rounded-xl shadow-2xl">
+                    <div class="flex-shrink-0 mb-4 lg:mb-0 lg:mr-6">
+                        <span class="uiuc-orange-bg text-white text-3xl p-3 inline-block rounded-full shadow-md">✓</span>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold uiuc-blue mb-2">Teaching Critical Auditing Skills</h4>
+                        <p class="text-lg text-gray-600">
+                            GenAI output is rarely final. Faculty familiar with "hallucinations" and prompt engineering can teach students the essential skill of **critical auditing**—treating the AI output as a first draft to be fact-checked, synthesized, and rigorously improved, transforming them into critical consumers of information.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Benefit 3 -->
+                <div class="flex flex-col lg:flex-row items-start lg:items-center bg-white p-8 rounded-xl shadow-2xl">
+                    <div class="flex-shrink-0 mb-4 lg:mb-0 lg:mr-6">
+                        <span class="uiuc-orange-bg text-white text-3xl p-3 inline-block rounded-full shadow-md">✓</span>
+                    </div>
+                    <div>
+                        <h4 class="text-2xl font-bold uiuc-blue mb-2">Preparing the Future Workforce</h4>
+                        <p class="text-lg text-gray-600">
+                            Employers across every field—from Engineering to Liberal Arts—are rapidly adopting GenAI. By integrating AI literacy into our teaching, we are providing our graduates with the most crucial **21st-century co-worker competency** they will need to succeed.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section id="cta" class="py-20 sm:py-28 bg-gray-50">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h3 class="text-4xl font-extrabold text-gray-900 tracking-tight mb-4">
+                Your Next Step Starts Now
+            </h3>
+            <p class="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+                Join your colleagues and dedicated educational technology teams to explore practical applications and policy implications of Generative AI.
+            </p>
+            
+            <div class="flex flex-col md:flex-row justify-center gap-6">
+                
+                <!-- CTA Button 1: Workshops -->
+                <a href="mailto:genai-workshops@illinois.edu" class="uiuc-orange-bg inline-flex items-center justify-center w-full md:w-auto px-10 py-4 border border-transparent text-xl font-medium rounded-xl text-white shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02]">
+                    Register for a Workshop
+                </a>
+
+                <!-- CTA Button 2: Resources -->
+                <a href="#" class="uiuc-blue-bg inline-flex items-center justify-center w-full md:w-auto px-10 py-4 border border-transparent text-xl font-medium rounded-xl text-white shadow-lg hover:shadow-xl transition duration-300 transform hover:scale-[1.02]">
+                    Access Faculty Resources
+                </a>
+            </div>
+
+            <p class="mt-8 text-sm text-gray-500">
+                Resources provided by the Center for Innovation in Teaching & Learning (CITL) and the Office of the Provost.
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="uiuc-blue-bg py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-gray-300 text-sm">
+                &copy; 2025 The Board of Trustees of the University of Illinois. | <a href="#" class="hover:text-white transition duration-200">Privacy Policy</a>
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
