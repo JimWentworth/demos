@@ -13,7 +13,10 @@
     "chatgpt": "ChatGPT Demos",
     "mind_map": "Mind Mapping",
     "llms": "LLM Comparisons",
-    "manus": "Faculty Portal"
+    "manus": "Manus Portal"
+    "common_cartridge": "Course Design Tools"
+    "chatgpt_edu": "ChatGPT Demos"
+
   },
   "icon_overrides": {
     "H5P Learning Activities": "🎯",
