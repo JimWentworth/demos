@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Retro Prompt to ChatGPT</title>
+  <style>
+    body {
+      background-color: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    svg {
+      cursor: pointer;
+    }
+
+    .blinker {
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <svg width="600" height="200" xmlns="http://www.w3.org/2000/svg" onclick="goToChatGPT()">
+    <rect width="100%" height="100%" fill="#000"/>
+    <text x="20" y="50" fill="#00FF00" font-family="Courier New, monospace" font-size="24">
+      &gt; What do you want to do today?
+    </text>
+    <text x="20" y="90" fill="#00FF00" font-family="Courier New, monospace" font-size="20" class="blinker">
+      _
+    </text>
+  </svg>
+
+  <script>
+    function goToChatGPT() {
+      window.location.href = "https://chat.openai.com";
+    }
+  </script>
+
+</body>
+</html>

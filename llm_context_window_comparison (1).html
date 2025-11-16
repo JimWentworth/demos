@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Context Windows vs. Human Working Memory</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
+        svg { max-width: 100%; height: auto; display: block; margin: 20px 0; }
+        .container { max-width: 800px; margin: auto; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>From Seven Thoughts to Thousands: How LLM Context Windows Reshape Our Idea of Memory</h1>
+    <p>In the realm of human cognition, working memory is famously limited. Most people can juggle about seven pieces of information at once—give or take a couple—before details start to slip away. This is our mental scratchpad, a small and agile space that helps us hold onto a handful of thoughts. In contrast, large language models (LLMs) operate on a vastly different scale. Their "working memory"—known as a context window—can encompass thousands of tokens at once.</p>
+    <p>This is the difference between holding a few thoughts in mind versus holding an entire chapter of a book. For a human, keeping track of more than a handful of ideas means we need to write things down or let something go. For an LLM, it means the ability to consider a far larger slice of context at once—making connections and drawing insights that would be impossible with a smaller memory window.</p>
+
+    <!-- SVG visual -->
+    <svg viewBox="0 0 400 200">
+        <!-- Human Working Memory Bubble -->
+        <circle cx="100" cy="100" r="40" fill="#69c" />
+        <text x="100" y="105" font-size="14" fill="white" text-anchor="middle">~7 items</text>
+        <text x="100" y="130" font-size="14" fill="black" text-anchor="middle">Human Working Memory</text>
+
+        <!-- LLM Context Window Bubble -->
+        <circle cx="300" cy="100" r="80" fill="#4a9" />
+        <text x="300" y="95" font-size="14" fill="white" text-anchor="middle">Thousands of tokens</text>
+        <text x="300" y="130" font-size="14" fill="black" text-anchor="middle">LLM Context Window</text>
+    </svg>
+
+    <p>As you can see, this visual comparison highlights just how much more expansive an LLM's context window is compared to human working memory. This vast capacity is what allows these models to process and consider and synthesize a much larger amount of information all at once, making them powerful tools for complex reasoning and contextual understanding.</p>
+</div>
+</body>
+</html>

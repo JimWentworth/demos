@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI for Faculty Course Design - University of Illinois</title>
+    <style>
+        :root {
+            --illinois-orange: #E84A27; --illinois-blue: #13294B;
+            --illinois-orange-light: #FF6B45; --illinois-blue-light: #1B3A5F;
+            --success-color: #10b981; --light-bg: #f8fafc; --card-bg: #ffffff;
+            --text-primary: #1e293b; --text-secondary: #64748b; --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: var(--text-primary); background: var(--light-bg); }
+        .header { background: linear-gradient(135deg, var(--illinois-blue), var(--illinois-blue-light)); color: white; padding: 2rem 0; box-shadow: var(--shadow-lg); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1200px; margin: 0 auto; padding: 0 2rem; }
+        .header h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .nav-tabs { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .nav-tab { background: rgba(255, 255, 255, 0.1); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 500; border: none; }
+        .nav-tab:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-2px); }
+        .nav-tab.active { background: var(--illinois-orange); }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 2rem; }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .card { background: white; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; box-shadow: var(--shadow); border-left: 4px solid var(--illinois-orange); }
+        .card h2 { color: var(--illinois-blue); margin-bottom: 1rem; }
+        .card h3 { color: var(--illinois-orange); margin: 1.5rem 0 1rem; }
+        .accordion-item { background: white; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 0.5rem; overflow: hidden; }
+        .accordion-header { background: var(--light-bg); padding: 1rem 1.5rem; cursor: pointer; display: flex; justify-content: space-between; font-weight: 600; transition: all 0.3s; color: var(--illinois-blue); }
+        .accordion-header:hover { background: #fff5f2; }
+        .accordion-header.active { background: var(--illinois-blue); color: white; }
+        .accordion-icon { transition: transform 0.3s; }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease; }
+        .accordion-content.active { max-height: 10000px; }
+        .accordion-body { padding: 1.5rem; }
+        .prompt-box { background: #f1f5f9; border-left: 4px solid var(--illinois-orange); padding: 1.5rem; margin: 1rem 0; border-radius: 4px; }
+        .prompt-box h4 { color: var(--illinois-blue); margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .prompt-box pre { background: white; padding: 1rem; border-radius: 6px; overflow-x: auto; margin-top: 1rem; border: 1px solid var(--border-color); }
+        .prompt-box code { font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.6; }
+        .copy-btn { background: var(--illinois-orange); color: white; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.3s; }
+        .copy-btn:hover { background: var(--illinois-orange-light); transform: scale(1.05); }
+        .copy-btn.copied { background: var(--success-color); }
+        .info-box { background: #fff5f2; border-left: 4px solid var(--illinois-orange); padding: 1.5rem; margin: 1.5rem 0; border-radius: 4px; }
+        .info-box.success { background: #d1fae5; border-left-color: var(--success-color); }
+        .search-input { width: 100%; padding: 1rem; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; transition: all 0.3s; }
+        .search-input:focus { outline: none; border-color: var(--illinois-orange); box-shadow: 0 0 0 3px rgba(232, 74, 39, 0.1); }
+        .filter-chips { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+        .filter-chip { background: var(--light-bg); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 2px solid var(--border-color); transition: all 0.3s; font-size: 0.9rem; }
+        .filter-chip:hover { background: var(--illinois-orange-light); color: white; border-color: var(--illinois-orange-light); }
+        .filter-chip.active { background: var(--illinois-orange); color: white; border-color: var(--illinois-orange); }
+        .template-meta { display: flex; gap: 1rem; margin: 0.5rem 0; flex-wrap: wrap; font-size: 0.9rem; color: var(--text-secondary); }
+        .footer { background: var(--illinois-blue); color: white; padding: 2rem; text-align: center; margin-top: 4rem; }
+        ul, ol { margin-left: 2rem; margin-top: 0.5rem; }
+        li { margin: 0.5rem 0; }
+        @media (max-width: 768px) {
+            .header h1 { font-size: 1.75rem; }
+            .nav-tab { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .container { padding: 0 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <h1>🎓 AI for Faculty Course Design</h1>
+            <p>University of Illinois • Comprehensive Resource Library</p>
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchTab('home')">Home</button>
+                <button class="nav-tab" onclick="switchTab('templates')">Templates</button>
+                <button class="nav-tab" onclick="switchTab('quick-prompts')">Quick Prompts</button>
+                <button class="nav-tab" onclick="switchTab('best-practices')">Best Practices</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Home Tab -->
+        <div id="home-tab" class="tab-content active">
+            <div style="background: linear-gradient(135deg, var(--illinois-blue), var(--illinois-blue-light)); color: white; padding: 3rem; border-radius: 12px; margin-bottom: 2rem;">
+                <h2 style="color: white; font-size: 2rem; margin-bottom: 1rem;">AI-Assisted Course Design Resource Library</h2>
+                <p style="font-size: 1.1rem; line-height: 1.8;">This library provides practical templates and prompts to help you leverage AI tools like ChatGPT and Claude for course development. Use these resources to streamline routine planning tasks so you can focus more energy on what matters most: your students, your research, and your teaching excellence.</p>
+            </div>
+
+            <div class="card">
+                <h2>What You Can Do With These Resources</h2>
+                <ul>
+                    <li><strong>Design complete courses</strong> with structured weekly plans and aligned assessments</li>
+                    <li><strong>Create engaging activities</strong> for any topic with step-by-step instructions</li>
+                    <li><strong>Generate discussion questions</strong> that promote critical thinking at multiple levels</li>
+                    <li><strong>Develop assignments with rubrics</strong> that clearly communicate expectations</li>
+                    <li><strong>Improve grading workflows</strong> with rubrics, comment banks, and efficiency strategies</li>
+                    <li><strong>Diagnose learning challenges</strong> and get targeted intervention strategies</li>
+                    <li><strong>Audit courses for inclusivity</strong> and accessibility</li>
+                    <li><strong>Convert courses</strong> to online or hybrid formats</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h2>Quick Start: Try Your First Prompt</h2>
+                <p>Copy this prompt, customize the bracketed sections with your information, and paste into ChatGPT or Claude:</p>
+                <div class="prompt-box">
+                    <h4><span>Generate an Activity</span><button class="copy-btn" onclick="copyPrompt(this, 'qs')">📋 Copy</button></h4>
+                    <pre><code id="qs">I need an engaging active learning activity.
+
+TOPIC: [Your specific topic]
+CLASS: [In-person/Online], [NUMBER] students, [MINUTES]
+OBJECTIVE: Students should be able to [goal]
+
+Provide step-by-step instructions, timing, and debrief questions.</code></pre>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>🎯 Your Expertise + AI Efficiency</strong>
+                <p style="margin-top: 0.5rem;">You bring: disciplinary expertise, knowledge of your students, pedagogical judgment, and institutional context. AI brings: structure, fresh perspectives, and efficiency on routine tasks. Together, you can teach more effectively without burning out.</p>
+            </div>
+        </div>
+
+        <!-- Templates Tab -->
+        <div id="templates-tab" class="tab-content">
+            <div class="card">
+                <h2>Complete Template Library</h2>
+                <p>15 comprehensive templates for every aspect of course design. Each is copy-paste ready!</p>
+                
+                <div style="margin: 2rem 0;">
+                    <input type="text" class="search-input" id="template-search" placeholder="🔍 Search templates..." onkeyup="searchTemplates()">
+                    <div class="filter-chips">
+                        <span class="filter-chip active" onclick="filterTemplates(this, 'all')">All</span>
+                        <span class="filter-chip" onclick="filterTemplates(this, 'design')">Design</span>
+                        <span class="filter-chip" onclick="filterTemplates(this, 'assessment')">Assessment</span>
+                        <span class="filter-chip" onclick="filterTemplates(this, 'engagement')">Engagement</span>
+                        <span class="filter-chip" onclick="filterTemplates(this, 'efficiency')">Efficiency</span>
+                    </div>
+                </div>
+
+                <div id="template-accordion">
+
+                    <div class="accordion-item" data-category="design" data-keywords="course design structure planning semester">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 1: Course Design from Scratch</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Designing a brand new course or completely restructuring an existing one</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> Complete semester course plan</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't1')">📋 Copy</button></h4>
+                                    <pre><code id="t1">I'm designing a new course and need help structuring it effectively.
+
+COURSE BASICS:
+- Course Title: [TITLE]
+- Subject/Discipline: [e.g., Psychology, Chemistry, History]
+- Level: [Freshman/Sophomore/Junior/Senior/Graduate]
+- Credit Hours: [NUMBER]
+- Meeting Pattern: [e.g., MWF 50 min, TR 75 min, Online]
+- Expected Enrollment: [NUMBER] students
+- Student Background: [Prerequisites, typical profile]
+
+LEARNING GOALS:
+By the end of this course, students should be able to:
+1. [Goal 1 - be specific]
+2. [Goal 2]
+3. [Goal 3]
+
+PLEASE PROVIDE:
+1. Course structure with weekly topics for complete semester
+2. Assessment strategy aligned with goals
+3. Active learning opportunities for each major topic
+4. Common pitfalls and how to avoid them
+5. Resource recommendations (OER, tools, readings)
+
+Format as a comprehensive course design blueprint.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-category="engagement" data-keywords="active learning activities engagement classroom">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 4: Active Learning Activity Generator</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Planning engaging classroom activities for any topic</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> 3 ready-to-implement activities</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't4')">📋 Copy</button></h4>
+                                    <pre><code id="t4">I need engaging active learning activities for my class.
+
+TOPIC: [Specific concept you're teaching]
+CLASS FORMAT: [In-person / Online synchronous / Online asynchronous]
+TIME AVAILABLE: [MINUTES for this activity]
+CLASS SIZE: [NUMBER] students
+LEARNING OBJECTIVE: Students should be able to [SPECIFIC OBJECTIVE]
+
+CONSTRAINTS:
+- Technology: [None / Basic / Laptops / Specialized software]
+- Physical space: [Fixed seats / Moveable / Lab / Online]
+- Student characteristics: [Shy / Engaged / Mixed abilities]
+
+GENERATE:
+1. THREE ACTIVITY OPTIONS with step-by-step instructions
+2. Time breakdown for each (setup, activity, debrief)
+3. Required materials
+4. Learning theory behind each (why it works)
+5. Common problems and solutions
+6. Debrief questions to cement learning
+
+Make activities practical and easy to execute.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-category="assessment" data-keywords="assignment rubric grading assessment">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 5: Assignment Design & Rubric Creation</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Creating new assignments with clear grading criteria</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> Complete assignment with rubric</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't5')">📋 Copy</button></h4>
+                                    <pre><code id="t5">I need to design an assignment that effectively assesses learning.
+
+COURSE: [TITLE and LEVEL]
+TOPIC: [What the assignment covers]
+LEARNING OBJECTIVES ASSESSED:
+1. [Objective 1]
+2. [Objective 2]
+
+ASSIGNMENT TYPE: [Research paper / Problem sets / Presentation / Project]
+
+PLEASE:
+1. Design clear assignment prompt with requirements
+2. Create scaffolding plan with milestones
+3. Design analytic rubric with 4-5 performance levels
+4. Write student-facing instructions
+5. Suggest grading efficiency strategies
+6. Include academic integrity safeguards
+
+Provide everything needed to implement successfully.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-category="engagement" data-keywords="discussion questions critical thinking">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 7: Discussion Question Generator</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Creating discussion questions that drive deep thinking</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> Layered questions from warm-up to challenging</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't7')">📋 Copy</button></h4>
+                                    <pre><code id="t7">I need high-quality discussion questions for my course.
+
+TOPIC: [Specific topic, reading, or concept]
+COURSE LEVEL: [Intro/Intermediate/Advanced]
+DISCUSSION FORMAT: [In-class / Small groups / Online forum]
+TIME AVAILABLE: [MINUTES or DAYS]
+
+READING/CONTENT STUDENTS WILL HAVE:
+[What they've read, watched, or experienced]
+
+CREATE:
+1. QUESTION LADDER:
+   - Warm-up questions (accessible, everyone can answer)
+   - Core questions (analysis, synthesis, evaluation)
+   - Extension questions (challenge advanced thinkers)
+
+2. FOR EACH CORE QUESTION:
+   - Why this matters (learning purpose)
+   - Expected responses
+   - Follow-up probes if discussion stalls
+   - Misconceptions this might reveal
+
+3. FACILITATION TIPS:
+   - How to launch discussion
+   - Manage if no one responds
+   - Ensure quieter students participate
+
+AVOID yes/no questions and obvious answers. Focus on genuine thinking.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-category="engagement" data-keywords="student struggles misconceptions learning">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 10: Addressing Student Learning Struggles</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Students aren't understanding a key concept</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> Diagnosis + targeted interventions</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't10')">📋 Copy</button></h4>
+                                    <pre><code id="t10">My students are struggling with [SPECIFIC CONCEPT/SKILL].
+
+EVIDENCE OF STRUGGLE:
+[Exam results, assignment quality, questions they ask]
+
+WHAT I'VE TRIED:
+[Methods used to teach this]
+
+COURSE CONTEXT:
+- Class level: [Year and prerequisites]
+- Week in semester: [Week #]
+
+DIAGNOSE:
+1. Root causes (prerequisite gap, misconception, procedural issue, transfer problem)
+2. Design diagnostic assessment to pinpoint the problem
+3. Targeted interventions for each possible cause
+4. Common misconceptions about this concept
+5. Differentiation strategies
+6. Resources and analogies
+7. How to teach better next time
+
+Provide actionable strategies for THIS WEEK.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item" data-category="efficiency" data-keywords="grading feedback efficiency time-saving">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">
+                            <span>Template 13: Grading & Feedback Efficiency</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content">
+                            <div class="accordion-body">
+                                <p><strong>Use when:</strong> Grading is taking too much time</p>
+                                <p style="color: var(--text-secondary); margin: 0.5rem 0;"><strong>Output:</strong> Efficient grading system + comment banks</p>
+                                <div class="prompt-box">
+                                    <h4><span>Copy-Paste Template</span><button class="copy-btn" onclick="copyPrompt(this, 't13')">📋 Copy</button></h4>
+                                    <pre><code id="t13">I'm drowning in grading. Help me be more efficient.
+
+MY SITUATION:
+- Course: [TITLE]
+- Students: [NUMBER]
+- Assignment load: [What and how often]
+- Time available: [HOURS per week]
+- Type: [Essays, problem sets, projects]
+
+OPTIMIZE MY SYSTEM:
+1. Which assignments need detailed feedback vs. completion credit?
+2. Efficient feedback techniques (rubrics, comment banks, audio)
+3. Redesign assignments to be easier to grade but still rigorous
+4. Technology tools to speed things up
+5. Make feedback actionable for students
+6. What can be ungraded or low-stakes?
+7. Batch processing strategies
+8. Create templates: rubric, comment bank for [ASSIGNMENT TYPE]
+
+Give me a plan to cut grading time by 30-50%.</code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Prompts Tab -->
+        <div id="quick-prompts-tab" class="tab-content">
+            <div class="card">
+                <h2>Quick Prompts Library</h2>
+                <p>Fast, copy-paste prompts for common teaching tasks.</p>
+
+                <div class="prompt-box">
+                    <h4><span>Explain Concept Multiple Ways</span><button class="copy-btn" onclick="copyPrompt(this, 'qp0')">📋 Copy</button></h4>
+                    <pre><code id="qp0">Explain [CONCEPT] in three ways for [STUDENT LEVEL]:
+1. Using an analogy or metaphor
+2. Using a visual representation (describe what to show)
+3. Using a real-world application
+
+Then identify common misconceptions students have.</code></pre>
+                </div>
+
+                <div class="prompt-box">
+                    <h4><span>Generate Icebreaker</span><button class="copy-btn" onclick="copyPrompt(this, 'qp1')">📋 Copy</button></h4>
+                    <pre><code id="qp1">Create 3 icebreaker activities for [COURSE] that:
+- Take less than 10 minutes
+- Relate to course content (not generic)
+- Work for [CLASS SIZE] students
+- Don't make people cringe
+- Help me learn names</code></pre>
+                </div>
+
+                <div class="prompt-box">
+                    <h4><span>Create Case Study</span><button class="copy-btn" onclick="copyPrompt(this, 'qp2')">📋 Copy</button></h4>
+                    <pre><code id="qp2">Create a realistic case study for teaching [CONCEPT] in [DISCIPLINE].
+
+Include:
+- Scenario description (fictional but realistic)
+- Background and context
+- Data for analysis
+- 5-7 discussion questions at different levels
+- Learning objectives addressed
+- Discussion facilitation tips</code></pre>
+                </div>
+
+                <div class="prompt-box">
+                    <h4><span>Professional Email Template</span><button class="copy-btn" onclick="copyPrompt(this, 'qp3')">📋 Copy</button></h4>
+                    <pre><code id="qp3">Write a professional, compassionate email for:
+[Late assignment / Missing class / Grade dispute / Extension request]
+
+Context: [Brief situation]
+
+Make it:
+- Firm but kind
+- Clear but not cold
+- Sets appropriate boundaries
+- Offers next steps</code></pre>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Best Practices Tab -->
+        <div id="best-practices-tab" class="tab-content">
+            <div class="card">
+                <h2>Best Practices for Using AI in Teaching</h2>
+                
+                <h3 style="color: var(--success-color);">✅ DO:</h3>
+                <ul>
+                    <li><strong>Use AI as a teaching assistant</strong> that amplifies your expertise</li>
+                    <li><strong>Provide specific context</strong> about your students, class size, and constraints</li>
+                    <li><strong>Iterate and refine</strong> responses with follow-up questions</li>
+                    <li><strong>Customize all suggestions</strong> for your unique situation</li>
+                    <li><strong>Verify factual content</strong> in your discipline</li>
+                    <li><strong>Apply your pedagogical judgment</strong> to all suggestions</li>
+                    <li><strong>Save time on routine tasks</strong> to focus on high-value teaching</li>
+                </ul>
+
+                <h3 style="color: #ef4444; margin-top: 2rem;">❌ DON'T:</h3>
+                <ul>
+                    <li><strong>Never share student names or grades</strong> with external AI tools</li>
+                    <li><strong>Don't use AI responses without review</strong> and customization</li>
+                    <li><strong>Don't let AI make pedagogical decisions</strong> for you</li>
+                    <li><strong>Don't trust factual claims</strong> without verification</li>
+                    <li><strong>Don't skip customization</strong> - generic doesn't work</li>
+                    <li><strong>Don't use AI for high-stakes student decisions</strong></li>
+                </ul>
+
+                <h3 style="margin-top: 2rem;">⚡ Pro Tips:</h3>
+                <ul>
+                    <li><strong>Context Front-Load:</strong> Provide your standard context once at conversation start</li>
+                    <li><strong>Iterate:</strong> Don't settle for first response - ask follow-ups</li>
+                    <li><strong>Be Specific:</strong> Include class size, student level, time, constraints</li>
+                    <li><strong>Use Negative Examples:</strong> Tell AI what NOT to include</li>
+                    <li><strong>Batch Similar Tasks:</strong> Handle related tasks together</li>
+                    <li><strong>Build Your Library:</strong> Save prompts that work well for you</li>
+                </ul>
+
+                <div class="info-box success" style="margin-top: 2rem;">
+                    <h4>Remember:</h4>
+                    <p>AI is your assistant, not your replacement. You bring irreplaceable expertise about your discipline, your students, and effective pedagogy. AI brings efficiency and fresh ideas. Together = better teaching with less burnout!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p><strong>University of Illinois</strong></p>
+        <p>AI for Faculty Course Design Resource Library</p>
+        <p style="margin-top: 1rem; opacity: 0.8;">Questions? Contact your Teaching & Learning Center</p>
+    </footer>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(tabName + '-tab').classList.add('active');
+            event.target.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const isActive = header.classList.contains('active');
+            const accordion = header.closest('#template-accordion') || header.closest('.accordion');
+            if (accordion) {
+                accordion.querySelectorAll('.accordion-header').forEach(h => {
+                    h.classList.remove('active');
+                    h.nextElementSibling.classList.remove('active');
+                });
+            }
+            if (!isActive) {
+                header.classList.add('active');
+                content.classList.add('active');
+            }
+        }
+
+        function copyPrompt(button, elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const original = button.textContent;
+                button.textContent = '✅ Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = original;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function searchTemplates() {
+            const term = document.getElementById('template-search').value.toLowerCase();
+            document.querySelectorAll('#template-accordion .accordion-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                const keywords = item.dataset.keywords || '';
+                item.style.display = (text.includes(term) || keywords.includes(term)) ? 'block' : 'none';
+            });
+        }
+
+        function filterTemplates(chip, category) {
+            document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            document.querySelectorAll('#template-accordion .accordion-item').forEach(item => {
+                item.style.display = (category === 'all' || item.dataset.category === category) ? 'block' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
