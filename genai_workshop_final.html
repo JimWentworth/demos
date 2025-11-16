@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Hands-On Introduction to GenAI</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --uiuc-orange: #E84A27;
+      --uiuc-blue: #13294B;
+      --uiuc-blue-dark: #0A1428;
+      --uiuc-blue-medium: #1B3A5F;
+      --grey-50: #f9fafb;
+      --grey-100: #f3f4f6;
+      --grey-200: #e5e7eb;
+      --grey-300: #d1d5db;
+      --grey-400: #9ca3af;
+      --grey-500: #6b7280;
+      --grey-600: #4b5563;
+      --grey-700: #374151;
+      --grey-800: #1f2937;
+      --grey-900: #111827;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--grey-900);
+      background-color: var(--grey-50);
+      margin: 0;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: var(--uiuc-blue);
+      color: white;
+      padding: 2.5rem 2rem;
+      border-radius: 0;
+      margin-bottom: 2rem;
+      border-bottom: 4px solid var(--uiuc-orange);
+    }
+
+    header h1 {
+      font-size: 2.5rem;
+      margin: 0 0 0.5rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    header .subtitle {
+      font-size: 1.15rem;
+      opacity: 0.9;
+      margin: 0.25rem 0;
+      font-weight: 400;
+    }
+
+    header .workshop-meta {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1.25rem;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    header .workshop-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0.95;
+    }
+
+    header .workshop-meta a {
+      transition: color 0.2s ease;
+    }
+
+    header .workshop-meta a:hover,
+    header .workshop-meta a:focus {
+      color: white !important;
+    }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      background: white;
+      padding: 0.5rem;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-tab {
+      padding: 0.75rem 1.25rem;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--grey-700);
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab:hover {
+      background: var(--grey-100);
+      color: var(--uiuc-blue);
+    }
+
+    .nav-tab.active {
+      background: var(--uiuc-blue);
+      color: white;
+    }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--grey-200);
+    }
+
+    .card h2 {
+      font-size: 1.875rem;
+      margin: 0 0 1rem;
+      color: var(--uiuc-blue);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .card h3 {
+      font-size: 1.5rem;
+      margin: 2rem 0 0.75rem;
+      color: var(--uiuc-blue);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .card h4 {
+      font-size: 1.15rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--grey-900);
+      font-weight: 600;
+    }
+
+    /* Activity Sections */
+    .activity-section {
+      display: none;
+    }
+
+    .activity-section.active {
+      display: block;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      padding: 1.25rem 1.5rem;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      border-left: 4px solid;
+      background: white;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .callout-info {
+      border-color: var(--uiuc-blue);
+      background: var(--grey-50);
+    }
+
+    .callout-success {
+      border-color: var(--uiuc-orange);
+      background: var(--grey-50);
+    }
+
+    .callout-warning {
+      border-color: var(--grey-400);
+      background: var(--grey-50);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+      color: var(--grey-900);
+    }
+
+    /* Objectives Grid */
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .objective-card {
+      background: var(--grey-100);
+      padding: 1.25rem;
+      border-radius: 8px;
+      border-left: 3px solid var(--uiuc-orange);
+    }
+
+    .objective-card strong {
+      color: var(--uiuc-blue);
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 1.05rem;
+    }
+
+    /* Interactive Activity Box */
+    .interactive-box {
+      background: var(--grey-50);
+      border: 2px solid var(--grey-300);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .interactive-box h4 {
+      color: var(--uiuc-blue);
+      margin-top: 0;
+      font-weight: 700;
+    }
+
+    /* Prompt Box */
+    .prompt-box {
+      background: var(--uiuc-blue);
+      color: white;
+      padding: 1.25rem 1.5rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      position: relative;
+      font-family: 'Monaco', 'Courier New', monospace;
+      font-size: 0.9rem;
+    }
+
+    .prompt-box::before {
+      content: "Copy this prompt:";
+      display: block;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 0.8rem;
+      opacity: 0.8;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .prompt-box .prompt-text {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1rem;
+      border-radius: 4px;
+      line-height: 1.6;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 0.875rem 1rem;
+      margin: 0.5rem 0;
+      background: white;
+      border: 2px solid var(--grey-200);
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checklist li:hover {
+      border-color: var(--uiuc-orange);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .checklist li::before {
+      content: "☐";
+      font-size: 1.3rem;
+      color: var(--grey-400);
+      flex-shrink: 0;
+    }
+
+    .checklist li.checked::before {
+      content: "☑";
+      color: var(--uiuc-orange);
+    }
+
+    .checklist li.checked {
+      background: var(--grey-50);
+      border-color: var(--uiuc-orange);
+    }
+
+    /* Steps */
+    .step-list {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+    }
+
+    .step-list li {
+      counter-increment: step-counter;
+      padding: 1rem 1.25rem 1rem 3.5rem;
+      margin: 0.75rem 0;
+      background: white;
+      border: 1px solid var(--grey-200);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .step-list li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 1rem;
+      top: 1rem;
+      background: var(--uiuc-blue);
+      color: white;
+      width: 2rem;
+      height: 2rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* Quiz/Activity Options */
+    .options-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .option-button {
+      padding: 1rem 1.25rem;
+      background: white;
+      border: 2px solid var(--grey-200);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .option-button:hover {
+      border-color: var(--uiuc-blue);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .option-button:focus,
+    .option-button:focus-visible {
+      outline: 3px solid var(--uiuc-orange);
+      outline-offset: 2px;
+    }
+
+    .option-button.selected {
+      border-color: var(--uiuc-orange);
+      background: var(--grey-50);
+    }
+
+    .option-button.correct {
+      border-color: var(--uiuc-orange);
+      background: var(--grey-50);
+    }
+
+    .option-button.incorrect {
+      border-color: var(--grey-400);
+      background: var(--grey-100);
+      opacity: 0.6;
+    }
+
+    /* Reflection Box */
+    .reflection-box {
+      background: var(--grey-50);
+      border: 2px solid var(--grey-300);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .reflection-box h4 {
+      color: var(--uiuc-blue);
+      margin-top: 0;
+      font-weight: 700;
+    }
+
+    .reflection-textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.875rem;
+      border: 1px solid var(--grey-300);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: vertical;
+      background: white;
+    }
+
+    .reflection-textarea:focus {
+      outline: none;
+      border-color: var(--uiuc-blue);
+      box-shadow: 0 0 0 3px rgba(19, 41, 75, 0.1);
+    }
+
+    /* Timer */
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--grey-100);
+      color: var(--grey-700);
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.875rem;
+      border: 1px solid var(--grey-300);
+    }
+
+    /* Buttons */
+    .button {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      background: var(--uiuc-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      background: var(--uiuc-blue-dark);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .button:focus,
+    .button:focus-visible {
+      outline: 3px solid var(--uiuc-orange);
+      outline-offset: 2px;
+    }
+
+    .button-secondary {
+      background: white;
+      color: var(--uiuc-blue);
+      border: 2px solid var(--uiuc-blue);
+    }
+
+    .button-secondary:hover {
+      background: var(--uiuc-blue);
+      color: white;
+    }
+
+    .button-orange {
+      background: var(--uiuc-orange);
+      color: white;
+    }
+
+    .button-orange:hover {
+      background: #c93d1f;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--grey-200);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--uiuc-orange);
+      transition: width 0.3s ease;
+    }
+
+    /* Progress Bar */
+    .quiz-question {
+      background: white;
+      border: 2px solid var(--grey-200);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .quiz-question h4 {
+      color: var(--uiuc-blue);
+      margin-top: 0;
+    }
+
+    .quiz-feedback {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .quiz-feedback.show {
+      display: block;
+    }
+
+    .quiz-feedback.correct {
+      background: var(--grey-50);
+      border: 2px solid var(--uiuc-orange);
+      color: var(--grey-900);
+    }
+
+    .quiz-feedback.incorrect {
+      background: var(--grey-100);
+      border: 2px solid var(--grey-400);
+      color: var(--grey-900);
+    }
+
+    /* Success Message */
+    .success-message {
+      display: none;
+      padding: 1rem;
+      background: var(--grey-50);
+      border: 2px solid var(--uiuc-orange);
+      border-radius: 6px;
+      color: var(--grey-900);
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    /* Accordion */
+    .accordion {
+      background: white;
+      border: 2px solid var(--grey-300);
+      border-radius: 8px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      background: var(--grey-100);
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--uiuc-blue);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background 0.2s ease;
+    }
+
+    .accordion-header:hover {
+      background: var(--grey-200);
+    }
+
+    .accordion-header::after {
+      content: "+";
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--uiuc-orange);
+    }
+
+    .accordion-header.active::after {
+      content: "−";
+    }
+
+    .accordion-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+    }
+
+    .accordion-content.active {
+      max-height: 2000px;
+    }
+
+    .accordion-inner {
+      padding: 1.25rem 1.5rem;
+    }
+
+    /* Temperature Slider Demo */
+    .temperature-demo {
+      background: var(--grey-50);
+      border: 2px solid var(--grey-300);
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .slider-container {
+      margin: 1.5rem 0;
+    }
+
+    .temp-slider {
+      width: 100%;
+      height: 8px;
+      border-radius: 5px;
+      background: linear-gradient(to right, var(--uiuc-blue) 0%, var(--uiuc-orange) 100%);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .temp-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--uiuc-orange);
+      cursor: pointer;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .temp-slider::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--uiuc-orange);
+      cursor: pointer;
+      border: 3px solid white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .temp-labels {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--grey-600);
+    }
+
+    .temp-output {
+      background: white;
+      border: 2px solid var(--grey-300);
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+      min-height: 100px;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .temp-value-display {
+      text-align: center;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--uiuc-blue);
+      margin: 0.5rem 0;
+    }
+
+    /* Flip Cards */
+    .flip-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .flip-card {
+      background-color: transparent;
+      height: 180px;
+      perspective: 1000px;
+      cursor: pointer;
+      border-radius: 8px;
+    }
+
+    .flip-card:focus {
+      outline: 3px solid var(--uiuc-orange);
+      outline-offset: 2px;
+    }
+
+    .flip-card:focus-visible {
+      outline: 3px solid var(--uiuc-orange);
+      outline-offset: 2px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .flip-card-front {
+      background: var(--grey-100);
+      border: 2px solid var(--grey-300);
+    }
+
+    .flip-card-back {
+      background: var(--uiuc-blue);
+      color: white;
+      transform: rotateY(180deg);
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .flip-card-front strong {
+      color: var(--uiuc-blue);
+      font-size: 1.05rem;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .flip-card-front p {
+      color: var(--grey-700);
+      font-size: 0.9rem;
+      margin: 0;
+    }
+
+    .flip-instruction {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--grey-600);
+      margin-top: 0.5rem;
+      font-style: italic;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      color: var(--grey-500);
+      font-size: 0.9rem;
+      border-top: 1px solid var(--grey-200);
+      margin-top: 3rem;
+    }
+
+    /* Screen reader only content */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.75rem 2rem;
+      }
+
+      header {
+        padding: 2rem 1.5rem;
+      }
+
+      header h1 {
+        font-size: 2rem;
+      }
+
+      .card {
+        padding: 1.5rem;
+      }
+
+      .nav-tabs {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .objectives-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .nav-tabs,
+      .button,
+      .interactive-box {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Skip to main content link for screen readers -->
+  <a href="#main-content" style="position: absolute; left: -9999px; z-index: 999; padding: 1em; background: var(--uiuc-orange); color: white; text-decoration: none; font-weight: bold;" 
+     onfocus="this.style.left = '0'" 
+     onblur="this.style.left = '-9999px'">
+    Skip to main content
+  </a>
+  
+  <div class="page-wrap" id="main-content">
+    <header>
+      <h1>Hands-On Introduction to GenAI</h1>
+      <p class="subtitle">This workshop lays the groundwork for understanding how generative AI works and where it falls short. Through hands-on exploration, participants examine the mechanisms that drive generative models, recognize their constraints, and develop a grounded sense of how to use them creatively and productively.</p>
+      <div class="workshop-meta">
+        <span style="color: var(--uiuc-orange);"><a href="https://citl.illinois.edu" target="_blank" style="color: var(--uiuc-orange); text-decoration: underline;">Center for Innovation in Teaching &amp; Learning</a></span>
+      
+        <span>60-90 minutes</span>
+        <span>All experience levels welcome</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist" aria-label="Workshop sections">
+      <button class="nav-tab active" onclick="showSection('intro')" onkeydown="handleTabKey(event, 'intro')" role="tab" aria-selected="true" aria-controls="intro">Welcome</button>
+      <button class="nav-tab" onclick="showSection('activity1')" onkeydown="handleTabKey(event, 'activity1')" role="tab" aria-selected="false" aria-controls="activity1">Activity 1</button>
+      <button class="nav-tab" onclick="showSection('activity2')" onkeydown="handleTabKey(event, 'activity2')" role="tab" aria-selected="false" aria-controls="activity2">Activity 2</button>
+      <button class="nav-tab" onclick="showSection('activity3')" onkeydown="handleTabKey(event, 'activity3')" role="tab" aria-selected="false" aria-controls="activity3">Activity 3</button>
+      <button class="nav-tab" onclick="showSection('activity4')" onkeydown="handleTabKey(event, 'activity4')" role="tab" aria-selected="false" aria-controls="activity4">Activity 4</button>
+      <button class="nav-tab" onclick="showSection('wrap-up')" onkeydown="handleTabKey(event, 'wrap-up')" role="tab" aria-selected="false" aria-controls="wrap-up">Wrap-Up</button>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Workshop progress">
+      <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+    <div class="sr-only" aria-live="polite" aria-atomic="true" id="progressAnnounce"></div>
+
+    <!-- SECTION: INTRO -->
+    <div id="intro" class="activity-section active">
+      <div class="card">
+        <h2>Welcome to the Workshop</h2>
+        
+        <div class="callout callout-info">
+          <strong>What You'll Need:</strong>
+          Access to any AI tool on your laptop or phone. If you don't have access, you can pair up with someone who does!
+          <div style="margin-top: 0.75rem;">
+            <strong>Free AI Tools:</strong><br>
+            <a href="https://chatgpt.com" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">ChatGPT</a> • 
+            <a href="https://claude.ai" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Claude</a> • 
+            <a href="https://gemini.google.com" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Gemini</a> • 
+            <a href="https://copilot.microsoft.com" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Copilot</a> • 
+            <a href="https://www.perplexity.ai" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Perplexity</a>
+          </div>
+        </div>
+
+        <h3>Learning Objectives</h3>
+        <div class="objectives-grid">
+          <div class="objective-card">
+            <strong>Understand the Basics</strong>
+            How AI systems actually work (spoiler: they're pattern machines, not minds)
+          </div>
+          <div class="objective-card">
+            <strong>Practice Effective Prompting</strong>
+            Learn techniques to get better, more useful results from AI tools
+          </div>
+          <div class="objective-card">
+            <strong>Identify Limitations</strong>
+            Recognize when AI helps and when it doesn't—including bias and hallucinations
+          </div>
+          <div class="objective-card">
+            <strong>Develop Your Guardrails</strong>
+            Create personal guidelines for responsible AI use in your work
+          </div>
+          <div class="objective-card">
+            <strong>Explore Creative Applications</strong>
+            Discover how AI can enhance brainstorming, iteration, and problem-solving
+          </div>
+        </div>
+
+        <h3>Workshop Format</h3>
+        <p>This is a <strong>hands-on workshop</strong>. We'll move through four short activities, each including:</p>
+        <ul>
+          <li>A brief concept introduction (2-3 minutes)</li>
+          <li>A live experiment you'll do with AI (5-7 minutes)</li>
+          <li>Group discussion and reflection (2-3 minutes)</li>
+        </ul>
+		   <h3>Before We Begin</h3>
+        <div class="reflection-box">
+          <h4>Your Initial Thoughts</h4>
+          <p>What's one question or concern you have about AI?</p>
+          <textarea class="reflection-textarea" id="initialConcern" placeholder="Share your question or concern here. We'll revisit this at the end of the workshop..."></textarea>
+          <p style="font-size: 0.9rem; color: var(--grey-600); margin-top: 0.5rem; font-style: italic;">
+            We'll come back to this at the end to see how your thinking has evolved.
+          </p>
+        </div>
+
+        <div class="accordion">
+          <button class="accordion-header" onclick="toggleAccordion(this)">
+            Facilitator Note
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <p>Encourage participants to keep their AI tool open in a separate window/tab throughout the workshop. Set expectations that "perfect" results aren't the goal—we're here to explore and learn together!</p>
+              <p><strong>Timing Tips:</strong></p>
+              <ul>
+                <li>Each activity is designed for approximately 10 minutes of engagement</li>
+                <li>Allow flexibility for discussion - some groups will want more time to share</li>
+                <li>The knowledge check at the end can be done individually or discussed as a group</li>
+                <li>Consider doing Activities 1-2 before a break, then 3-4 after</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+       
+
+        <button class="button" onclick="showSection('activity1')">Let's Get Started →</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 1 - Understanding AI as a Pattern Machine -->
+    <div id="activity1" class="activity-section">
+      <div class="card">
+        <h2>Activity 1: AI as a Pattern Machine</h2>
+        <span class="timer">10 minutes</span>
+
+        <h3>Quick Concept: What GenAI Actually Does</h3>
+        <p>Generative AI isn't "thinking" or "understanding" in the way humans do. It's a sophisticated <strong>pattern-matching system</strong> that:</p>
+        <ul>
+          <li>Breaks text into tiny pieces called <strong>tokens</strong></li>
+          <li>Predicts what token should come next based on patterns in its training data</li>
+          <li>Builds responses token by token, using probability calculations</li>
+        </ul>
+
+        <div class="callout callout-warning">
+          <strong>Think of it like this:</strong>
+          If I say "peanut butter and ___", you would likely say "jelly." Not because you understand sandwiches, but because you have seen that pattern many times. AI works similarly, but with billions of patterns!
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: The Pattern Test</h4>
+          <p>Let's test how AI handles patterns it has learned versus ones it hasn't. Open your AI tool and try these three prompts in order:</p>
+
+          <ol class="step-list">
+            <li>
+              <strong>Test 1 - Common Pattern:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">Complete this phrase: "To be or not to be, that is the ___"</div>
+              </div>
+            </li>
+            <li>
+              <strong>Test 2 - Less Common:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">What year did the University of Illinois hire its current Dean of Students?</div>
+              </div>
+            </li>
+            <li>
+              <strong>Test 3 - Novel Pattern:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">My colleague Jim at UIUC loves developing Canvas LMS integrations. What was his most recent project about?</div>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <h4>What Did You Notice?</h4>
+        <div class="reflection-box">
+          <h4>Discussion Questions</h4>
+          <ul>
+            <li>Which prompts gave confident answers? Which ones were more uncertain?</li>
+            <li>Did the AI tell you when it didn't know something, or did it make something up?</li>
+            <li>What does this tell us about when to trust AI responses?</li>
+          </ul>
+          <textarea class="reflection-textarea" placeholder="Share your observations or take notes here..."></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          AI is excellent at patterns it has seen frequently (like famous quotes) but struggles with specific, unique, or recent information. It may "hallucinate" answers rather than admit uncertainty.
+        </div>
+
+        <button class="button" onclick="showSection('activity2')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('intro')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 2 - Effective Prompting -->
+    <div id="activity2" class="activity-section">
+      <div class="card">
+        <h2>Activity 2: The Power of Prompting</h2>
+        <span class="timer">10 minutes</span>
+
+        <h3>Quick Concept: Your Prompt = AI's Instructions</h3>
+        <p>The way you phrase your prompt dramatically affects the response. Think of prompting like giving directions:</p>
+        <ul>
+          <li><strong>Vague:</strong> "Help me with dinner" → Could mean anything!</li>
+          <li><strong>Clear:</strong> "Suggest 3 vegetarian dinner recipes under 30 minutes" → Much more useful!</li>
+        </ul>
+
+        <h3>Prompting Techniques That Work</h3>
+        <div class="options-grid">
+          <div class="option-button">
+            <strong>Be Specific:</strong> Include context, constraints, and desired format
+          </div>
+          <div class="option-button">
+            <strong>Assign a Role:</strong> "You are an experienced teacher..." or "Act as a technical writer..."
+          </div>
+          <div class="option-button">
+            <strong>Give Examples:</strong> Show the AI what you want with 1-2 examples
+          </div>
+          <div class="option-button">
+            <strong>Request Structure:</strong> Ask for numbered lists, tables, or specific formats
+          </div>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Prompt Improvement Challenge</h4>
+          <p>We'll take a vague prompt and improve it step by step. Try each version and compare results!</p>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 1: The Vague Prompt</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">Write something about teaching with AI.</div>
+            </div>
+            <p><em>Try this in your AI tool. What kind of response do you get?</em></p>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 2: Adding Context & Specificity</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">I'm a college instructor teaching first-year biology. Write 3 specific ways I could use AI tools to support my students' learning without replacing authentic assessment.</div>
+            </div>
+            <p><em>How did the response change?</em></p>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 3: Adding Role & Format</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">You are an experienced instructional designer specializing in science education. I'm a college instructor teaching first-year biology to 150 students. Write 3 specific ways I could use AI tools to support my students' learning without replacing authentic assessment. For each suggestion, include: 1) The tool or approach, 2) A concrete example, 3) One potential drawback to consider. Format as a numbered list.</div>
+            </div>
+            <p><em>Notice the difference in quality and usefulness!</em></p>
+          </div>
+        </div>
+
+        <h4>Your Turn: Create an Effective Prompt</h4>
+        <div class="reflection-box">
+          <h4>Practice Prompt</h4>
+          <p>Think of something you actually need help with in your work. Write a prompt using the techniques above:</p>
+          <textarea class="reflection-textarea" placeholder="Write your prompt here, then try it in your AI tool..."></textarea>
+          <p style="margin-top: 0.75rem;"><strong>Checklist:</strong> Did you include context? A specific role? Desired format? Examples?</p>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          Better prompts = better results. The more specific context and structure you provide, the more useful the AI's response will be.
+        </div>
+
+        <button class="button" onclick="showSection('activity3')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('activity1')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 3 - Limits & Guardrails -->
+    <div id="activity3" class="activity-section">
+      <div class="card">
+        <h2>Activity 3: Recognizing Limits & Setting Guardrails</h2>
+        <span class="timer">10 minutes</span>
+
+        <h3>Quick Concept: Where AI Falls Short</h3>
+        <p>AI is a powerful tool, but it has real limitations and risks we need to understand. Click each card to see examples:</p>
+
+        <div class="flip-card-grid">
+          <div class="flip-card" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped')}" tabindex="0" role="button" aria-label="Hallucinations - click to see example">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <strong>Hallucinations</strong>
+                <p>AI confidently invents facts that sound plausible but are completely wrong.</p>
+              </div>
+              <div class="flip-card-back">
+                <strong>Example:</strong> Asking for citations of research papers that don't exist, or statistical data about events that never happened.
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped')}" tabindex="0" role="button" aria-label="Bias - click to see example">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <strong>Bias</strong>
+                <p>Training data reflects historical biases, leading to unfair or stereotyped outputs.</p>
+              </div>
+              <div class="flip-card-back">
+                <strong>Example:</strong> Job descriptions that subtly favor one gender, or different tone/language used for the same task based on names.
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped')}" tabindex="0" role="button" aria-label="Privacy Concerns - click to see example">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <strong>Privacy Concerns</strong>
+                <p>Information you share may be used to train future models or stored unexpectedly.</p>
+              </div>
+              <div class="flip-card-back">
+                <strong>Example:</strong> Entering student data, proprietary information, or personal details that could be retained or learned by the system.
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped')}" tabindex="0" role="button" aria-label="Limited Context - click to see example">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <strong>Limited Context</strong>
+                <p>AI can only "remember" a certain amount of conversation before losing earlier context.</p>
+              </div>
+              <div class="flip-card-back">
+                <strong>Example:</strong> In a long conversation, AI may forget details you mentioned 20 messages ago, leading to inconsistent responses.
+              </div>
+            </div>
+          </div>
+
+          <div class="flip-card" onclick="this.classList.toggle('flipped')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.classList.toggle('flipped')}" tabindex="0" role="button" aria-label="Outdated Information - click to see example">
+            <div class="flip-card-inner">
+              <div class="flip-card-front">
+                <strong>Outdated Information</strong>
+                <p>Most AI models have knowledge cutoff dates and don't know current events.</p>
+              </div>
+              <div class="flip-card-back">
+                <strong>Example:</strong> Asking about recent elections, new policies, current prices, or today's news will produce outdated or incorrect information.
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="flip-instruction">Click any card to flip and see examples</p>
+
+        <div class="interactive-box">
+          <h4>Try This: Spotting Hallucinations</h4>
+          <p>Let's deliberately trigger hallucinations to see what they look like:</p>
+
+          <ol class="step-list">
+            <li>
+              <strong>Ask for specific citations:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">List 3 peer-reviewed research articles from 2023 about the effectiveness of AI tutors in undergraduate mathematics, including full citations.</div>
+              </div>
+              <p><em>Check: Do these papers actually exist? Try searching for the titles or DOIs.</em></p>
+            </li>
+            <li>
+              <strong>Request impossible specificity:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">What were the exact enrollment numbers for each section of PSYCH 100 at University of Illinois in Fall 2023?</div>
+              </div>
+              <p><em>Does it admit it doesn't know, or does it provide "data"?</em></p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Detecting Bias</h4>
+          <p>Test how AI handles the same prompt with different demographic cues:</p>
+
+          <div class="prompt-box">
+            <div class="prompt-text">Write a letter of recommendation for a software engineering position for a student named Jamal who excelled in my computer science course.</div>
+          </div>
+
+          <p style="margin-top: 1rem;">Now try the exact same prompt but change "Jamal" to "Emily"</p>
+
+          <p><strong>Compare:</strong> Are there differences in tone, adjectives used, or focus areas? Does one emphasize technical skills more than the other?</p>
+        </div>
+
+        <h3>Building Your Personal Guardrails</h3>
+        <p>Based on what you have learned, let's create guidelines for YOUR AI use:</p>
+
+        <div class="reflection-box">
+          <h4>My AI Guardrails Checklist</h4>
+          <p>Check the items that make sense for your work context:</p>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)">I will always verify factual claims, citations, or data before using them</li>
+            <li onclick="toggleCheck(this)">I will not input confidential, personal, or sensitive information into AI tools</li>
+            <li onclick="toggleCheck(this)">I will review AI outputs for potential bias, especially related to people</li>
+            <li onclick="toggleCheck(this)">I will clearly indicate when work includes AI-generated content</li>
+            <li onclick="toggleCheck(this)">I will use AI as a drafting/brainstorming tool, not a final authority</li>
+            <li onclick="toggleCheck(this)">I will check my institution's AI policies before using it for official work</li>
+          </ul>
+          
+          <h4 style="margin-top: 1.5rem;">Additional guardrails for my context:</h4>
+          <textarea class="reflection-textarea" id="additionalGuardrails" placeholder="What other rules or boundaries would help you use AI responsibly in your role?"></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          AI should augment human judgment, not replace it. Always be the critical thinker who verifies, questions, and makes final decisions.
+        </div>
+
+        <button class="button" onclick="showSection('activity4')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('activity2')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 4 - Creativity & Temperature -->
+    <div id="activity4" class="activity-section">
+      <div class="card">
+        <h2>Activity 4: AI as a Creative Partner</h2>
+        <span class="timer">10 minutes</span>
+
+        <h3>Quick Concept: Temperature & Creativity</h3>
+        <p>Many AI tools have a "temperature" or "creativity" setting (usually 0-1 or 0-2):</p>
+        <ul>
+          <li><strong>Low temperature (0-0.3):</strong> Predictable, consistent, factual—like a careful researcher</li>
+          <li><strong>Medium temperature (0.7-0.8):</strong> Balanced—good for most writing tasks</li>
+          <li><strong>High temperature (1.0+):</strong> Unpredictable, creative, varied—like a brainstorming session</li>
+        </ul>
+
+        <p><em>Note: Not all interfaces expose this setting, but understanding it helps you frame prompts!</em></p>
+
+        <div class="temperature-demo">
+          <h4>Interactive Demo: See Temperature in Action</h4>
+          <p>Adjust the slider below to see how temperature affects AI output for the same prompt:</p>
+          
+          <div class="slider-container">
+            <div class="temp-value-display">Temperature: <span id="tempValue">0.5</span></div>
+            <input type="range" min="0" max="20" value="5" class="temp-slider" id="tempSlider" oninput="updateTemperature(this.value)" aria-label="Temperature setting from 0 to 2, adjust to see how it affects AI creativity" aria-valuemin="0" aria-valuemax="2" aria-valuenow="0.5">
+            <div class="temp-labels">
+              <span>0.0 (Predictable)</span>
+              <span>1.0 (Balanced)</span>
+              <span>2.0 (Creative)</span>
+            </div>
+          </div>
+
+          <p style="margin-top: 1.5rem; font-size: 1.05rem;"><strong style="color: var(--uiuc-orange); background: var(--grey-100); padding: 0.25rem 0.5rem; border-radius: 4px;">PROMPT:</strong> "Describe a sunset"</p>
+          <div class="temp-output" id="tempOutput">
+            The sun sets in the west, creating orange and red colors in the sky as daylight fades to darkness.
+          </div>
+          <p style="font-size: 0.85rem; color: var(--grey-600); margin-top: 0.5rem; font-style: italic;">
+            These are simulated examples to illustrate the concept. Actual AI outputs will vary.
+          </p>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Brainstorming with AI</h4>
+          <p>Let's use AI for what it does well—generating lots of ideas quickly. We'll practice being the critical human who evaluates and selects.</p>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Scenario: Course Activity Ideas</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">I'm teaching a 3-hour workshop on academic integrity for first-year undergraduates. Generate 10 different interactive activity ideas that would work for groups of 4-5 students. Make them diverse in format—include individual activities, small group discussions, role-plays, and hands-on tasks. Each idea should take 10-15 minutes.</div>
+            </div>
+            
+            <p><strong>Your job as the human:</strong> Review the 10 ideas and mark which ones are:</p>
+            <ul>
+              <li>Feasible for your actual context</li>
+              <li>Interesting but need modification</li>
+              <li>Not realistic or useful</li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Iterative Refinement</h4>
+            <p>Pick one idea that was "interesting but needs work" and use this follow-up:</p>
+            <div class="prompt-box">
+              <div class="prompt-text">I like idea #[number], but [explain your concern or what needs to change]. Can you revise it to [specific improvement you want]?</div>
+            </div>
+            <p><em>This is where AI really shines—rapid iteration based on your expert judgment!</em></p>
+          </div>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: AI as Thought Partner</h4>
+          <p>Use AI to challenge your thinking on a real problem you're facing:</p>
+
+          <div class="prompt-box">
+            <div class="prompt-text">I'm working on [describe your actual challenge or decision]. I'm leaning toward [your current approach]. Play devil's advocate: What are 5 potential problems or oversights with this approach? What alternative perspectives should I consider?</div>
+          </div>
+
+          <p style="margin-top: 1rem;"><strong>Remember:</strong> The AI doesn't know your context as well as you do. Its role is to generate perspectives—yours is to evaluate their relevance and accuracy.</p>
+        </div>
+
+        <h4>Reflection: AI's Role in Your Workflow</h4>
+        <div class="reflection-box">
+          <h4>Think About It</h4>
+          <ul>
+            <li>Where would AI brainstorming genuinely save you time?</li>
+            <li>Where would you NEVER want to use AI, even for initial drafts?</li>
+            <li>How do you balance efficiency with maintaining your authentic voice and expertise?</li>
+          </ul>
+          <textarea class="reflection-textarea" placeholder="Your thoughts..."></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          Use AI for divergent thinking (generating many possibilities) but reserve convergent thinking (choosing the best option) for yourself. You're the expert—AI is just a very fast brainstorming partner.
+        </div>
+
+        <button class="button" onclick="showSection('wrap-up')">Finish Workshop →</button>
+        <button class="button button-secondary" onclick="showSection('activity3')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: WRAP-UP -->
+    <div id="wrap-up" class="activity-section">
+      <div class="card">
+        <h2>Workshop Wrap-Up</h2>
+
+        <div class="callout callout-success">
+          <strong>Congratulations!</strong>
+          You have completed all four hands-on activities and explored AI from multiple angles.
+        </div>
+
+        <h3>Knowledge Check</h3>
+        <p>Before we wrap up, let's check your understanding of key concepts:</p>
+
+        <!-- Question 1 -->
+        <div class="accordion">
+          <button class="accordion-header" onclick="toggleAccordion(this)">
+            Question 1: How does generative AI actually work?
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="options-grid">
+                <div class="option-button" onclick="checkAnswer(this, false, 'q1')">
+                  It thinks and understands like a human brain
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q1')">
+                  It searches the internet for answers in real-time
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, true, 'q1')">
+                  It predicts the next token based on patterns in training data
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q1')">
+                  It randomly generates text and hopes it makes sense
+                </div>
+              </div>
+              <div class="quiz-feedback" id="q1-feedback"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 2 -->
+        <div class="accordion">
+          <button class="accordion-header" onclick="toggleAccordion(this)">
+            Question 2: What makes a prompt more effective?
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="options-grid">
+                <div class="option-button" onclick="checkAnswer(this, false, 'q2')">
+                  Being as brief as possible to save time
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, true, 'q2')">
+                  Providing specific context, role, and desired format
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q2')">
+                  Using technical jargon to sound professional
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q2')">
+                  Asking multiple unrelated questions at once
+                </div>
+              </div>
+              <div class="quiz-feedback" id="q2-feedback"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 3 -->
+        <div class="accordion">
+          <button class="accordion-header" onclick="toggleAccordion(this)">
+            Question 3: What is a "hallucination" in the context of AI?
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="options-grid">
+                <div class="option-button" onclick="checkAnswer(this, false, 'q3')">
+                  When AI refuses to answer a question
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, true, 'q3')">
+                  When AI confidently generates false information that sounds plausible
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q3')">
+                  When AI takes too long to respond
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q3')">
+                  When AI generates creative or imaginative content
+                </div>
+              </div>
+              <div class="quiz-feedback" id="q3-feedback"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Question 4 -->
+        <div class="accordion">
+          <button class="accordion-header" onclick="toggleAccordion(this)">
+            Question 4: What is the most appropriate way to use AI in your work?
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-inner">
+              <div class="options-grid">
+                <div class="option-button" onclick="checkAnswer(this, false, 'q4')">
+                  Accept all AI outputs as factual without verification
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q4')">
+                  Never use AI because it has limitations
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, true, 'q4')">
+                  Use AI as a brainstorming tool while maintaining critical judgment
+                </div>
+                <div class="option-button" onclick="checkAnswer(this, false, 'q4')">
+                  Input confidential information to get better results
+                </div>
+              </div>
+              <div class="quiz-feedback" id="q4-feedback"></div>
+            </div>
+          </div>
+        </div>
+
+        <h3>Reflect on Your Learning Journey</h3>
+        <div class="reflection-box" style="background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); border: 2px solid var(--uiuc-orange);">
+          <h4>Revisiting Your Initial Question or Concern</h4>
+          <p style="margin-bottom: 1rem;">At the start of the workshop, you shared:</p>
+          <div style="background: white; padding: 1rem; border-radius: 6px; border: 1px solid var(--grey-300); margin-bottom: 1rem; min-height: 60px; font-style: italic; color: var(--grey-700);" id="initialConcernDisplay">
+            (Your initial question or concern will appear here)
+          </div>
+          <p><strong>Now that you've completed the workshop, how would you respond to this concern?</strong></p>
+          <textarea class="reflection-textarea" id="concernRevisited" placeholder="How has your thinking evolved? What insights did you gain that address your initial question or concern?"></textarea>
+        </div>
+
+        <h3>Your Reflections & Action Plan</h3>
+        <p>Capture your key takeaways from today. Click the button below to copy all your reflections and commitments:</p>
+        
+        <div class="reflection-box">
+          <h4>My Next Steps with AI</h4>
+          <div class="options-grid">
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Try one new prompt technique</strong> this week in my actual work
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Share what I learned</strong> with my team or colleagues
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Draft AI usage guidelines</strong> for my course/unit/department
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Experiment with AI</strong> for one specific task I have been avoiding
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Explore my institution's AI policies</strong> and available tools
+            </div>
+          </div>
+
+          <h4 style="margin-top: 1.5rem;">Specific action I'll take:</h4>
+          <textarea class="reflection-textarea" id="actionPlanText" placeholder="Be specific: What will you do? When? How will you know you have done it?"></textarea>
+        </div>
+
+        <div style="text-align: center; margin: 2rem 0;">
+          <button class="button button-orange" onclick="copyAllReflections(); document.getElementById('downloadBtn').style.display='inline-block';" style="margin-right: 1rem;">Copy All My Reflections</button>
+          <button class="button" id="downloadBtn" onclick="downloadReflections()" style="display: none;">Save to My Computer</button>
+          <div class="success-message" id="copySuccess" style="margin-top: 1rem;">
+            <strong>Copied to clipboard!</strong> You can now paste your reflections into a document, email, or notes app.
+          </div>
+          <div class="success-message" id="downloadSuccess" style="margin-top: 1rem;">
+            <strong>File downloaded!</strong> Check your Downloads folder for your reflections document.
+          </div>
+        </div>
+
+        <div id="reflectionPreview" style="display: none; background: var(--grey-50); border: 2px solid var(--grey-300); border-radius: 8px; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace; font-size: 0.9rem; white-space: pre-wrap; max-height: 400px; overflow-y: auto;"></div>
+
+        <h3>Campus GenAI Resources</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1.5rem 0;">
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>Center for Innovation in Teaching & Learning (CITL)</strong>
+            Workshops, consultations, and teaching resources for integrating AI into your courses.
+            <div style="margin-top: 0.5rem;">
+              <a href="https://citl.illinois.edu" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">citl.illinois.edu</a>
+            </div>
+          </div>
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>Technology Services</strong>
+            AI tools, software access, security guidelines, and technical support for campus AI initiatives.
+            <div style="margin-top: 0.5rem;">
+              <a href="https://www.techservices.illinois.edu/generative-ai-resources/" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Generative AI Resources</a>
+            </div>
+          </div>
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>University Library</strong>
+            Research support, AI literacy resources, and guidance on evaluating AI-generated content.
+            <div style="margin-top: 0.5rem;">
+              <a href="https://guides.library.illinois.edu/generativeAI" target="_blank" style="color: var(--uiuc-blue); text-decoration: underline;">Generative AI Guide</a>
+            </div>
+          </div>
+        </div>
+
+        <h3>Workshop Feedback</h3>
+        <p>Your feedback helps us improve this workshop for future participants. Please take a moment to complete this brief survey:</p>
+        
+        <div style="text-align: center; padding: 2rem; background: var(--grey-50); border: 2px solid var(--grey-300); border-radius: 8px; margin: 1.5rem 0;">
+          <p style="font-size: 1.1rem; margin-bottom: 1rem;"><strong>Share Your Feedback</strong></p>
+          <a href="https://go.illinois.edu/HO_Intro_Gen_AI" target="_blank" class="button button-orange" style="display: inline-block;">Open Feedback Survey</a>
+        </div>
+        
+        <div class="callout callout-success" style="margin: 1.5rem 0;">
+          <strong>Need Help or Have Questions?</strong>
+          Contact CITL at <a href="mailto:citl-info@illinois.edu" style="color: var(--uiuc-blue); text-decoration: underline;">citl-info@illinois.edu</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: var(--uiuc-blue); border-radius: 8px; color: white;">
+          <h3 style="margin-top: 0; color: white;">Thank You for Participating!</h3>
+          <p style="font-size: 1.1rem; margin: 1rem 0;">Remember: You're always the expert. AI is just a tool in your toolbox.</p>
+        </div>
+
+        <button class="button" onclick="showSection('intro')" style="margin-top: 1rem;">Return to Start</button>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>&nbsp;</strong>University of Illinois Urbna-Champaign&nbsp;•  Center for Innovation in Teaching &amp; Learning</p>
+      <p>&nbsp;</p>
+    </footer>
+  </div>
+
+  <script>
+    // Section Navigation
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.activity-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Show target section
+      document.getElementById(sectionId).classList.add('active');
+      
+      // If showing wrap-up, populate the initial concern
+      if (sectionId === 'wrap-up') {
+        const initialConcernText = document.getElementById('initialConcern')?.value || localStorage.getItem('workshop_initialConcern') || '';
+        const displayEl = document.getElementById('initialConcernDisplay');
+        if (displayEl) {
+          if (initialConcernText.trim()) {
+            displayEl.textContent = '"' + initialConcernText + '"';
+            displayEl.style.fontStyle = 'italic';
+          } else {
+            displayEl.textContent = '(You did not enter an initial question or concern)';
+            displayEl.style.fontStyle = 'italic';
+            displayEl.style.color = 'var(--grey-500)';
+          }
+        }
+      }
+      
+      // Update navigation tabs and ARIA attributes
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+        tab.setAttribute('aria-selected', 'false');
+      });
+      
+      // Find and activate the clicked tab
+      const clickedTab = Array.from(document.querySelectorAll('.nav-tab')).find(tab => 
+        tab.getAttribute('onclick').includes(sectionId)
+      );
+      if (clickedTab) {
+        clickedTab.classList.add('active');
+        clickedTab.setAttribute('aria-selected', 'true');
+      }
+      
+      // Update progress bar
+      updateProgress(sectionId);
+      
+      // Announce section change to screen readers
+      const sectionNames = {
+        'intro': 'Welcome',
+        'activity1': 'Activity 1: AI as a Pattern Machine',
+        'activity2': 'Activity 2: The Power of Prompting',
+        'activity3': 'Activity 3: Recognizing Limits and Setting Guardrails',
+        'activity4': 'Activity 4: AI as a Creative Partner',
+        'wrap-up': 'Workshop Wrap-Up'
+      };
+      const announceEl = document.getElementById('progressAnnounce');
+      if (announceEl) {
+        announceEl.textContent = `Now viewing: ${sectionNames[sectionId]}`;
+      }
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Handle keyboard navigation for tabs
+    function handleTabKey(event, sectionId) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        showSection(sectionId);
+      }
+    }
+
+    // Progress Bar
+    function updateProgress(sectionId) {
+      const sections = ['intro', 'activity1', 'activity2', 'activity3', 'activity4', 'wrap-up'];
+      const currentIndex = sections.indexOf(sectionId);
+      const progress = ((currentIndex + 1) / sections.length) * 100;
+      const progressBar = document.getElementById('progressBar');
+      const progressContainer = progressBar.parentElement;
+      
+      progressBar.style.width = progress + '%';
+      progressContainer.setAttribute('aria-valuenow', Math.round(progress));
+    }
+
+    // Checklist Toggle
+    function toggleCheck(element) {
+      element.classList.toggle('checked');
+      localStorage.setItem('checklist_' + element.textContent, element.classList.contains('checked') ? 'checked' : '');
+    }
+
+    // Accordion Toggle
+    function toggleAccordion(button) {
+      const content = button.nextElementSibling;
+      const isActive = button.classList.contains('active');
+      
+      // Close all accordions in the same parent
+      const parent = button.closest('.card') || document;
+      parent.querySelectorAll('.accordion-header').forEach(header => {
+        header.classList.remove('active');
+        header.nextElementSibling.classList.remove('active');
+      });
+      
+      // Toggle current accordion
+      if (!isActive) {
+        button.classList.add('active');
+        content.classList.add('active');
+      }
+    }
+
+    // Temperature Slider
+    const temperatureOutputs = [
+      "The sun sets in the west, creating orange and red colors in the sky as daylight fades to darkness.",
+      "The sun descends toward the horizon, painting the western sky with warm hues of orange and crimson as evening approaches.",
+      "As the sun dips below the horizon, the sky transforms into a canvas of amber, coral, and deep magenta, casting long shadows across the landscape.",
+      "The dying sun bleeds gold and vermillion across the horizon, its radiant farewell kissing the clouds with fire while the world holds its breath in anticipation of twilight.",
+      "A symphony of tangerine and rose unfolds as Sol performs her daily descent, streaking the heavens with passionate brushstrokes while day surrenders to the velvet embrace of approaching night.",
+      "The celestial sphere blazes magnificently, erupting into an impossibly vivid tapestry—electric oranges clash with rebellious purples, defying conventional sunset palettes as reality itself seems to shimmer and dance.",
+      "Sunset? No—a cosmic explosion of impossible geometries! The sun fragments into kaleidoscopic prisms, each ray birthing new wavelengths of color that humans lack names for, as time itself bends around the event horizon of evening.",
+      "Reality fractures: the sun simultaneously rises and sets, casting shadows in directions that defy Euclidean space while the sky cycles through emotions rather than colors—nostalgia at 540 nanometers, hope at wavelengths only mantis shrimp perceive.",
+      "The sun doesn't set; it negotiates with the horizon using interpretive dance and semaphore flags made of crystallized starlight, while the moon watches from backstage, eating popcorn made from comet dust and judging the performance.",
+      "Quantum sunset achieved: each photon contemplates its wave-particle duality while the sun files paperwork in triplicate to officially declare evening, but bureaucratic delays mean it's technically still 3 PM according to the Department of Temporal Affairs.",
+      "The sun forgot how to set and is now asking nearby clouds for directions, but the clouds only speak in precipitation forecasts, creating an awkward celestial miscommunication that results in purple."
+    ];
+
+    function updateTemperature(value) {
+      const temp = (value / 10).toFixed(1);
+      document.getElementById('tempValue').textContent = temp;
+      
+      const outputIndex = Math.min(Math.floor(value / 2), temperatureOutputs.length - 1);
+      document.getElementById('tempOutput').textContent = temperatureOutputs[outputIndex];
+    }
+
+    // Goal Selection
+    function selectGoal(element) {
+      // Remove selection from all in this group
+      element.parentElement.querySelectorAll('.option-button').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      // Add selection to clicked
+      element.classList.add('selected');
+      // Store selected goal
+      localStorage.setItem('selectedGoal', element.textContent.trim());
+    }
+
+    // Knowledge Check
+    let answeredQuestions = new Set();
+
+    function checkAnswer(element, isCorrect, questionId) {
+      // Prevent multiple answers
+      if (answeredQuestions.has(questionId)) {
+        return;
+      }
+      
+      const feedback = document.getElementById(questionId + '-feedback');
+      const allOptions = element.parentElement.querySelectorAll('.option-button');
+      
+      // Disable all options
+      allOptions.forEach(opt => {
+        opt.style.cursor = 'default';
+        opt.onclick = null;
+      });
+      
+      // Mark this question as answered
+      answeredQuestions.add(questionId);
+      
+      if (isCorrect) {
+        element.classList.add('correct');
+        feedback.textContent = "Correct! You've got it.";
+        feedback.classList.add('correct', 'show');
+      } else {
+        element.classList.add('incorrect');
+        // Show the correct answer
+        allOptions.forEach(opt => {
+          if (opt !== element && !opt.classList.contains('incorrect')) {
+            opt.classList.add('correct');
+          }
+        });
+        feedback.textContent = 'Not quite. The correct answer is highlighted above.';
+        feedback.classList.add('incorrect', 'show');
+      }
+    }
+
+    // Copy All Reflections to Clipboard
+    function copyAllReflections() {
+      const fullReflection = buildReflectionText();
+      
+      // Copy to clipboard
+      navigator.clipboard.writeText(fullReflection).then(function() {
+        // Show success message
+        const successMsg = document.getElementById('copySuccess');
+        successMsg.classList.add('show');
+        
+        // Also show preview
+        const preview = document.getElementById('reflectionPreview');
+        preview.textContent = fullReflection;
+        preview.style.display = 'block';
+        
+        // Hide success message after 3 seconds
+        setTimeout(function() {
+          successMsg.classList.remove('show');
+        }, 3000);
+      }).catch(function(err) {
+        // Fallback for older browsers
+        alert('Please select and copy the text below:\n\n' + fullReflection);
+        const preview = document.getElementById('reflectionPreview');
+        preview.textContent = fullReflection;
+        preview.style.display = 'block';
+      });
+    }
+
+    // Download Reflections as Text File
+    function downloadReflections() {
+      const fullReflection = buildReflectionText();
+      
+      // Create blob and download
+      const blob = new Blob([fullReflection], { type: 'text/plain' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `GenAI_Workshop_Reflections_${new Date().toLocaleDateString().replace(/\//g, '-')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      
+      // Show success message
+      const successMsg = document.getElementById('downloadSuccess');
+      successMsg.classList.add('show');
+      setTimeout(function() {
+        successMsg.classList.remove('show');
+      }, 3000);
+    }
+
+    // Build Reflection Text (used by both copy and download)
+    function buildReflectionText() {
+      const actionText = document.getElementById('actionPlanText').value;
+      const selectedGoal = localStorage.getItem('selectedGoal') || 'No specific goal selected';
+      
+      // Gather all reflections from localStorage
+      const reflections = [];
+      
+      // Initial concern and revisited response
+      const initialConcernTextarea = document.getElementById('initialConcern');
+      const initialConcern = initialConcernTextarea ? initialConcernTextarea.value : (localStorage.getItem('workshop_initialConcern') || '');
+      
+      const concernRevisitedTextarea = document.getElementById('concernRevisited');
+      const concernRevisited = concernRevisitedTextarea ? concernRevisitedTextarea.value : (localStorage.getItem('workshop_concernRevisited') || '');
+      
+      // Activity 1 - Discussion Questions
+      const activity1Reflection = localStorage.getItem('workshop_Discussion Questions') || '';
+      
+      // Activity 2 - Practice Prompt
+      const activity2Reflection = localStorage.getItem('workshop_Practice Prompt') || '';
+      
+      // Activity 3 - Guardrails Checklist
+      const checkedGuardrails = [];
+      document.querySelectorAll('.checklist li.checked').forEach(item => {
+        checkedGuardrails.push('• ' + item.textContent.trim());
+      });
+      const activity3aReflection = checkedGuardrails.join('\n');
+      
+      // Activity 3 - Additional guardrails - get directly from textarea
+      const additionalGuardrailsTextarea = document.getElementById('additionalGuardrails');
+      const activity3bReflection = additionalGuardrailsTextarea ? additionalGuardrailsTextarea.value : '';
+      
+      // Activity 4 - Think About It
+      const activity4Reflection = localStorage.getItem('workshop_Think About It') || '';
+      
+      // Knowledge Check Results
+      let quizResults = '';
+      let correctCount = 0;
+      const quizQuestions = [
+        { id: 'q1', text: 'How does generative AI actually work?', answer: 'It predicts the next token based on patterns in training data' },
+        { id: 'q2', text: 'What makes a prompt more effective?', answer: 'Providing specific context, role, and desired format' },
+        { id: 'q3', text: 'What is a "hallucination" in the context of AI?', answer: 'When AI confidently generates false information that sounds plausible' },
+        { id: 'q4', text: 'What is the most appropriate way to use AI in your work?', answer: 'Use AI as a brainstorming tool while maintaining critical judgment' }
+      ];
+      
+      quizQuestions.forEach(q => {
+        if (answeredQuestions.has(q.id)) {
+          const correctOption = document.querySelector(`#${q.id}-feedback`);
+          if (correctOption && correctOption.classList.contains('correct')) {
+            quizResults += `✓ ${q.text}\n`;
+            correctCount++;
+          } else {
+            quizResults += `✗ ${q.text}\n   Correct answer: ${q.answer}\n`;
+          }
+        } else {
+          quizResults += `- ${q.text} (Not answered)\n`;
+        }
+      });
+      
+      const quizScore = answeredQuestions.size > 0 ? `${correctCount}/${answeredQuestions.size}` : 'Not completed';
+      
+      // Build the full reflection document
+      return `HANDS-ON INTRODUCTION TO GENAI - MY REFLECTIONS
+Center for Innovation in Teaching & Learning
+University of Illinois
+Date: ${new Date().toLocaleDateString()}
+
+════════════════════════════════════════════════════════════
+
+INITIAL QUESTION OR CONCERN
+
+Before the workshop, I was concerned about:
+${initialConcern || '(No initial concern entered)'}
+
+After the workshop, my thoughts:
+${concernRevisited || '(Not yet revisited)'}
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 1: AI AS A PATTERN MACHINE
+
+Discussion Questions - What I Noticed:
+${activity1Reflection || '(No notes entered)'}
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 2: THE POWER OF PROMPTING
+
+My Practice Prompt:
+${activity2Reflection || '(No notes entered)'}
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 3: RECOGNIZING LIMITS & SETTING GUARDRAILS
+
+My AI Guardrails Checklist:
+${activity3aReflection || '(No items checked)'}
+
+Additional Guardrails for My Context:
+${activity3bReflection || '(No notes entered)'}
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 4: AI AS A CREATIVE PARTNER
+
+Reflections on AI's Role in My Workflow:
+${activity4Reflection || '(No notes entered)'}
+
+════════════════════════════════════════════════════════════
+
+KNOWLEDGE CHECK RESULTS
+
+Score: ${quizScore}
+
+${quizResults || '(Quiz not completed)'}
+
+════════════════════════════════════════════════════════════
+
+MY ACTION PLAN
+
+Goal Selected:
+${selectedGoal}
+
+Specific Action I'll Take:
+${actionText || '(No specific action entered)'}
+
+════════════════════════════════════════════════════════════
+
+KEY TAKEAWAYS FROM TODAY:
+
+• AI is a pattern-matching system, not a thinking mind
+• Effective prompts include context, role, and desired format
+• Always verify AI outputs and watch for hallucinations
+• Use AI as a brainstorming tool while maintaining critical judgment
+
+════════════════════════════════════════════════════════════
+
+FEEDBACK & CONTACT:
+
+Workshop Feedback Survey:
+https://go.illinois.edu/HO_Intro_Gen_AI
+
+For more information contact CITL at citl-info@illinois.edu
+
+════════════════════════════════════════════════════════════
+`;
+    }
+
+    // Initialize progress bar
+    updateProgress('intro');
+
+    // Save form data to localStorage on input
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        // Save by ID if available, otherwise by heading
+        if (this.id) {
+          localStorage.setItem('workshop_' + this.id, this.value);
+        } else {
+          const heading = this.parentElement.querySelector('h4')?.textContent || 'general';
+          localStorage.setItem('workshop_' + heading, this.value);
+        }
+      });
+      
+      // Load saved data
+      if (textarea.id) {
+        const savedValue = localStorage.getItem('workshop_' + textarea.id);
+        if (savedValue) {
+          textarea.value = savedValue;
+        }
+      } else {
+        const heading = textarea.parentElement.querySelector('h4')?.textContent || 'general';
+        const savedValue = localStorage.getItem('workshop_' + heading);
+        if (savedValue) {
+          textarea.value = savedValue;
+        }
+      }
+    });
+
+    // Auto-save checklist states
+    document.querySelectorAll('.checklist li').forEach(item => {
+      const savedState = localStorage.getItem('checklist_' + item.textContent);
+      if (savedState === 'checked') {
+        item.classList.add('checked');
+      }
+    });
+  </script>
+</body>
+</html>
