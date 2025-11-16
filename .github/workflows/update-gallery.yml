@@ -3,7 +3,13 @@ name: Update Gallery Index
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.html'
+      - '!index.html'
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   update-gallery:
@@ -11,7 +17,10 @@ jobs:
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
       
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -52,7 +61,8 @@ jobs:
                     parser = TitleExtractor()
                     parser.feed(content)
                     return parser.title if parser.title else None
-            except:
+            except Exception as e:
+                print(f"Error extracting title from {filepath}: {e}")
                 return None
 
         def format_name(filename):
@@ -66,7 +76,7 @@ jobs:
         demos = []
         for root, dirs, files in os.walk('.'):
             # Skip .git and .github directories
-            dirs[:] = [d for d in dirs if d not in ['.git', '.github']]
+            dirs[:] = [d for d in dirs if d not in ['.git', '.github', 'node_modules']]
             
             for file in files:
                 if file.endswith('.html') and file != 'index.html':
@@ -94,7 +104,7 @@ jobs:
         with open('demos_data.json', 'w') as f:
             json.dump(demos, f, indent=2)
         
-        print(f"Found {len(demos)} HTML files")
+        print(f"✅ Found {len(demos)} HTML files")
         PYTHON_SCRIPT
     
     - name: Generate index.html
@@ -581,13 +591,25 @@ jobs:
     - name: Check for changes
       id: check_changes
       run: |
-        git diff --quiet index.html || echo "changed=true" >> $GITHUB_OUTPUT
+        git diff --quiet index.html && echo "changed=false" >> $GITHUB_OUTPUT || echo "changed=true" >> $GITHUB_OUTPUT
+    
+    - name: Show what changed
+      if: steps.check_changes.outputs.changed == 'true'
+      run: |
+        echo "📝 Index.html has been updated"
+        git diff --stat index.html
     
     - name: Commit and push if changed
       if: steps.check_changes.outputs.changed == 'true'
       run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add index.html
         git commit -m "Auto-update gallery index [skip ci]"
         git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: No changes needed
+      if: steps.check_changes.outputs.changed == 'false'
+      run: echo "✅ Gallery is already up to date"
