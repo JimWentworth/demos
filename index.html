@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Projects Gallery - CITL Demos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #13294B 0%, #1e3a5f 100%);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: #E84A27;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: #fff;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .description {
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .search-filter {
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 500px;
+            padding: 0.75rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.95);
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #E84A27;
+            box-shadow: 0 0 0 3px rgba(232, 74, 39, 0.2);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+            background: #E84A27;
+            border-color: #E84A27;
+            transform: translateY(-2px);
+        }
+
+        .category-section {
+            margin-bottom: 3rem;
+        }
+
+        .category-header {
+            color: #E84A27;
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #E84A27;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .count-badge {
+            background: #E84A27;
+            color: white;
+            font-size: 0.9rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: normal;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(232, 74, 39, 0.3);
+        }
+
+        .card-image {
+            width: 100%;
+            height: 180px;
+            background: linear-gradient(135deg, #13294B 0%, #E84A27 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-image::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255, 255, 255, 0.05) 10px,
+                rgba(255, 255, 255, 0.05) 20px
+            );
+            animation: slide 20s linear infinite;
+        }
+
+        @keyframes slide {
+            0% { transform: translate(-50%, -50%); }
+            100% { transform: translate(0%, 0%); }
+        }
+
+        .card-icon {
+            position: relative;
+            z-index: 1;
+            font-size: 4rem;
+            opacity: 0.9;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            color: #13294B;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+
+        .card-path {
+            color: #666;
+            font-size: 0.85rem;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .card-link {
+            margin-top: auto;
+            padding: 0.75rem;
+            background: #13294B;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .card-link:hover {
+            background: #E84A27;
+            transform: scale(1.02);
+        }
+
+        .stats {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            flex-wrap: wrap;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            color: #E84A27;
+            font-size: 2.5rem;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            margin-top: 4rem;
+            padding: 2rem;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        footer a {
+            color: #E84A27;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                width: 100%;
+            }
+
+            .filter-btn {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎓 AI Projects Gallery</h1>
+            <div class="subtitle">Center for Innovation in Teaching & Learning</div>
+            <p class="description">
+                Interactive web applications and educational resources created with generative AI coding assistants. 
+                These demonstrations showcase what's possible using AI tools for educational technology development.
+            </p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-number" id="totalProjects">0</span>
+                <span class="stat-label">Projects</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number" id="totalCategories">0</span>
+                <span class="stat-label">Categories</span>
+            </div>
+        </div>
+
+        <div class="search-filter">
+            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search projects...">
+        </div>
+
+        <div class="filter-buttons" id="filterButtons"></div>
+
+        <div id="gallery"></div>
+
+        <footer>
+            <p>Created with AI • University of Illinois • <a href="mailto:jwentwor@illinois.edu">jwentwor@illinois.edu</a></p>
+            <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                <a href="https://github.com/JimWentworth/demos" target="_blank">View on GitHub</a>
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        const demos = [
+  {
+    "path": "ai_frameworks/index.html",
+    "title": "AI Frameworks for Higher Education - Interactive Explorer",
+    "category": "Ai Frameworks",
+    "filename": "index.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week10.html",
+    "title": "Week 10: Cross-Case Checkpoint 2 \u2014 Bias, overfitting, false leads",
+    "category": "Canvas Course",
+    "filename": "week10.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week11.html",
+    "title": "Week 11: Case 3 (Your Final Path) \u2014 Closing the loop",
+    "category": "Canvas Course",
+    "filename": "week11.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week12.html",
+    "title": "Week 12: Case 3 Deep Dive \u2014 Blind spots and strengths",
+    "category": "Canvas Course",
+    "filename": "week12.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week13.html",
+    "title": "Week 13: Case 3 Wrap \u2014 Final Case File",
+    "category": "Canvas Course",
+    "filename": "week13.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week14.html",
+    "title": "Week 14: The Network of Clues \u2014 Putting models together",
+    "category": "Canvas Course",
+    "filename": "week14.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week15.html",
+    "title": "Week 15: The Reveal \u2014 What was actually learned?",
+    "category": "Canvas Course",
+    "filename": "week15.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week01.html",
+    "title": "Week 1: Opening the Case \u2014 What does it mean to \"see\" a pattern?",
+    "category": "Canvas Course",
+    "filename": "week01.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week02.html",
+    "title": "Week 2: The Shared Case File \u2014 Features, labels, targets",
+    "category": "Canvas Course",
+    "filename": "week02.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week03.html",
+    "title": "Week 3: Case 1 (Student-Selected Path) \u2014 Core Concepts",
+    "category": "Canvas Course",
+    "filename": "week03.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week04.html",
+    "title": "Week 4: Case 1 Deep Dive \u2014 Evidence and uncertainty",
+    "category": "Canvas Course",
+    "filename": "week04.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week05.html",
+    "title": "Week 5: Case 1 Wrap \u2014 Your first Case File",
+    "category": "Canvas Course",
+    "filename": "week05.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week06.html",
+    "title": "Week 6: Cross-Case Checkpoint 1 \u2014 Sharing what you've seen",
+    "category": "Canvas Course",
+    "filename": "week06.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week07.html",
+    "title": "Week 7: Case 2 (Your Second Path) \u2014 New lens, same data",
+    "category": "Canvas Course",
+    "filename": "week07.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week08.html",
+    "title": "Week 8: Case 2 Deep Dive \u2014 Interpreting behavior",
+    "category": "Canvas Course",
+    "filename": "week08.html"
+  },
+  {
+    "path": "canvas_course/web_resources/week09.html",
+    "title": "Week 9: Case 2 Wrap \u2014 Finishing your second Case File",
+    "category": "Canvas Course",
+    "filename": "week09.html"
+  },
+  {
+    "path": "chatgpt/chatgpt_edu.html",
+    "title": "ChatGPT for Education \u2014 Comparison Sheet (UIUC)",
+    "category": "Chatgpt",
+    "filename": "chatgpt_edu.html"
+  },
+  {
+    "path": "course_design/qm_check.html",
+    "title": "QM Standards Checklist",
+    "category": "Course Design",
+    "filename": "qm_check.html"
+  },
+  {
+    "path": "gpt_tester/gpttester2.html",
+    "title": "GPT Prompt Tester",
+    "category": "Gpt Tester",
+    "filename": "gpttester2.html"
+  },
+  {
+    "path": "gpt_tester/index.html",
+    "title": "GPT Prompt Tester",
+    "category": "Gpt Tester",
+    "filename": "index.html"
+  },
+  {
+    "path": "interactions/ai-tools-flipcards1.html",
+    "title": "AI Fluency - Tool Profiles",
+    "category": "Interactions",
+    "filename": "ai-tools-flipcards1.html"
+  },
+  {
+    "path": "interactions/ai-tools-flipcards.html",
+    "title": "AI Fluency Toolkit",
+    "category": "Interactions",
+    "filename": "ai-tools-flipcards.html"
+  },
+  {
+    "path": "interactions/model_flipcards.html",
+    "title": "AI Model Training Refresher",
+    "category": "Interactions",
+    "filename": "model_flipcards.html"
+  },
+  {
+    "path": "interactions/h5p/17_adaptive_followup.html",
+    "title": "Adaptive Follow\u2011Up",
+    "category": "Interactions",
+    "filename": "17_adaptive_followup.html"
+  },
+  {
+    "path": "interactions/h5p/27_audio_prompt_response.html",
+    "title": "Audio Prompt + Typed Response",
+    "category": "Interactions",
+    "filename": "27_audio_prompt_response.html"
+  },
+  {
+    "path": "interactions/h5p/08_bias_probe_next_word.html",
+    "title": "Bias Probe \u2014 Next-Word Demo (Simulated)",
+    "category": "Interactions",
+    "filename": "08_bias_probe_next_word.html"
+  },
+  {
+    "path": "interactions/magazine_layout_gpt.html",
+    "title": "CITL Custom GPT Showcase",
+    "category": "Interactions",
+    "filename": "magazine_layout_gpt.html"
+  },
+  {
+    "path": "interactions/22_categorize_buckets.html",
+    "title": "Categorize into Buckets",
+    "category": "Interactions",
+    "filename": "22_categorize_buckets.html"
+  },
+  {
+    "path": "interactions/h5p/22_categorize_buckets.html",
+    "title": "Categorize into Buckets",
+    "category": "Interactions",
+    "filename": "22_categorize_buckets.html"
+  },
+  {
+    "path": "interactions/h5p/26_chat_simulation_role_prompt.html",
+    "title": "Chat Simulation \u2014 Role Prompting",
+    "category": "Interactions",
+    "filename": "26_chat_simulation_role_prompt.html"
+  },
+  {
+    "path": "interactions/color_mixing_lab.html",
+    "title": "Color Mixing Laboratory",
+    "category": "Interactions",
+    "filename": "color_mixing_lab.html"
+  },
+  {
+    "path": "interactions/color_fill_in_blank.html",
+    "title": "Color Terms Fill-in-the-Blank",
+    "category": "Interactions",
+    "filename": "color_fill_in_blank.html"
+  },
+  {
+    "path": "interactions/h5p/23_concept_map_builder.html",
+    "title": "Concept Map Builder",
+    "category": "Interactions",
+    "filename": "23_concept_map_builder.html"
+  },
+  {
+    "path": "interactions/h5p/15_confidence_question.html",
+    "title": "Confidence-Based Questioning",
+    "category": "Interactions",
+    "filename": "15_confidence_question.html"
+  },
+  {
+    "path": "interactions/h5p/11_pairs_click_match.html",
+    "title": "Definition Pairs \u2014 Click to Match",
+    "category": "Interactions",
+    "filename": "11_pairs_click_match.html"
+  },
+  {
+    "path": "interactions/design_jeopardy.html",
+    "title": "Design Jeopardy",
+    "category": "Interactions",
+    "filename": "design_jeopardy.html"
+  },
+  {
+    "path": "interactions/h5p/12_ethics_self_check.html",
+    "title": "Ethics Self\u2011Check",
+    "category": "Interactions",
+    "filename": "12_ethics_self_check.html"
+  },
+  {
+    "path": "interactions/ai_everyday_uses_awareness_split_v2.html",
+    "title": "Everyday AI Awareness \u2014 How Many Uses Can You Name?",
+    "category": "Interactions",
+    "filename": "ai_everyday_uses_awareness_split_v2.html"
+  },
+  {
+    "path": "interactions/flashcard_generator.html",
+    "title": "Flash Card Generator",
+    "category": "Interactions",
+    "filename": "flashcard_generator.html"
+  },
+  {
+    "path": "interactions/h5p/09_flashcards_model_tool_agent.html",
+    "title": "Flashcards \u2014 Model vs Tool vs Agent",
+    "category": "Interactions",
+    "filename": "09_flashcards_model_tool_agent.html"
+  },
+  {
+    "path": "interactions/h5p/01_mcq_basics.html",
+    "title": "GenAI Basics \u2014 Multiple Choice",
+    "category": "Interactions",
+    "filename": "01_mcq_basics.html"
+  },
+  {
+    "path": "interactions/h5p/index.html",
+    "title": "GenAI Fluency \u2014 Interaction Library",
+    "category": "Interactions",
+    "filename": "index.html"
+  },
+  {
+    "path": "interactions/h5p/20_generate_evaluate_compare.html",
+    "title": "Generate & Evaluate \u2014 Compare & Revise",
+    "category": "Interactions",
+    "filename": "20_generate_evaluate_compare.html"
+  },
+  {
+    "path": "interactions/h5p/02_true_false_guardrails.html",
+    "title": "Guardrails \u2014 True or False",
+    "category": "Interactions",
+    "filename": "02_true_false_guardrails.html"
+  },
+  {
+    "path": "interactions/h5p/10_hotspots_risks.html",
+    "title": "Hotspots \u2014 Where the Risks Live",
+    "category": "Interactions",
+    "filename": "10_hotspots_risks.html"
+  },
+  {
+    "path": "interactions/iframe.html",
+    "title": "Iframe",
+    "category": "Interactions",
+    "filename": "iframe.html"
+  },
+  {
+    "path": "interactions/h5p/13_image_mcq.html",
+    "title": "Image-Based Multiple Choice",
+    "category": "Interactions",
+    "filename": "13_image_mcq.html"
+  },
+  {
+    "path": "interactions/h5p/21_timeline_milestones.html",
+    "title": "Interactive Timeline \u2014 GenAI Milestones",
+    "category": "Interactions",
+    "filename": "21_timeline_milestones.html"
+  },
+  {
+    "path": "interactions/h5p/25_interactive_video.html",
+    "title": "Interactive Video \u2014 Pause & Respond",
+    "category": "Interactions",
+    "filename": "25_interactive_video.html"
+  },
+  {
+    "path": "interactions/h5p/04_fill_in_blank.html",
+    "title": "Key Terms \u2014 Fill in the Blank",
+    "category": "Interactions",
+    "filename": "04_fill_in_blank.html"
+  },
+  {
+    "path": "interactions/simple_flashcards.html",
+    "title": "Learning and Teaching Concepts True/False Quiz",
+    "category": "Interactions",
+    "filename": "simple_flashcards.html"
+  },
+  {
+    "path": "interactions/h5p/03_drag_match_terms.html",
+    "title": "Match Terms \u2014 Drag & Drop",
+    "category": "Interactions",
+    "filename": "03_drag_match_terms.html"
+  },
+  {
+    "path": "interactions/h5p/07_prompt_improvement_lab.html",
+    "title": "Prompt Improvement Lab",
+    "category": "Interactions",
+    "filename": "07_prompt_improvement_lab.html"
+  },
+  {
+    "path": "interactions/h5p/19_scenario_reflection_journal.html",
+    "title": "Scenario Reflection Journal",
+    "category": "Interactions",
+    "filename": "19_scenario_reflection_journal.html"
+  },
+  {
+    "path": "interactions/h5p/06_scenario_branching.html",
+    "title": "Scenario \u2014 Using AI for Research",
+    "category": "Interactions",
+    "filename": "06_scenario_branching.html"
+  },
+  {
+    "path": "interactions/h5p/14_select_all_apply.html",
+    "title": "Select-All-That-Apply",
+    "category": "Interactions",
+    "filename": "14_select_all_apply.html"
+  },
+  {
+    "path": "interactions/h5p/18_short_answer_keywords.html",
+    "title": "Short Answer \u2014 Keyword Check",
+    "category": "Interactions",
+    "filename": "18_short_answer_keywords.html"
+  },
+  {
+    "path": "interactions/h5p/05_sort_workflow.html",
+    "title": "Sort the GenAI Workflow",
+    "category": "Interactions",
+    "filename": "05_sort_workflow.html"
+  },
+  {
+    "path": "interactions/h5p/24_step_by_step_accordion.html",
+    "title": "Step-by-Step Reveal",
+    "category": "Interactions",
+    "filename": "24_step_by_step_accordion.html"
+  },
+  {
+    "path": "interactions/text_reader.html",
+    "title": "Text Reader \u2014 Tabs + Word Highlight",
+    "category": "Interactions",
+    "filename": "text_reader.html"
+  },
+  {
+    "path": "interactions/h5p/16_timed_quickfire.html",
+    "title": "Timed Quickfire Quiz",
+    "category": "Interactions",
+    "filename": "16_timed_quickfire.html"
+  },
+  {
+    "path": "interactions/fill_in_the_blank.html",
+    "title": "Water Cycle Exercise",
+    "category": "Interactions",
+    "filename": "fill_in_the_blank.html"
+  },
+  {
+    "path": "llms/index.html",
+    "title": "LLM Model Families & Timeline",
+    "category": "Llms",
+    "filename": "index.html"
+  },
+  {
+    "path": "Faculty_AI_Course_Design_Library.html",
+    "title": "AI for Faculty Course Design - University of Illinois",
+    "category": "Main",
+    "filename": "Faculty_AI_Course_Design_Library.html"
+  },
+  {
+    "path": "canvas-cc-creator.html",
+    "title": "Canvas Common Cartridge - File Upload",
+    "category": "Main",
+    "filename": "canvas-cc-creator.html"
+  },
+  {
+    "path": "canvas-cc-packager.html",
+    "title": "Canvas Common Cartridge Packager - Multi-Page",
+    "category": "Main",
+    "filename": "canvas-cc-packager.html"
+  },
+  {
+    "path": "viscom_concepts.html",
+    "title": "Conceptual Atlas \u2013 101 concepts (zoom \u2022 drag \u2022 highlight \u2022 search)",
+    "category": "Main",
+    "filename": "viscom_concepts.html"
+  },
+  {
+    "path": "101_Concepts.html",
+    "title": "Conceptual Atlas \u2013 101 concepts (zoom \u2022 drag \u2022 highlight \u2022 search)",
+    "category": "Main",
+    "filename": "101_Concepts.html"
+  },
+  {
+    "path": "chemistry_concepts.html",
+    "title": "Conceptual Atlas \u2013 101 concepts (zoom \u2022 drag \u2022 highlight \u2022 search)",
+    "category": "Main",
+    "filename": "chemistry_concepts.html"
+  },
+  {
+    "path": "deconstructing_reality.html",
+    "title": "Deconstructing Reality: An Interactive Guide",
+    "category": "Main",
+    "filename": "deconstructing_reality.html"
+  },
+  {
+    "path": "gemini.html",
+    "title": "GenAI Literacy: Empowering UIUC Students",
+    "category": "Main",
+    "filename": "gemini.html"
+  },
+  {
+    "path": "genai_workshop.html",
+    "title": "Hands-On Introduction to GenAI",
+    "category": "Main",
+    "filename": "genai_workshop.html"
+  },
+  {
+    "path": "llm_context_window_comparison (1).html",
+    "title": "LLM Context Windows vs. Human Working Memory",
+    "category": "Main",
+    "filename": "llm_context_window_comparison (1).html"
+  },
+  {
+    "path": "article_highered_rotated.html",
+    "title": "Polish Less, Verify More",
+    "category": "Main",
+    "filename": "article_highered_rotated.html"
+  },
+  {
+    "path": "article_revised.html",
+    "title": "Polish Less, Verify More",
+    "category": "Main",
+    "filename": "article_revised.html"
+  },
+  {
+    "path": "article.html",
+    "title": "Polish Less, Verify More",
+    "category": "Main",
+    "filename": "article.html"
+  },
+  {
+    "path": "prompt-patterns-flipcards.html",
+    "title": "Prompt Engineering Patterns",
+    "category": "Main",
+    "filename": "prompt-patterns-flipcards.html"
+  },
+  {
+    "path": "what-do-you-want.html",
+    "title": "Retro Prompt to ChatGPT",
+    "category": "Main",
+    "filename": "what-do-you-want.html"
+  },
+  {
+    "path": "chat.html",
+    "title": "Using ChatGPT Voice Mode in Higher Education",
+    "category": "Main",
+    "filename": "chat.html"
+  },
+  {
+    "path": "chat2.html",
+    "title": "Using ChatGPT Voice Mode in Higher Education",
+    "category": "Main",
+    "filename": "chat2.html"
+  },
+  {
+    "path": "manus/faculty_ai_portal.html",
+    "title": "CITL Faculty AI Dashboard Pilot",
+    "category": "Manus",
+    "filename": "faculty_ai_portal.html"
+  },
+  {
+    "path": "mind_map/markmap-faculty.html",
+    "title": "Markmap",
+    "category": "Mind Map",
+    "filename": "markmap-faculty.html"
+  },
+  {
+    "path": "mind_map/markmap.html",
+    "title": "Markmap",
+    "category": "Mind Map",
+    "filename": "markmap.html"
+  },
+  {
+    "path": "study_master/educards.html",
+    "title": "EduCards - Course Reading & Study Aid Generator",
+    "category": "Study Master",
+    "filename": "educards.html"
+  },
+  {
+    "path": "study_master/flashcard_final.html",
+    "title": "Flash Card Generator",
+    "category": "Study Master",
+    "filename": "flashcard_final.html"
+  },
+  {
+    "path": "study_master/flashcard.html",
+    "title": "Flash Card Generator",
+    "category": "Study Master",
+    "filename": "flashcard.html"
+  },
+  {
+    "path": "study_master/lsu_study_cycle.html",
+    "title": "Study Master: Design Theory Edition",
+    "category": "Study Master",
+    "filename": "lsu_study_cycle.html"
+  },
+  {
+    "path": "study_master/index.html",
+    "title": "Study Master: Design Theory Edition",
+    "category": "Study Master",
+    "filename": "index.html"
+  },
+  {
+    "path": "study_master/study_aid.html",
+    "title": "StudyAid - Course Materials to Study Tools",
+    "category": "Study Master",
+    "filename": "study_aid.html"
+  },
+  {
+    "path": "study_master/study_master.html",
+    "title": "StudyMaster - Interactive Learning Hub",
+    "category": "Study Master",
+    "filename": "study_master.html"
+  },
+  {
+    "path": "study_master/study_sprint.html",
+    "title": "StudySprint",
+    "category": "Study Master",
+    "filename": "study_sprint.html"
+  },
+  {
+    "path": "study_master/studysprint_formatter.html",
+    "title": "StudySprint Question Formatter",
+    "category": "Study Master",
+    "filename": "studysprint_formatter.html"
+  },
+  {
+    "path": "verb_sorter/blooms.html",
+    "title": "Bloom's Taxonomy Assignment Tool",
+    "category": "Verb Sorter",
+    "filename": "blooms.html"
+  },
+  {
+    "path": "verb_sorter/verb_sorter_final.html",
+    "title": "Bloom's Taxonomy Verb Selector",
+    "category": "Verb Sorter",
+    "filename": "verb_sorter_final.html"
+  },
+  {
+    "path": "verb_sorter/index.html",
+    "title": "Bloom's Taxonomy Verb Selector",
+    "category": "Verb Sorter",
+    "filename": "index.html"
+  },
+  {
+    "path": "verb_sorter/verb_sorter.html",
+    "title": "Bloom's Taxonomy Verb Selector",
+    "category": "Verb Sorter",
+    "filename": "verb_sorter.html"
+  },
+  {
+    "path": "visual_literacy/viscom_vocab.html",
+    "title": "Visual Communication Concepts",
+    "category": "Visual Literacy",
+    "filename": "viscom_vocab.html"
+  },
+  {
+    "path": "visual_literacy/viscom_game.html",
+    "title": "Visual Communication Learning Game",
+    "category": "Visual Literacy",
+    "filename": "viscom_game.html"
+  },
+  {
+    "path": "visual_literacy/visual_jeopardy.html",
+    "title": "Visual Communications Jeopardy",
+    "category": "Visual Literacy",
+    "filename": "visual_jeopardy.html"
+  },
+  {
+    "path": "visual_literacy/index.html",
+    "title": "Visual Literacy Terms Flip Cards",
+    "category": "Visual Literacy",
+    "filename": "index.html"
+  },
+  {
+    "path": "workload_calculator/index.html",
+    "title": "CITL Student Workload Calculator",
+    "category": "Workload Calculator",
+    "filename": "index.html"
+  }
+]
+;
+
+        // Icon mapping for different project types
+        const iconMap = {
+            'Main': '🏠',
+            'Ai Frameworks': '🤖',
+            'Canvas Course': '📚',
+            'Chatgpt': '💬',
+            'Course Design': '✏️',
+            'Gpt Tester': '🧪',
+            'Interactions': '🎮',
+            'Llms': '🧠',
+            'Manus': '📖',
+            'Mind Map': '🗺️',
+            'Study Master': '📝',
+            'Verb Sorter': '📊',
+            'Viscom Concepts': '🎨',
+            'Visual Literacy': '👁️',
+            'Workload Calculator': '⏱️'
+        };
+
+        let currentFilter = 'All';
+
+        function getIcon(category) {
+            return iconMap[category] || '📄';
+        }
+
+        function createCard(demo) {
+            const icon = getIcon(demo.category);
+            return `
+                <div class="card" data-category="${demo.category}" data-title="${demo.title.toLowerCase()}" data-path="${demo.path.toLowerCase()}">
+                    <div class="card-image">
+                        <div class="card-icon">${icon}</div>
+                    </div>
+                    <div class="card-content">
+                        <h3 class="card-title">${demo.title}</h3>
+                        <div class="card-path">${demo.path}</div>
+                        <a href="${demo.path}" class="card-link" target="_blank">Open Demo →</a>
+                    </div>
+                </div>
+            `;
+        }
+
+        function groupByCategory(demos) {
+            const groups = {};
+            demos.forEach(demo => {
+                if (!groups[demo.category]) {
+                    groups[demo.category] = [];
+                }
+                groups[demo.category].push(demo);
+            });
+            return groups;
+        }
+
+        function renderGallery(filter = 'All', searchTerm = '') {
+            const gallery = document.getElementById('gallery');
+            const groups = groupByCategory(demos);
+            
+            let html = '';
+            let visibleCount = 0;
+
+            Object.keys(groups).sort().forEach(category => {
+                if (filter !== 'All' && filter !== category) return;
+
+                const categoryDemos = groups[category].filter(demo => {
+                    if (!searchTerm) return true;
+                    const search = searchTerm.toLowerCase();
+                    return demo.title.toLowerCase().includes(search) || 
+                           demo.path.toLowerCase().includes(search);
+                });
+
+                if (categoryDemos.length === 0) return;
+
+                visibleCount += categoryDemos.length;
+
+                html += `
+                    <div class="category-section">
+                        <h2 class="category-header">
+                            ${getIcon(category)} ${category}
+                            <span class="count-badge">${categoryDemos.length}</span>
+                        </h2>
+                        <div class="grid">
+                            ${categoryDemos.map(demo => createCard(demo)).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            gallery.innerHTML = html || '<p style="color: white; text-align: center; padding: 3rem;">No projects found matching your search.</p>';
+            
+            // Update stats
+            document.getElementById('totalProjects').textContent = visibleCount;
+        }
+
+        function createFilterButtons() {
+            const categories = ['All', ...new Set(demos.map(d => d.category))].sort();
+            const filterButtons = document.getElementById('filterButtons');
+            
+            filterButtons.innerHTML = categories.map(cat => 
+                `<button class="filter-btn ${cat === 'All' ? 'active' : ''}" data-filter="${cat}">
+                    ${cat === 'All' ? '🌟 ' : getIcon(cat) + ' '}${cat}
+                </button>`
+            ).join('');
+
+            document.getElementById('totalCategories').textContent = categories.length - 1;
+
+            // Add click handlers
+            filterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    currentFilter = btn.dataset.filter;
+                    filterButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderGallery(currentFilter, document.getElementById('searchBox').value);
+                });
+            });
+        }
+
+        // Search functionality
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            renderGallery(currentFilter, e.target.value);
+        });
+
+        // Initialize
+        createFilterButtons();
+        renderGallery();
+    </script>
+</body>
+</html>
