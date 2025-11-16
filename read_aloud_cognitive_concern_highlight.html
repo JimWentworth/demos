@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Read-Aloud (Highlighted): The Cognitive Concern</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #0b1220;
+    --card: #111827;
+    --muted: #9ca3af;
+    --text: #f9fafb;
+    --accent: #2563eb;
+    --accent-2: #f59e0b;
+    --highlight-bg: rgba(37,99,235,.18);
+    --highlight-border: #2563eb77;
+  }
+  html, body {
+    height: 100%;
+    background: linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+    color: var(--text);
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.55;
+  }
+  .container {
+    max-width: 1000px;
+    margin: 24px auto 64px;
+    padding: 0 16px;
+  }
+  .header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .badge {
+    background: rgba(37,99,235,.15);
+    color: #bfdbfe;
+    border: 1px solid rgba(37,99,235,.35);
+    padding: 4px 10px; border-radius: 999px; font-size: 12px; letter-spacing:.02em;
+  }
+  h1 { font-size: clamp(1.25rem, 2.5vw, 1.75rem); margin: 0; font-weight: 700; }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; padding: 18px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.35);
+  }
+  .grid { display: grid; gap: 12px; }
+  @media (min-width: 980px) {
+    .grid { grid-template-columns: 2fr 1fr; }
+  }
+  textarea {
+    width: 100%; min-height: 220px; resize: vertical;
+    background: var(--panel); color: var(--text);
+    border: 1px solid rgba(255,255,255,.12); border-radius: 12px; padding: 14px; font-size: 16px;
+  }
+  .render {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 12px;
+    padding: 14px;
+    max-height: 420px; overflow: auto;
+  }
+  .sentence {
+    border-radius: 8px; padding: 1px 4px; transition: background .15s ease, box-shadow .15s ease;
+  }
+  .sentence.active {
+    background: var(--highlight-bg);
+    box-shadow: 0 0 0 2px var(--highlight-border) inset;
+  }
+  .controls { display: grid; gap: 10px; }
+  .buttons { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 10px; }
+  select, input[type="range"] { width: 100%; }
+  select, .control, button {
+    background: var(--panel); color: var(--text);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px; padding: 10px; font-size: 14px;
+  }
+  button { font-weight: 600; cursor: pointer; }
+  button:hover { border-color: rgba(255,255,255,.25); }
+  button.play { background: linear-gradient(180deg, rgba(37,99,235,.25), rgba(37,99,235,.15)); border-color: #2563eb55; }
+  button.pause { background: linear-gradient(180deg, rgba(245,158,11,.25), rgba(245,158,11,.15)); border-color: #f59e0b55; }
+  button.resume { background: linear-gradient(180deg, rgba(34,197,94,.25), rgba(34,197,94,.15)); border-color: #22c55e55; }
+  button.stop { background: linear-gradient(180deg, rgba(239,68,68,.25), rgba(239,68,68,.15)); border-color: #ef444455; }
+  .progress { height: 8px; background: rgba(255,255,255,.06); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+  .progress > div { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .25s ease; }
+  .hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+  .footer { color: var(--muted); font-size: 12px; margin-top: 14px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="badge">Read‑Aloud</span>
+      <h1>The Cognitive Concern: Why AI Needs a Nutrition Label</h1>
+    </div>
+
+    <div class="card grid">
+      <div>
+        <label for="text">Passage (editable)</label>
+        <textarea id="text"></textarea>
+        <div class="progress" aria-hidden="true"><div id="bar"></div></div>
+        <div class="hint">Tip: Edit the passage above and press Play. The live view below highlights each sentence as it’s read. Best in Chrome/Edge.</div>
+        <div id="render" class="render" aria-live="polite" aria-label="Highlighted reading view"></div>
+      </div>
+
+      <div class="controls">
+        <div>
+          <label for="voices">Voice</label>
+          <select id="voices" class="control" aria-label="Voice"></select>
+        </div>
+        <div>
+          <label for="rate">Rate: <span id="rateVal">1.0</span></label>
+          <input id="rate" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+        </div>
+        <div>
+          <label for="pitch">Pitch: <span id="pitchVal">1.0</span></label>
+          <input id="pitch" type="range" min="0.5" max="2" step="0.05" value="1" />
+        </div>
+        <div class="buttons">
+          <button class="play" id="play">Play</button>
+          <button class="pause" id="pause">Pause</button>
+          <button class="resume" id="resume">Resume</button>
+          <button class="stop" id="stop">Stop</button>
+        </div>
+        <div class="footer">Your browser provides voices; availability varies by OS. Safari supports fewer voices.</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+(function(){
+  const DEFAULT_TEXT = `The Cognitive Concern: Why AI Needs a Nutrition Label
+In the late 1970s, America had a collective awakening. For decades, the food industry had flourished, offering convenience and endless variety, largely in the absence of robust public health oversight. It took the official declaration of the 1977 McGovern Report to crystallize and politically amplify the long-term cost of a diet built on processed foods.
+The food industry’s response prioritized marketability. When the public was told 'fat is bad,' companies rushed to create 'low-fat' products, which were often loaded with extra sugar to compensate for taste. The critical issue wasn't the calorie count; it was the hidden, unhealthy trade-off that was not clearly communicated. Without a deep understanding of nutritional science, the public happily consumed these new products, unaware of the unhealthy choices they were making. It took decades of advocacy culminating in the 1990 Nutrition Labeling and Education Act to give consumers a standardized tool to navigate this confusing landscape. This is the perfect historical parallel for our current moment with generative artificial intelligence.
+AI as the New Convenience Food
+Generative AI offers the same irresistible combination the snack industry sold decades ago: speed, ease, and instant gratification. It is the new convenience food of the mind. It seems to solve every small, immediate problem, from drafting an email to composing a syllabus. 
+But just as early convenience foods prioritized taste over nutritional value, many of the AI tools we are adopting are prioritizing speed and efficiency over intellectual depth and human insight.
+The problem is when convenience outruns understanding. Right now, the average faculty member or student has about as much grasp of AI’s mechanics, limits, and long-term effects as a 1960s consumer had about trans fats or high-fructose corn syrup. We are actively consuming without taking the necessary steps to understand the risks involved.
+The most dangerous unlabeled ingredient in AI is the loss of cognitive friction. As AI becomes more prevalent, there's a concern that human intelligence could diminish. Over-reliance on AI might lead to passive information consumption, hindering our original thought, creativity, and critical thinking. Our ability to synthesize information and generate new ideas, data, and code could decay, turning us into mere readers rather than creators of understanding.
+Guiding AI to Augmentation, Not Addiction
+The dominant view of AI portrays it as a force of displacement, suggesting it will replace jobs, creative work, and even human thought. This narrative is intensified by the term "artificial intelligence" itself. "Artificial" implies a fabricated, inferior imitation, subtly framing AI as a rival rather than a potential human partner.
+But a strong, publicly educated counter-narrative can guide the technology toward augmentation, using AI to amplify, rather than substitute, human cognition. This must be the core message we, as educators, champion, actively reframing the discussion away from the limiting implications of "artificial" and towards the empowering potential of "augmented":
+Amplifying Critical Thinking: Instead of using AI to summarize a book, we should be using it to debate an argument, identify underlying assumptions in a text, or test the edges of a complex theory. AI becomes a high-powered sparring partner, not a cheat sheet.
+Driving Scientific Discovery: This is AI not replacing a researcher, but multiplying their capacity for insight by sifting through millions of data points, allowing the human to focus on novel hypotheses.
+Enhancing Creativity: The human remains the visionary and the editor of the AI's output, using it to rapidly accelerate the iteration and testing of ideas before committing to a final vision.
+Making AI Literacy a Public Health Imperative
+We missed the window once with what we put in our bodies. We don’t have to miss it again with what we feed our minds.
+We cannot wait decades for a federal law to mandate transparency. Instead, we must treat AI literacy as a public health campaign on our campuses and in our schools, ensuring our students and colleagues understand the trade-offs they are making.
+To make this vision a reality, we must:
+Educate on Failure and Process: Schools need to teach not just how to use AI tools, but how they fail, how bias is introduced, and what the "black box" means for truth and fact. We must prioritize teaching students to question the instantaneous answer.
+Reverse-Engineer the Black Box: To truly understand the "ingredients," we must encourage a form of intellectual reverse-engineering. By studying the known parameters of an AI’s training (e.g., the nature of its data, the objective functions of its training) we can glean insight into its decision-making logic. Faculty and students should approach AI output not just as a solution, but as a data point revealing the system’s problem-solving strategies and underlying patterns. This process of intellectual deconstruction is crucial to mastering the tool.
+Demand Cognitive Labels: Faculty should demand transparency from AI tool vendors about their training data sources, known failure modes, and what the user is risking by using these tools.
+Prioritize the "Why" Over the "How Fast": As educators, we must collectively pause and ask: Is this AI tool making the student smarter, or is it merely making them faster at a less meaningful task?
+The snack food industry created an environment where convenience trumped health because the public lacked the tools to understand the trade-off. We have a chance right now, before the current generation of AI models becomes fully entrenched, to prevent a similar crisis of cognitive atrophy. 
+Acknowledgements: The author would like to thank Toni Gist for reading early drafts, and acknowledges the use of Google Gemini for refinement of style and clarity. The human author is solely responsible for the arguments and conclusions presented.`;
+
+  const textEl = document.getElementById('text');
+  const render = document.getElementById('render');
+  const voiceSel = document.getElementById('voices');
+  const playBtn = document.getElementById('play');
+  const pauseBtn = document.getElementById('pause');
+  const resumeBtn = document.getElementById('resume');
+  const stopBtn = document.getElementById('stop');
+  const rate = document.getElementById('rate');
+  const rateVal = document.getElementById('rateVal');
+  const pitch = document.getElementById('pitch');
+  const pitchVal = document.getElementById('pitchVal');
+  const bar = document.getElementById('bar');
+
+  textEl.value = DEFAULT_TEXT;
+
+  let voices = [];
+  let queue = [];
+  let queueToSentenceIdx = [];
+  let sentences = [];
+  let currentQueueIndex = 0;
+  let speaking = false;
+
+  function loadVoices() {
+    voices = window.speechSynthesis.getVoices();
+    voiceSel.innerHTML = '';
+    const prefer = ['en-US', 'en-GB', 'en'];
+    voices.sort((a,b)=>(a.lang||'').localeCompare(b.lang||''))
+      .forEach((v,i)=>{
+        const opt = document.createElement('option');
+        opt.value = i;
+        opt.textContent = `${v.name} — ${v.lang}${v.default ? ' (default)' : ''}`;
+        if (prefer.some(p => v.lang && v.lang.startsWith(p)) && !voiceSel.value) opt.selected = true;
+        voiceSel.appendChild(opt);
+      });
+    if (!voices.length) {
+      const opt = document.createElement('option');
+      opt.textContent = 'No voices available';
+      voiceSel.appendChild(opt);
+    }
+  }
+  loadVoices();
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.onvoiceschanged = loadVoices;
+
+  function splitIntoSentences(text) {
+    // Keep line breaks as soft paragraph cues
+    const cleaned = text.replace(/\r/g,'').trim();
+    // Split by sentence boundaries while preserving punctuation
+    const parts = cleaned.split(/([.!?]+["')]*\s+)/g);
+    const raw = [];
+    for (let i=0;i<parts.length;i+=2){
+      const s = (parts[i]||'') + (parts[i+1]||'');
+      if (s.trim()) raw.push(s.trim());
+    }
+    return raw;
+  }
+
+  function renderSentences(list) {
+    render.innerHTML = '';
+    list.forEach((s, idx) => {
+      const span = document.createElement('span');
+      span.className = 'sentence';
+      span.dataset.idx = String(idx);
+      span.textContent = s + ' ';
+      render.appendChild(span);
+    });
+  }
+
+  function highlightSentence(idx) {
+    const prev = render.querySelector('.sentence.active');
+    if (prev) prev.classList.remove('active');
+    const el = render.querySelector(`.sentence[data-idx="${idx}"]`);
+    if (el) {
+      el.classList.add('active');
+      const r = render.getBoundingClientRect();
+      const e = el.getBoundingClientRect();
+      if (e.top < r.top || e.bottom > r.bottom) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      }
+    }
+  }
+
+  function buildQueue() {
+    const text = textEl.value;
+    sentences = splitIntoSentences(text);
+    renderSentences(sentences);
+
+    queue = [];
+    queueToSentenceIdx = [];
+
+    sentences.forEach((s, sidx) => {
+      // If a single sentence is extremely long, slice it into sub-chunks,
+      // but still map them back to the same sentence index for highlighting.
+      const maxLen = 300;
+      if (s.length > maxLen) {
+        for (let i=0; i<s.length; i+=maxLen) {
+          const chunk = s.slice(i, i+maxLen);
+          const u = new SpeechSynthesisUtterance(chunk);
+          queue.push(u);
+          queueToSentenceIdx.push(sidx);
+        }
+      } else {
+        const u = new SpeechSynthesisUtterance(s);
+        queue.push(u);
+        queueToSentenceIdx.push(sidx);
+      }
+    });
+
+    const v = voices[voiceSel.value] || voices.find(v => (v.lang||'').startsWith('en')) || null;
+    queue.forEach(u => {
+      if (v) u.voice = v;
+      u.rate = parseFloat(rate.value);
+      u.pitch = parseFloat(pitch.value);
+    });
+
+    // Wire events
+    queue.forEach((u, i) => {
+      u.onstart = () => {
+        highlightSentence(queueToSentenceIdx[i]);
+        updateProgress(i);
+      };
+      u.onend = () => {
+        currentQueueIndex = i + 1;
+        if (currentQueueIndex < queue.length) {
+          speechSynthesis.speak(queue[currentQueueIndex]);
+        } else {
+          speaking = false;
+          updateProgress(queue.length);
+        }
+      };
+    });
+
+    currentQueueIndex = 0;
+    updateProgress(0);
+  }
+
+  function updateProgress(i) {
+    const pct = queue.length ? Math.min(100, Math.round((i / queue.length) * 100)) : 0;
+    bar.style.width = pct + '%';
+  }
+
+  function stopAll() {
+    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+    speaking = false;
+    currentQueueIndex = 0;
+    bar.style.width = '0%';
+    const prev = render.querySelector('.sentence.active');
+    if (prev) prev.classList.remove('active');
+  }
+
+  rate.addEventListener('input', () => rateVal.textContent = rate.value);
+  pitch.addEventListener('input', () => pitchVal.textContent = pitch.value);
+
+  playBtn.addEventListener('click', () => {
+    if (!('speechSynthesis' in window)) { alert('Speech Synthesis API not supported.'); return; }
+    stopAll();
+    buildQueue();
+    if (queue.length) {
+      speaking = true;
+      speechSynthesis.speak(queue[currentQueueIndex]);
+    }
+  });
+  pauseBtn.addEventListener('click', () => { if (speaking && !speechSynthesis.paused) speechSynthesis.pause(); });
+  resumeBtn.addEventListener('click', () => { if (speaking && speechSynthesis.paused) speechSynthesis.resume(); });
+  stopBtn.addEventListener('click', stopAll);
+
+  // Re-render sentences as the text changes (light debounce)
+  let t;
+  textEl.addEventListener('input', () => {
+    clearTimeout(t);
+    t = setTimeout(() => {
+      renderSentences(splitIntoSentences(textEl.value));
+    }, 250);
+  });
+
+  // Seed initial render
+  renderSentences(splitIntoSentences(textEl.value));
+})();
+</script>
+</body>
+</html>

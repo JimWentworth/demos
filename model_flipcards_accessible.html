@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Models — Flip Cards (Accessible)</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:1080px; margin:0 auto; padding:1.25rem }
+  .controls { display:flex; gap:.5rem; flex-wrap:wrap; margin:.5rem 0 1rem }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem }
+  .card { perspective:1000px }
+  .face { position:relative; border:1px solid #e5e7eb; border-radius:14px; padding:1rem; min-height:200px; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .flip { position:relative; transform-style:preserve-3d; transition:transform .5s ease; }
+  .flipped .flip { transform:rotateY(180deg) }
+  .front, .back { position:absolute; inset:0; backface-visibility:hidden; }
+  .front { display:flex; flex-direction:column; justify-content:center; }
+  .back { transform:rotateY(180deg); }
+  .muted { color:var(--muted) }
+  .tag { font-size:.8rem; padding:.1rem .45rem; border-radius:999px; background:#E8EEF4; border:1px solid #cbd5e1; color:#13294B; display:inline-block }
+  .actions { margin-top:.75rem; display:flex; gap:.5rem; flex-wrap:wrap }
+  .model { font-weight:700; color:#13294B }
+  .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0 }
+  @media (prefers-reduced-motion: reduce) {
+    .flip { transition:none }
+    .flipped .flip { transform:none }
+    .back { transform:none }
+    .front, .back { position:static }
+  }
+</style>
+</head>
+<body>
+<header><h1>AI Models — Flip Cards</h1></header>
+<main>
+<p class="muted">Prompt: Read the description, predict the model, then reveal to check yourself. Keyboard: focus a card and press <strong>Enter</strong>/<strong>Space</strong> to flip. Screen reader users can use the “Reveal” button on each card.</p>
+
+<div class="controls">
+  <button id="shuffle">Shuffle</button>
+  <button id="reveal" class="secondary">Reveal all</button>
+  <button id="hide" class="secondary">Hide all</button>
+</div>
+
+<div id="grid" class="grid" aria-live="polite" aria-label="Flip card set"></div>
+
+<script>
+const DATA = [
+  {
+    model: "Large Language Model (LLM)",
+    desc: "Generates text by predicting the next word (token) one step at a time.",
+    alt: "LLM: produces fluent sentences by next-token prediction; simulates language patterns rather than understanding meaning.",
+    hint: "Text → next token"
+  },
+  {
+    model: "Diffusion Model",
+    desc: "Starts from noise and removes randomness step by step to form an image.",
+    alt: "Diffusion: learns to reverse noise to produce images (and sometimes audio/video).",
+    hint: "Image denoising"
+  },
+  {
+    model: "Rule-Based / Expert System",
+    desc: "Follows explicit if–then instructions; only changes when people change the code.",
+    alt: "Rule-based: reliable within its rules but rigid; no learning occurs unless rules are updated.",
+    hint: "If–then rules"
+  },
+  {
+    model: "Supervised Machine Learning",
+    desc: "Learns from labeled examples to predict outcomes on new, unseen data.",
+    alt: "Supervised ML: maps inputs to outputs (e.g., spam vs. not spam); often cannot explain reasoning.",
+    hint: "Labeled examples"
+  },
+  {
+    model: "Reinforcement Learning",
+    desc: "Improves via rewards for actions that increase long‑term return.",
+    alt: "RL: agent optimizes behavior through trial, error, and reward (games, robotics).",
+    hint: "Rewards/returns"
+  },
+  {
+    model: "Transformer Architecture",
+    desc: "Uses attention to capture long‑range relationships in sequences.",
+    alt: "Transformer: attention-based architecture underpinning many modern LLMs.",
+    hint: "Attention mechanism"
+  }
+];
+
+function $(s, r=document){ return r.querySelector(s) }
+function $all(s, r=document){ return Array.from(r.querySelectorAll(s)) }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]] } return a }
+
+function render(){
+  const grid = $("#grid");
+  grid.innerHTML = "";
+  DATA.forEach((d, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="face flip" role="group" aria-labelledby="c${i}-title">
+        <div class="front face" tabindex="0" aria-describedby="c${i}-desc">
+          <div id="c${i}-title" class="tag" aria-hidden="true">${String.fromCharCode(65+i)}</div>
+          <p id="c${i}-desc">${d.desc}</p>
+          <div class="actions">
+            <button type="button" class="secondary" aria-controls="c${i}-back" aria-expanded="false">Reveal</button>
+          </div>
+        </div>
+        <div class="back face" id="c${i}-back" aria-live="polite">
+          <p class="model">${d.model}</p>
+          <p class="muted">${d.alt}</p>
+          <div class="actions">
+            <button type="button" class="secondary" aria-controls="c${i}-back" aria-expanded="true">Hide</button>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+
+    const front = card.querySelector(".front");
+    const back = card.querySelector(".back");
+    const btnReveal = card.querySelectorAll("button")[0];
+    const btnHide = card.querySelectorAll("button")[1];
+
+    function setFlipped(on){
+      card.classList.toggle("flipped", on);
+      btnReveal.setAttribute("aria-expanded", String(on));
+      btnHide.setAttribute("aria-expanded", String(on));
+      if(on){ back.focus({preventScroll:true}); } else { front.focus({preventScroll:true}); }
+    }
+
+    btnReveal.addEventListener("click", ()=> setFlipped(true));
+    btnHide.addEventListener("click", ()=> setFlipped(false));
+
+    front.addEventListener("keydown", (e)=>{
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setFlipped(true); }
+    });
+    back.addEventListener("keydown", (e)=>{
+      if(e.key==="Enter"||e.key===" "){ e.preventDefault(); setFlipped(false); }
+    });
+  });
+}
+
+render();
+
+$("#shuffle").addEventListener("click", ()=>{ shuffle(DATA); render(); });
+$("#reveal").addEventListener("click", ()=>{ $all(".card").forEach(c=>c.classList.add("flipped")); });
+$("#hide").addEventListener("click", ()=>{ $all(".card").forEach(c=>c.classList.remove("flipped")); });
+</script>
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Fluency - Tool Profiles</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 300;
+        }
+
+        .subtitle {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .card {
+            perspective: 1000px;
+            height: 304px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+
+        .card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-front {
+            background: white;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .card-back {
+            background: white;
+            transform: rotateY(180deg);
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+        }
+
+        .logo-container {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .core-func {
+            font-size: 0.85rem;
+            color: #666;
+            line-height: 1.4;
+            margin-top: 0.75rem;
+            padding: 0 1rem;
+        }
+
+        .tool-name {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .tool-category {
+            font-size: 0.85rem;
+            color: #888;
+            font-weight: 400;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .card-back h3 {
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .card-back p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .use-cases {
+            list-style: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .use-cases li {
+            font-size: 0.85rem;
+            color: #666;
+            padding: 0.4rem 0;
+            padding-left: 1.2rem;
+            position: relative;
+        }
+
+        .use-cases li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #999;
+        }
+
+        .card-link {
+            display: inline-block;
+            margin-top: auto;
+            padding: 0.7rem 1.5rem;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 400;
+            font-size: 0.9rem;
+            text-align: center;
+            transition: background 0.2s;
+        }
+
+        .card-link:hover {
+            background: #555;
+        }
+
+        @media (max-width: 1200px) {
+            .cards-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Fluency Tool Profiles</h1>
+            <p class="subtitle">Hover over each card to explore the tools</p>
+        </header>
+
+        <div class="cards-grid">
+            <!-- ChatGPT -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="ChatGPT Logo">
+                        </div>
+                        <h2 class="tool-name">ChatGPT</h2>
+                        <p class="tool-category">Core Model Access</p>
+                        <p class="core-func">General-purpose conversational AI for brainstorming, drafting, explaining, and revising with multimodal support.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>General-purpose conversational AI for brainstorming, drafting, explaining, and revising with multimodal support.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Brainstorming essays and lesson plans</li>
+                            <li>Refining writing style and structure</li>
+                            <li>Creating interactive simulations</li>
+                            <li>Document analysis and summarization</li>
+                        </ul>
+                        <a href="https://chat.openai.com" target="_blank" class="card-link">Visit ChatGPT</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Claude -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Claude Logo">
+                        </div>
+                        <h2 class="tool-name">Claude</h2>
+                        <p class="tool-category">Core Model Access</p>
+                        <p class="core-func">Excels at processing long documents with structured, careful reasoning and emphasis on transparency.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Excels at processing long documents with structured, careful reasoning and emphasis on transparency.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Reviewing extended research articles</li>
+                            <li>Comparing multiple policy documents</li>
+                            <li>Generating ethical/policy analyses</li>
+                            <li>Modeling careful reasoning</li>
+                        </ul>
+                        <a href="https://claude.ai" target="_blank" class="card-link">Visit Claude</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gemini -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Gemini Logo">
+                        </div>
+                        <h2 class="tool-name">Gemini</h2>
+                        <p class="tool-category">Core Model Access</p>
+                        <p class="core-func">Multimodal reasoning with deep Google Workspace integration for context-aware drafting and analysis.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Multimodal reasoning with deep Google Workspace integration for context-aware drafting and analysis.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Drafting in Google Docs</li>
+                            <li>Generating visuals and diagrams</li>
+                            <li>Synthesizing from Drive folders</li>
+                            <li>Translating for accessibility</li>
+                        </ul>
+                        <a href="https://gemini.google.com" target="_blank" class="card-link">Visit Gemini</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Copilot -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Copilot Logo">
+                        </div>
+                        <h2 class="tool-name">Copilot</h2>
+                        <p class="tool-category">Integrated Productivity</p>
+                        <p class="core-func">AI integrated into Microsoft 365 apps for drafting, summarizing, and analyzing within your workflow.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>AI integrated into Microsoft 365 apps for drafting, summarizing, and analyzing within your workflow.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Drafting reports in Word</li>
+                            <li>Creating slides in PowerPoint</li>
+                            <li>Summarizing meetings in Teams</li>
+                            <li>Data analysis in Excel</li>
+                        </ul>
+                        <a href="https://copilot.microsoft.com" target="_blank" class="card-link">Visit Copilot</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notebook LM -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Notebook LM Logo">
+                        </div>
+                        <h2 class="tool-name">Notebook LM</h2>
+                        <p class="tool-category">Contextual Intelligence</p>
+                        <p class="core-func">Private AI workspace that works only with your uploaded materials for grounded research assistance.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Private AI workspace that works only with your uploaded materials for grounded research assistance.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Literature review preparation</li>
+                            <li>Topic summaries for discussions</li>
+                            <li>Comparing theoretical frameworks</li>
+                            <li>Building study guides</li>
+                        </ul>
+                        <a href="https://notebooklm.google.com" target="_blank" class="card-link">Visit Notebook LM</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adobe Firefly -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Adobe Firefly Logo">
+                        </div>
+                        <h2 class="tool-name">Adobe Firefly</h2>
+                        <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Text-to-image and design generation with commercially safe training and Creative Cloud integration.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Text-to-image and design generation with commercially safe training and Creative Cloud integration.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Visual assets for presentations</li>
+                            <li>Prototyping design ideas</li>
+                            <li>Exploring composition and color</li>
+                            <li>Teaching ethical AI image generation</li>
+                        </ul>
+                        <a href="https://firefly.adobe.com" target="_blank" class="card-link">Visit Firefly</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HeyGen -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="HeyGen Logo">
+                        </div>
+                        <h2 class="tool-name">HeyGen</h2>
+                        <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Turns scripts into videos using lifelike avatars and voices for quick multilingual content creation.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Turns scripts into videos using lifelike avatars and voices for quick multilingual content creation.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Instructor intros and announcements</li>
+                            <li>Multilingual video summaries</li>
+                            <li>Prototyping online course media</li>
+                            <li>Demonstrating synthetic video ethics</li>
+                        </ul>
+                        <a href="https://www.heygen.com" target="_blank" class="card-link">Visit HeyGen</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Eleven Labs -->
+            <div class="card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="logo-container">
+                            <img src="" alt="Eleven Labs Logo">
+                        </div>
+                        <h2 class="tool-name">Eleven Labs</h2>
+                        <p class="tool-category">Multimodal Creation</p>
+                        <p class="core-func">Converts text into lifelike speech across languages with custom voices for accessible audio production.</p>
+                    </div>
+                    <div class="card-back">
+                        <h3>Core Functionality</h3>
+                        <p>Converts text into lifelike speech across languages with custom voices for accessible audio production.</p>
+                        <h3>Key Use Cases</h3>
+                        <ul class="use-cases">
+                            <li>Narrated lectures or tutorials</li>
+                            <li>Accessible audio alternatives</li>
+                            <li>Language-learning exercises</li>
+                            <li>Voiceovers for media projects</li>
+                        </ul>
+                        <a href="https://elevenlabs.io" target="_blank" class="card-link">Visit Eleven Labs</a>
+                    </div>
+                </div>
+            </div>>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

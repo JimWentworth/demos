@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Model Matching — Drag & Drop (Accessible)</title>
+<style>
+  :root { --accent:#13294B; --accent2:#E84A27; --bg:#ffffff; --fg:#111; --muted:#555; }
+  * { box-sizing:border-box }
+  body { font-family: system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,sans-serif; line-height:1.6; margin:0; background:var(--bg); color:var(--fg) }
+  header { background:var(--accent); color:#fff; padding:1rem 1.25rem }
+  header h1 { margin:0; font-size:1.2rem }
+  main { max-width:980px; margin:0 auto; padding:1.25rem }
+  section { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:1rem; margin:1rem 0; box-shadow:0 1px 2px rgba(0,0,0,.04) }
+  .muted { color:var(--muted) }
+  .grid { display:grid; gap:.75rem }
+  .grid-2 { grid-template-columns:repeat(2,minmax(0,1fr)) }
+  .card { border:1px solid #e5e7eb; border-radius:12px; padding:.75rem; background:#fff }
+  .drop { padding:1rem; border:2px dashed #94a3b8; border-radius:10px; min-height:96px; background:#f8fafc }
+  .drop.filled { border-style:solid; background:#fff }
+  .drag { padding:.55rem .7rem; border:1px dashed #cbd5e1; border-radius:10px; background:#E8EEF4; cursor:grab; color:#13294B; }
+  .drag[aria-grabbed="true"] { outline:3px solid var(--accent2); }
+  .drag:focus { outline:3px solid var(--accent); }
+  .row { display:flex; gap:.5rem; flex-wrap:wrap; align-items:center }
+  .pill { display:inline-block; border:1px solid #cbd5e1; border-radius:999px; padding:.25rem .6rem; background:#E8EEF4; color:#13294B; font-size:.95rem; font-weight:500; }
+  button { appearance:none; border:0; border-radius:10px; background:var(--accent); color:#fff; padding:.5rem .8rem; font-weight:600; cursor:pointer }
+  button.secondary { background:#f3f4f6; color:#111; border:1px solid #e5e7eb }
+  button.ghost { background:transparent; border:1px solid #e5e7eb; color:#111 }
+  .fb { border-left:4px solid #ddd; padding:.5rem .75rem; border-radius:8px; background:#fafafa; margin-top:.5rem }
+  .ok { border-color:#16a34a; background:#f0fdf4 }
+  .warn { border-color:#eab308; background:#fffbeb }
+  .bad { border-color:#dc2626; background:#fef2f2 }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  .target-label { font-weight:700; margin-bottom:.35rem }
+  .tag { font-size:.8rem; padding:.1rem .45rem; border-radius:999px; background:#fff0e6; border:1px solid #ffddb8; color:#7a3e16 }
+  .right { border-color:#16a34a !important; background:#f0fdf4 !important }
+  .wrong { border-color:#dc2626 !important; background:#fef2f2 !important }
+  details summary { cursor:pointer; font-weight:600 }
+</style>
+</head>
+<body>
+<header><h1>Match the Model to its Description</h1></header>
+<main>
+
+<section>
+  <p class="muted">
+    Drag each model to the matching description. Keyboard users: focus a model and press <strong>Enter</strong> to pick it up, then focus a target and press <strong>Enter</strong> again to drop. Press <strong>Escape</strong> to cancel. 
+  </p>
+  <div aria-live="polite" aria-atomic="true" class="sr-only" id="live"></div>
+</section>
+
+<section class="grid grid-2" aria-label="Matching activity">
+  <!-- Left: draggable models -->
+  <div>
+    <h2 class="sr-only">Models</h2>
+    <div id="items" class="grid" role="list"></div>
+  </div>
+
+  <!-- Right: droppable descriptions -->
+  <div class="grid">
+    <h2 class="sr-only">Descriptions</h2>
+    <section class="card" role="group" aria-label="Targets">
+      <div class="grid">
+        <div class="card">
+          <div class="target-label">A. Large language models generate text by predicting the next word (token) one step at a time.</div>
+          <div class="drop" id="t0" tabindex="0" role="button" aria-label="Drop target A"></div>
+        </div>
+        <div class="card">
+          <div class="target-label">B. Diffusion models start from noise and remove randomness step by step to form an image.</div>
+          <div class="drop" id="t1" tabindex="0" role="button" aria-label="Drop target B"></div>
+        </div>
+        <div class="card">
+          <div class="target-label">C. Rule-based systems follow explicit if-then instructions and only change when people change the code.</div>
+          <div class="drop" id="t2" tabindex="0" role="button" aria-label="Drop target C"></div>
+        </div>
+        <div class="card">
+          <div class="target-label">D. Supervised machine learning learns from labeled examples to predict outcomes on new data.</div>
+          <div class="drop" id="t3" tabindex="0" role="button" aria-label="Drop target D"></div>
+        </div>
+        <div class="card">
+          <div class="target-label">E. Reinforcement learning improves through rewards for actions that increase long-term return.</div>
+          <div class="drop" id="t4" tabindex="0" role="button" aria-label="Drop target E"></div>
+        </div>
+        <div class="card">
+          <div class="target-label">F. The transformer architecture uses attention to capture long-range relationships in sequences.</div>
+          <div class="drop" id="t5" tabindex="0" role="button" aria-label="Drop target F"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+</section>
+
+<section class="row">
+  <button id="check">Check</button>
+  <button id="reset" class="secondary">Reset</button>
+  <button id="show" class="ghost">Show Answers</button>
+</section>
+<div id="fb" class="fb" style="display:none"></div>
+
+<section id="altpanel" style="display:none">
+  <details open>
+    <summary>Alt-text & quick explanations</summary>
+    <div id="altcontent"></div>
+  </details>
+</section>
+
+<script>
+// Data — labels consistent with the user's copy
+const MODELS = [
+  { label:"Large Language Model (LLM)", key:"t0", hint:"Predicts next token",
+    alt:"LLM: a text model that produces fluent sentences by predicting one token at a time based on prior context. It simulates language patterns rather than understanding meaning." },
+  { label:"Diffusion Model", key:"t1", hint:"Denoises images",
+    alt:"Diffusion: a generative image (audio/video) model that learns to reverse noise. Starting from random static, it removes noise in steps until a coherent image emerges." },
+  { label:"Rule-Based / Expert System", key:"t2", hint:"If-then rules",
+    alt:"Rule-based: a system of explicit if-then rules handcrafted by people. It is reliable within its rules but rigid—no learning occurs unless someone changes the code." },
+  { label:"Supervised Machine Learning", key:"t3", hint:"Labeled examples",
+    alt:"Supervised ML: learns from labeled examples to map inputs to outputs (e.g., classify emails as spam/not spam). It generalizes patterns but typically cannot explain its reasoning." },
+  { label:"Reinforcement Learning", key:"t4", hint:"Rewards/returns",
+    alt:"Reinforcement Learning: an agent learns by taking actions and receiving rewards, optimizing behavior for long-term return (e.g., game playing, robotics control)." },
+  { label:"Transformer Architecture", key:"t5", hint:"Attention",
+    alt:"Transformer: a neural network architecture that uses attention to weigh relationships among tokens—core to modern LLMs and many sequence models." }
+];
+
+// Utilities
+function $(sel, root=document){ return root.querySelector(sel); }
+function $all(sel, root=document){ return Array.from(root.querySelectorAll(sel)); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function live(msg){ const region = $("#live"); region.textContent = msg; }
+
+let carried = null;       // index of picked up item
+let placements = {};      // targetId -> itemIndex
+
+function renderItems(){
+  const list = $("#items");
+  list.innerHTML = "";
+  shuffle(MODELS.slice()).forEach((m, i) => {
+    const idx = MODELS.indexOf(m); // stable index
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "drag";
+    btn.setAttribute("role","button");
+    btn.setAttribute("aria-grabbed","false");
+    btn.draggable = true;
+    btn.dataset.idx = String(idx);
+    btn.innerHTML = `<span class="pill">${m.label}</span> <span class="muted" aria-hidden="true">•</span> <span class="tag" aria-hidden="true">${m.hint}</span>`;
+    btn.addEventListener("dragstart", onDragStart);
+    btn.addEventListener("keydown", onDragKey);
+    btn.addEventListener("click", onPickUp);
+    list.appendChild(btn);
+  });
+}
+
+function clearTargets(){
+  $all(".drop").forEach(d => { d.innerHTML=""; d.classList.remove("filled","right","wrong"); d.dataset.idx = ""; });
+}
+
+function onDragStart(e){
+  const idx = e.target.dataset.idx;
+  e.dataTransfer.setData("text/plain", idx);
+  live(`Picked up ${MODELS[idx].label}. Move to a target and drop.`);
+}
+
+function onDragOver(e){ e.preventDefault(); }
+function onDrop(e){
+  e.preventDefault();
+  const idx = e.dataTransfer.getData("text/plain");
+  placeOnTarget(e.currentTarget, Number(idx));
+}
+
+function onPickUp(e){
+  const btn = e.currentTarget;
+  const idx = Number(btn.dataset.idx);
+  if(carried === idx){
+    carried = null;
+    btn.setAttribute("aria-grabbed","false");
+    live(`Canceled.`);
+    return;
+  }
+  // Unset any previously carried
+  $all(".drag[aria-grabbed='true']").forEach(b=>b.setAttribute("aria-grabbed","false"));
+  carried = idx;
+  btn.setAttribute("aria-grabbed","true");
+  live(`Picked up ${MODELS[idx].label}. Focus a target and press Enter to drop.`);
+}
+
+function onDragKey(e){
+  if(e.key === "Enter" || e.key === " "){
+    e.preventDefault();
+    onPickUp(e);
+  } else if(e.key === "Escape"){
+    if(carried !== null){
+      carried = null;
+      e.currentTarget.setAttribute("aria-grabbed","false");
+      live("Canceled.");
+    }
+  }
+}
+
+function placeOnTarget(targetEl, idx){
+  const targetId = targetEl.id;
+  targetEl.innerHTML = "";
+  targetEl.classList.add("filled");
+  targetEl.dataset.idx = String(idx);
+  placements[targetId] = idx;
+
+  const chip = document.createElement("div");
+  chip.className = "pill";
+  chip.textContent = MODELS[idx].label;
+  chip.setAttribute("aria-label", MODELS[idx].alt);
+  targetEl.appendChild(chip);
+
+  // Clear 'carried' visual
+  $all(".drag[aria-grabbed='true']").forEach(b=>b.setAttribute("aria-grabbed","false"));
+  carried = null;
+
+  live(`${MODELS[idx].label} placed on target ${targetId.toUpperCase().replace('T','')}.`);
+}
+
+function connectDnD(){
+  $all(".drop").forEach(t => {
+    t.addEventListener("dragover", onDragOver);
+    t.addEventListener("drop", onDrop);
+    t.addEventListener("keydown", (e)=>{
+      if((e.key === "Enter" || e.key === " ") && carried !== null){
+        e.preventDefault();
+        placeOnTarget(e.currentTarget, carried);
+      }
+    });
+  });
+}
+
+function buildAltPanel(){
+  const panel = $("#altpanel");
+  const wrap = $("#altcontent");
+  wrap.innerHTML = "";
+  $all(".drop").forEach((t, i) => {
+    const idx = Number(t.dataset.idx || "-1");
+    const label = idx>=0 ? MODELS[idx].label : "Unfilled";
+    const alt = idx>=0 ? MODELS[idx].alt : "No selection yet.";
+    const item = document.createElement("div");
+    item.className = "card";
+    item.innerHTML = `<strong>${String.fromCharCode(65+i)}.</strong> ${label}<br><span class="muted">${alt}</span>`;
+    wrap.appendChild(item);
+  });
+  panel.style.display = "block";
+}
+
+function checkAnswers(){
+  let correct = 0;
+  $all(".drop").forEach(t => {
+    const idx = Number(t.dataset.idx || "-1");
+    const should = t.id;
+    if(idx>=0 && MODELS[idx].key === should){
+      t.classList.remove("wrong");
+      t.classList.add("right");
+      correct++;
+    }else{
+      t.classList.remove("right");
+      if(idx>=0) t.classList.add("wrong");
+    }
+  });
+  const total = $all(".drop").length;
+  const fb = $("#fb");
+  fb.style.display = "block";
+  fb.className = "fb " + (correct === total ? "ok" : (correct === 0 ? "bad" : "warn"));
+  fb.textContent = correct === total ? "Perfect—every match is correct." :
+                  `You have ${correct} of ${total} correct. Adjust the ones highlighted.`;
+  buildAltPanel();
+}
+
+function showAnswers(){
+  clearTargets();
+  $all(".drop").forEach(t => {
+    const matchIdx = MODELS.findIndex(m => m.key === t.id);
+    placeOnTarget(t, matchIdx);
+  });
+  checkAnswers();
+}
+
+function resetAll(){
+  placements = {};
+  carried = null;
+  clearTargets();
+  renderItems();
+  connectDnD();
+  const fb = $("#fb");
+  fb.style.display = "none";
+  fb.className = "fb";
+  fb.textContent = "";
+  $("#altpanel").style.display = "none";
+  $("#altcontent").innerHTML = "";
+  live("Activity reset.");
+}
+
+// Init
+renderItems();
+clearTargets();
+connectDnD();
+
+// Controls
+$("#check").addEventListener("click", checkAnswers);
+$("#reset").addEventListener("click", resetAll);
+$("#show").addEventListener("click", showAnswers);
+</script>
+
+</main>
+<footer><small>GenAI Fluency Interactives • 2025-10-16</small></footer>
+</body>
+</html>

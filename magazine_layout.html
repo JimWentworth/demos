@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazine Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f5f5f0;
+            padding: 20px;
+        }
+
+        .magazine-canvas {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        .magazine-spread {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 40px;
+            padding: 20px 0;
+            border-bottom: 2px solid #eee;
+        }
+
+        .magazine-spread:last-child {
+            border-bottom: none;
+        }
+
+        .page {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            padding: 25px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .panel-full {
+            grid-column: 1 / -1;
+        }
+
+        .panel-header {
+            text-align: center;
+            border: none;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h1 {
+            font-size: 3em;
+            font-weight: bold;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .panel-header .subtitle {
+            font-style: italic;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .panel-feature {
+            grid-column: 1 / 5;
+            grid-row: span 2;
+        }
+
+        .panel-sidebar {
+            grid-column: 5 / -1;
+            background: #f9f9f9;
+        }
+
+        .panel-wide {
+            grid-column: 1 / -1;
+        }
+
+        .panel-half {
+            grid-column: span 3;
+        }
+
+        .panel-third {
+            grid-column: span 2;
+        }
+
+        .panel-two-thirds {
+            grid-column: span 4;
+        }
+
+        .panel-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .panel-tall .panel-image {
+            height: 300px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            border-left: 4px solid #000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            text-align: justify;
+            color: #333;
+        }
+
+        .dropcap::first-letter {
+            font-size: 3.5em;
+            float: left;
+            line-height: 0.9;
+            margin: 5px 10px 0 0;
+            font-weight: bold;
+        }
+
+        .quote-box {
+            border-left: 4px solid #000;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .byline {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #000;
+            color: white;
+            padding: 5px 12px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 1024px) {
+            .magazine-spread {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .panel-feature,
+            .panel-sidebar,
+            .panel-half,
+            .panel-third,
+            .panel-two-thirds {
+                grid-column: 1 / -1;
+            }
+
+            .magazine-canvas {
+                padding: 20px;
+            }
+
+            .magazine-spread {
+                gap: 10px;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="magazine-canvas">
+        <!-- Header -->
+        <div class="panel panel-full panel-header">
+            <h1>THE MODERN DIGEST</h1>
+            <div class="subtitle">Volume XII • October 2025 • Premium Edition</div>
+        </div>
+
+        <!-- First Spread: Two Pages Side by Side -->
+        <div class="magazine-spread">
+            <!-- Left Page -->
+            <div class="page">
+                <div class="panel panel-feature panel-tall">
+                    <span class="tag">Featured Story</span>
+                    <h2>The Art of Digital Storytelling</h2>
+                    <div class="byline">By Alexandra Chen</div>
+                    <div class="panel-image">Feature Image</div>
+                    <p class="dropcap">In an era where attention spans are measured in seconds and content floods our screens relentlessly, the art of storytelling has evolved into something simultaneously more challenging and more vital than ever before.</p>
+                    <p>The digital landscape demands that we rethink traditional narrative structures. Where once we had the luxury of slowly building tension, now we must capture imagination immediately.</p>
+                </div>
+
+                <div class="panel panel-sidebar">
+                    <h3>Quick Read</h3>
+                    <p><strong>Time:</strong> 5 minutes</p>
+                    <p><strong>Topic:</strong> Digital Media</p>
+                    <p><strong>Level:</strong> Intermediate</p>
+                    <div style="margin-top: 20px;">
+                        <h3>Key Takeaways</h3>
+                        <p>Modern storytelling requires adaptation to new formats while maintaining core narrative principles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Page -->
+            <div class="page">
+                <div class="panel panel-wide">
+                    <p>Yet this constraint breeds innovation. Modern storytellers have learned to weave complexity into brevity, to create depth in spaces once thought too small to contain it.</p>
+                    <p>The tools have changed, but the fundamental human need for connection through story remains unchanged. From TikTok narratives to Twitter threads, from Instagram stories to podcasts, each platform offers unique opportunities for those willing to master its language.</p>
+                </div>
+
+                <div class="panel panel-half">
+                    <span class="tag">Analysis</span>
+                    <h3>Platform Evolution</h3>
+                    <p>Each social platform has developed its own storytelling syntax. Understanding these nuances is crucial for modern content creators.</p>
+                </div>
+
+                <div class="panel panel-half">
+                    <div class="quote-box">
+                        "Adaptability is the new currency of creativity."
+                        <div style="margin-top: 10px; text-align: right;">— Dr. Patterson</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Spread -->
+        <div class="magazine-spread">
+            <!-- Left Page -->
+            <div class="page">
+                <div class="panel panel-two-thirds">
+                    <span class="tag">Design</span>
+                    <div class="panel-image">Design Showcase</div>
+                    <h3>Minimalism Returns to the Forefront</h3>
+                    <p class="dropcap">The pendulum swings back as designers embrace simplicity once more. Clean lines and purposeful negative space dominate the latest trends.</p>
+                    <p>In both digital and physical spaces, the minimalist aesthetic speaks to a desire for clarity in an increasingly cluttered world.</p>
+                </div>
+
+                <div class="panel panel-third">
+                    <h3>Design Trends 2025</h3>
+                    <p><strong>1.</strong> Bold Typography</p>
+                    <p><strong>2.</strong> Organic Shapes</p>
+                    <p><strong>3.</strong> Earth Tones</p>
+                    <p><strong>4.</strong> Negative Space</p>
+                </div>
+            </div>
+
+            <!-- Right Page -->
+            <div class="page">
+                <div class="panel panel-third">
+                    <span class="tag">Culture</span>
+                    <div class="panel-image">Music Image</div>
+                    <h3>Underground Scene</h3>
+                    <p>Independent artists redefine success without major label backing.</p>
+                </div>
+
+                <div class="panel panel-third">
+                    <span class="tag">Technology</span>
+                    <div class="panel-image">Tech Image</div>
+                    <h3>AI Creative Tools</h3>
+                    <p>Artists collaborate with technology to augment creativity.</p>
+                </div>
+
+                <div class="panel panel-third">
+                    <span class="tag">Lifestyle</span>
+                    <div class="panel-image">Lifestyle Image</div>
+                    <h3>Sustainable Living</h3>
+                    <p>Practical approaches to eco-conscious choices.</p>
+                </div>
+
+                <div class="panel panel-wide">
+                    <h3>Editor's Note</h3>
+                    <p>This issue explores the intersection of tradition and innovation across multiple disciplines. Each story reflects our commitment to thoughtful analysis and beautiful presentation.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Third Spread -->
+        <div class="magazine-spread">
+            <!-- Left Page -->
+            <div class="page">
+                <div class="panel panel-wide">
+                    <span class="tag">Travel</span>
+                    <h2>Mediterranean Hidden Gems</h2>
+                    <div class="byline">By Marcus Webb</div>
+                </div>
+
+                <div class="panel panel-half">
+                    <div class="panel-image">Coastal Village</div>
+                    <p>Beyond tourist hotspots lie villages that time forgot. Our editor spent three months exploring these destinations.</p>
+                </div>
+
+                <div class="panel panel-half">
+                    <div class="panel-image">Local Market</div>
+                    <p>Authentic cultural experiences and stunning natural beauty await those willing to venture off the beaten path.</p>
+                </div>
+            </div>
+
+            <!-- Right Page -->
+            <div class="page">
+                <div class="panel panel-wide">
+                    <h3>Featured Destinations</h3>
+                    <p>From secluded beaches to mountain villages, these locations offer tranquility that's increasingly rare in our connected world. The pace of life slows, allowing visitors to truly immerse themselves in local culture.</p>
+                </div>
+
+                <div class="panel panel-wide">
+                    <div class="panel-image">Panoramic View</div>
+                </div>
+
+                <div class="panel panel-wide">
+                    <p><strong>Pro Tip:</strong> Visit during shoulder season for the best experience. You'll find better prices, fewer crowds, and more opportunities to connect with locals.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GenAI Workshop: Hands-On Interactive Activity</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --uiuc-orange: #E84A27;
+      --uiuc-blue: #13294B;
+      --uiuc-blue-light: #1B3A5F;
+      --text-dark: #111827;
+      --text-medium: #4b5563;
+      --text-light: #6b7280;
+      --bg-light: #f9fafb;
+      --bg-card: #ffffff;
+      --border-light: #e5e7eb;
+      --accent-blue: #2563eb;
+      --accent-blue-light: #eff6ff;
+      --success-green: #10b981;
+      --success-bg: #d1fae5;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background-color: var(--bg-light);
+      margin: 0;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    .page-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, var(--uiuc-blue) 0%, var(--uiuc-blue-light) 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      font-size: 2.25rem;
+      margin: 0 0 0.5rem;
+      font-weight: 700;
+    }
+
+    header .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      margin: 0.25rem 0;
+    }
+
+    header .workshop-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+      font-size: 0.95rem;
+    }
+
+    header .workshop-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    header .workshop-meta span::before {
+      content: "●";
+      color: var(--uiuc-orange);
+    }
+
+    /* Navigation */
+    .nav-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.65rem 1.25rem;
+      background: var(--bg-card);
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text-medium);
+      transition: all 0.2s ease;
+    }
+
+    .nav-tab:hover {
+      border-color: var(--uiuc-orange);
+      color: var(--uiuc-blue);
+    }
+
+    .nav-tab.active {
+      background: var(--uiuc-blue);
+      color: white;
+      border-color: var(--uiuc-blue);
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+      border: 1px solid var(--border-light);
+    }
+
+    .card h2 {
+      font-size: 1.75rem;
+      margin: 0 0 0.75rem;
+      color: var(--uiuc-blue);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h3 {
+      font-size: 1.35rem;
+      margin: 1.25rem 0 0.5rem;
+      color: var(--uiuc-blue);
+    }
+
+    .card h4 {
+      font-size: 1.1rem;
+      margin: 1rem 0 0.4rem;
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+
+    /* Activity Sections */
+    .activity-section {
+      display: none;
+    }
+
+    .activity-section.active {
+      display: block;
+    }
+
+    /* Callout Boxes */
+    .callout {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      border-left: 4px solid;
+    }
+
+    .callout-info {
+      background: var(--accent-blue-light);
+      border-color: var(--accent-blue);
+      color: var(--text-dark);
+    }
+
+    .callout-success {
+      background: var(--success-bg);
+      border-color: var(--success-green);
+      color: var(--text-dark);
+    }
+
+    .callout-warning {
+      background: #fef3c7;
+      border-color: #f59e0b;
+      color: var(--text-dark);
+    }
+
+    .callout strong {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 1.05rem;
+    }
+
+    /* Objectives Grid */
+    .objectives-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .objective-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #bae6fd;
+    }
+
+    .objective-card strong {
+      color: var(--uiuc-blue);
+      display: block;
+      margin-bottom: 0.25rem;
+    }
+
+    /* Interactive Activity Box */
+    .interactive-box {
+      background: #fefce8;
+      border: 2px solid #fbbf24;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .interactive-box h4 {
+      color: #92400e;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .interactive-box h4::before {
+      content: "🔬";
+      font-size: 1.3rem;
+    }
+
+    /* Prompt Box */
+    .prompt-box {
+      background: var(--uiuc-blue);
+      color: white;
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      position: relative;
+      font-family: 'Courier New', monospace;
+      font-size: 0.95rem;
+    }
+
+    .prompt-box::before {
+      content: "📋 Copy this prompt:";
+      display: block;
+      font-family: system-ui, sans-serif;
+      font-size: 0.85rem;
+      opacity: 0.9;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .prompt-box .prompt-text {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 0.75rem;
+      border-radius: 4px;
+      line-height: 1.5;
+    }
+
+    /* Checklist */
+    .checklist {
+      list-style: none;
+      padding: 0;
+    }
+
+    .checklist li {
+      padding: 0.65rem 0.75rem;
+      margin: 0.5rem 0;
+      background: white;
+      border: 2px solid var(--border-light);
+      border-radius: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .checklist li:hover {
+      border-color: var(--uiuc-orange);
+      background: #fff7ed;
+    }
+
+    .checklist li::before {
+      content: "☐";
+      font-size: 1.3rem;
+      color: var(--text-light);
+      flex-shrink: 0;
+    }
+
+    .checklist li.checked::before {
+      content: "☑";
+      color: var(--success-green);
+    }
+
+    .checklist li.checked {
+      background: var(--success-bg);
+      border-color: var(--success-green);
+    }
+
+    /* Steps */
+    .step-list {
+      counter-reset: step-counter;
+      list-style: none;
+      padding: 0;
+    }
+
+    .step-list li {
+      counter-increment: step-counter;
+      padding: 0.75rem 1rem 0.75rem 3rem;
+      margin: 0.75rem 0;
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      position: relative;
+    }
+
+    .step-list li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0.75rem;
+      top: 0.75rem;
+      background: var(--uiuc-blue);
+      color: white;
+      width: 1.75rem;
+      height: 1.75rem;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* Quiz/Activity Options */
+    .options-grid {
+      display: grid;
+      gap: 0.75rem;
+      margin: 1rem 0;
+    }
+
+    .option-button {
+      padding: 1rem 1.25rem;
+      background: white;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+    }
+
+    .option-button:hover {
+      border-color: var(--uiuc-blue);
+      background: #f0f9ff;
+    }
+
+    .option-button.selected {
+      border-color: var(--uiuc-orange);
+      background: #fff7ed;
+    }
+
+    .option-button.correct {
+      border-color: var(--success-green);
+      background: var(--success-bg);
+    }
+
+    .option-button.incorrect {
+      border-color: #ef4444;
+      background: #fee2e2;
+    }
+
+    /* Reflection Box */
+    .reflection-box {
+      background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+      border: 2px solid #c084fc;
+      border-radius: 10px;
+      padding: 1.25rem;
+      margin: 1.25rem 0;
+    }
+
+    .reflection-box h4 {
+      color: #6b21a8;
+      margin-top: 0;
+    }
+
+    .reflection-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid #c084fc;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 1rem;
+      resize: vertical;
+    }
+
+    /* Timer */
+    .timer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--uiuc-orange);
+      color: white;
+      border-radius: 999px;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .timer::before {
+      content: "⏱️";
+    }
+
+    /* Buttons */
+    .button {
+      display: inline-block;
+      padding: 0.65rem 1.5rem;
+      background: var(--uiuc-blue);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .button:hover {
+      background: var(--uiuc-blue-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .button-secondary {
+      background: white;
+      color: var(--uiuc-blue);
+      border: 2px solid var(--uiuc-blue);
+    }
+
+    .button-secondary:hover {
+      background: var(--uiuc-blue);
+      color: white;
+    }
+
+    /* Progress Bar */
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border-light);
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--uiuc-orange) 0%, #ff6b45 100%);
+      transition: width 0.3s ease;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        padding: 1rem 0.75rem 2rem;
+      }
+
+      header h1 {
+        font-size: 1.75rem;
+      }
+
+      .nav-tabs {
+        overflow-x: auto;
+        padding-bottom: 0.5rem;
+      }
+
+      .objectives-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .nav-tabs,
+      .button,
+      .interactive-box {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrap">
+    <header>
+      <h1>🎯 GenAI Workshop: Hands-On Interactive Activity</h1>
+      <p class="subtitle">Understanding AI through Practical Exploration</p>
+      <div class="workshop-meta">
+        <span>University of Illinois</span>
+        <span>60-90 minutes</span>
+        <span>All experience levels welcome</span>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="nav-tabs" role="tablist">
+      <button class="nav-tab active" onclick="showSection('intro')" role="tab">🏁 Welcome</button>
+      <button class="nav-tab" onclick="showSection('activity1')" role="tab">🔍 Activity 1</button>
+      <button class="nav-tab" onclick="showSection('activity2')" role="tab">💡 Activity 2</button>
+      <button class="nav-tab" onclick="showSection('activity3')" role="tab">🛡️ Activity 3</button>
+      <button class="nav-tab" onclick="showSection('activity4')" role="tab">🎨 Activity 4</button>
+      <button class="nav-tab" onclick="showSection('wrap-up')" role="tab">📝 Wrap-Up</button>
+    </nav>
+
+    <!-- Progress Bar -->
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressBar" style="width: 0%"></div>
+    </div>
+
+    <!-- SECTION: INTRO -->
+    <div id="intro" class="activity-section active">
+      <div class="card">
+        <h2>👋 Welcome to the Workshop</h2>
+        
+        <div class="callout callout-info">
+          <strong>What You'll Need:</strong>
+          Access to any AI tool (ChatGPT, Claude, Gemini, Copilot, etc.) on your laptop or phone. If you don't have access, you can pair up with someone who does!
+        </div>
+
+        <h3>Learning Objectives</h3>
+        <div class="objectives-grid">
+          <div class="objective-card">
+            <strong>Understand the Basics</strong>
+            How AI systems actually work (spoiler: they're pattern machines, not minds)
+          </div>
+          <div class="objective-card">
+            <strong>Practice Effective Prompting</strong>
+            Learn techniques to get better, more useful results from AI tools
+          </div>
+          <div class="objective-card">
+            <strong>Identify Limitations</strong>
+            Recognize when AI helps and when it doesn't—including bias and hallucinations
+          </div>
+          <div class="objective-card">
+            <strong>Develop Your Guardrails</strong>
+            Create personal guidelines for responsible AI use in your work
+          </div>
+        </div>
+
+        <h3>Workshop Format</h3>
+        <p>This is a <strong>hands-on workshop</strong>. We'll move through four short activities, each including:</p>
+        <ul>
+          <li>A brief concept introduction (2-3 minutes)</li>
+          <li>A live experiment you'll do with AI (5-10 minutes)</li>
+          <li>Group discussion and reflection (3-5 minutes)</li>
+        </ul>
+
+        <div class="callout callout-success">
+          <strong>Facilitator Note:</strong>
+          Encourage participants to keep their AI tool open in a separate window/tab throughout the workshop. Set expectations that "perfect" results aren't the goal—we're here to explore and learn together!
+        </div>
+
+        <button class="button" onclick="showSection('activity1')">Let's Get Started →</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 1 - Understanding AI as a Pattern Machine -->
+    <div id="activity1" class="activity-section">
+      <div class="card">
+        <h2>🔍 Activity 1: AI as a Pattern Machine</h2>
+        <span class="timer">15 minutes</span>
+
+        <h3>Quick Concept: What GenAI Actually Does</h3>
+        <p>Generative AI isn't "thinking" or "understanding" in the way humans do. It's a sophisticated <strong>pattern-matching system</strong> that:</p>
+        <ul>
+          <li>Breaks text into tiny pieces called <strong>tokens</strong></li>
+          <li>Predicts what token should come next based on patterns in its training data</li>
+          <li>Builds responses token by token, using probability calculations</li>
+        </ul>
+
+        <div class="callout callout-warning">
+          <strong>Think of it like this:</strong>
+          If I say "peanut butter and ___", you'd likely say "jelly." Not because you understand sandwiches, but because you've seen that pattern many times. AI works similarly, but with billions of patterns!
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: The Pattern Test</h4>
+          <p>Let's test how AI handles patterns it has learned versus ones it hasn't. Open your AI tool and try these three prompts in order:</p>
+
+          <ol class="step-list">
+            <li>
+              <strong>Test 1 - Common Pattern:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">Complete this phrase: "To be or not to be, that is the ___"</div>
+              </div>
+            </li>
+            <li>
+              <strong>Test 2 - Less Common:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">What year did the University of Illinois hire its current Dean of Students?</div>
+              </div>
+            </li>
+            <li>
+              <strong>Test 3 - Novel Pattern:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">My colleague Jim at UIUC loves developing Canvas LMS integrations. What was his most recent project about?</div>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <h4>What Did You Notice?</h4>
+        <div class="reflection-box">
+          <h4>💭 Discussion Questions</h4>
+          <ul>
+            <li>Which prompts gave confident answers? Which ones were more uncertain?</li>
+            <li>Did the AI tell you when it didn't know something, or did it make something up?</li>
+            <li>What does this tell us about when to trust AI responses?</li>
+          </ul>
+          <textarea class="reflection-textarea" placeholder="Share your observations or take notes here..."></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          AI is excellent at patterns it has seen frequently (like famous quotes) but struggles with specific, unique, or recent information. It may "hallucinate" answers rather than admit uncertainty.
+        </div>
+
+        <button class="button" onclick="showSection('activity2')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('intro')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 2 - Effective Prompting -->
+    <div id="activity2" class="activity-section">
+      <div class="card">
+        <h2>💡 Activity 2: The Power of Prompting</h2>
+        <span class="timer">20 minutes</span>
+
+        <h3>Quick Concept: Your Prompt = AI's Instructions</h3>
+        <p>The way you phrase your prompt dramatically affects the response. Think of prompting like giving directions:</p>
+        <ul>
+          <li><strong>Vague:</strong> "Help me with dinner" → Could mean anything!</li>
+          <li><strong>Clear:</strong> "Suggest 3 vegetarian dinner recipes under 30 minutes" → Much more useful!</li>
+        </ul>
+
+        <h3>Prompting Techniques That Work</h3>
+        <div class="options-grid">
+          <div class="option-button">
+            <strong>🎯 Be Specific:</strong> Include context, constraints, and desired format
+          </div>
+          <div class="option-button">
+            <strong>🎭 Assign a Role:</strong> "You are an experienced teacher..." or "Act as a technical writer..."
+          </div>
+          <div class="option-button">
+            <strong>📋 Give Examples:</strong> Show the AI what you want with 1-2 examples
+          </div>
+          <div class="option-button">
+            <strong>🔢 Request Structure:</strong> Ask for numbered lists, tables, or specific formats
+          </div>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Prompt Improvement Challenge</h4>
+          <p>We'll take a vague prompt and improve it step by step. Try each version and compare results!</p>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 1: The Vague Prompt</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">Write something about teaching with AI.</div>
+            </div>
+            <p><em>Try this in your AI tool. What kind of response do you get?</em></p>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 2: Adding Context & Specificity</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">I'm a college instructor teaching first-year biology. Write 3 specific ways I could use AI tools to support my students' learning without replacing authentic assessment.</div>
+            </div>
+            <p><em>How did the response change?</em></p>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Round 3: Adding Role & Format</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">You are an experienced instructional designer specializing in science education. I'm a college instructor teaching first-year biology to 150 students. Write 3 specific ways I could use AI tools to support my students' learning without replacing authentic assessment. For each suggestion, include: 1) The tool or approach, 2) A concrete example, 3) One potential drawback to consider. Format as a numbered list.</div>
+            </div>
+            <p><em>Notice the difference in quality and usefulness!</em></p>
+          </div>
+        </div>
+
+        <h4>Your Turn: Create an Effective Prompt</h4>
+        <div class="reflection-box">
+          <h4>✍️ Practice Prompt</h4>
+          <p>Think of something you actually need help with in your work. Write a prompt using the techniques above:</p>
+          <textarea class="reflection-textarea" placeholder="Write your prompt here, then try it in your AI tool..."></textarea>
+          <p style="margin-top: 0.75rem;"><strong>Checklist:</strong> Did you include context? A specific role? Desired format? Examples?</p>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          Better prompts = better results. The more specific context and structure you provide, the more useful the AI's response will be.
+        </div>
+
+        <button class="button" onclick="showSection('activity3')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('activity1')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 3 - Limits & Guardrails -->
+    <div id="activity3" class="activity-section">
+      <div class="card">
+        <h2>🛡️ Activity 3: Recognizing Limits & Setting Guardrails</h2>
+        <span class="timer">20 minutes</span>
+
+        <h3>Quick Concept: Where AI Falls Short</h3>
+        <p>AI is a powerful tool, but it has real limitations and risks we need to understand:</p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+          <div class="callout callout-warning" style="margin: 0;">
+            <strong>⚠️ Hallucinations</strong>
+            AI confidently invents facts, citations, or data that sound plausible but are completely wrong.
+          </div>
+          <div class="callout callout-warning" style="margin: 0;">
+            <strong>⚖️ Bias</strong>
+            Training data reflects historical biases, leading to unfair or stereotyped outputs.
+          </div>
+          <div class="callout callout-warning" style="margin: 0;">
+            <strong>🔒 Privacy Concerns</strong>
+            Information you share may be used to train future models or stored in ways you don't expect.
+          </div>
+          <div class="callout callout-warning" style="margin: 0;">
+            <strong>📅 Outdated Information</strong>
+            Most AI models have knowledge cutoff dates and don't know current events.
+          </div>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Spotting Hallucinations</h4>
+          <p>Let's deliberately trigger hallucinations to see what they look like:</p>
+
+          <ol class="step-list">
+            <li>
+              <strong>Ask for specific citations:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">List 3 peer-reviewed research articles from 2023 about the effectiveness of AI tutors in undergraduate mathematics, including full citations.</div>
+              </div>
+              <p><em>Check: Do these papers actually exist? Try searching for the titles or DOIs.</em></p>
+            </li>
+            <li>
+              <strong>Request impossible specificity:</strong>
+              <div class="prompt-box">
+                <div class="prompt-text">What were the exact enrollment numbers for each section of PSYCH 100 at University of Illinois in Fall 2023?</div>
+              </div>
+              <p><em>Does it admit it doesn't know, or does it provide "data"?</em></p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: Detecting Bias</h4>
+          <p>Test how AI handles the same prompt with different demographic cues:</p>
+
+          <div class="prompt-box">
+            <div class="prompt-text">Write a letter of recommendation for a software engineering position for a student named Jamal who excelled in my computer science course.</div>
+          </div>
+
+          <p style="margin-top: 1rem;">Now try the exact same prompt but change "Jamal" to "Emily"</p>
+
+          <p><strong>Compare:</strong> Are there differences in tone, adjectives used, or focus areas? Does one emphasize technical skills more than the other?</p>
+        </div>
+
+        <h3>Building Your Personal Guardrails</h3>
+        <p>Based on what you've learned, let's create guidelines for YOUR AI use:</p>
+
+        <div class="reflection-box">
+          <h4>📋 My AI Guardrails Checklist</h4>
+          <p>Check the items that make sense for your work context:</p>
+          <ul class="checklist">
+            <li onclick="toggleCheck(this)">I will always verify factual claims, citations, or data before using them</li>
+            <li onclick="toggleCheck(this)">I will not input confidential, personal, or sensitive information into AI tools</li>
+            <li onclick="toggleCheck(this)">I will review AI outputs for potential bias, especially related to people</li>
+            <li onclick="toggleCheck(this)">I will clearly indicate when work includes AI-generated content</li>
+            <li onclick="toggleCheck(this)">I will use AI as a drafting/brainstorming tool, not a final authority</li>
+            <li onclick="toggleCheck(this)">I will check my institution's AI policies before using it for official work</li>
+          </ul>
+          
+          <h4 style="margin-top: 1.5rem;">Additional guardrails for my context:</h4>
+          <textarea class="reflection-textarea" placeholder="What other rules or boundaries would help you use AI responsibly in your role?"></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          AI should augment human judgment, not replace it. Always be the critical thinker who verifies, questions, and makes final decisions.
+        </div>
+
+        <button class="button" onclick="showSection('activity4')">Next Activity →</button>
+        <button class="button button-secondary" onclick="showSection('activity2')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: ACTIVITY 4 - Creativity & Temperature -->
+    <div id="activity4" class="activity-section">
+      <div class="card">
+        <h2>🎨 Activity 4: AI as a Creative Partner</h2>
+        <span class="timer">15 minutes</span>
+
+        <h3>Quick Concept: Temperature & Creativity</h3>
+        <p>Many AI tools have a "temperature" or "creativity" setting (usually 0-1 or 0-2):</p>
+        <ul>
+          <li><strong>Low temperature (0-0.3):</strong> Predictable, consistent, factual—like a careful researcher</li>
+          <li><strong>Medium temperature (0.7-0.8):</strong> Balanced—good for most writing tasks</li>
+          <li><strong>High temperature (1.0+):</strong> Unpredictable, creative, varied—like a brainstorming session</li>
+        </ul>
+
+        <p><em>Note: Not all interfaces expose this setting, but understanding it helps you frame prompts!</em></p>
+
+        <div class="interactive-box">
+          <h4>Try This: Brainstorming with AI</h4>
+          <p>Let's use AI for what it does well—generating lots of ideas quickly. We'll practice being the critical human who evaluates and selects.</p>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Scenario: Course Activity Ideas</h4>
+            <div class="prompt-box">
+              <div class="prompt-text">I'm teaching a 3-hour workshop on academic integrity for first-year undergraduates. Generate 10 different interactive activity ideas that would work for groups of 4-5 students. Make them diverse in format—include individual activities, small group discussions, role-plays, and hands-on tasks. Each idea should take 10-15 minutes.</div>
+            </div>
+            
+            <p><strong>Your job as the human:</strong> Review the 10 ideas and mark which ones are:</p>
+            <ul>
+              <li>✅ Feasible for your actual context</li>
+              <li>⚠️ Interesting but need modification</li>
+              <li>❌ Not realistic or useful</li>
+            </ul>
+          </div>
+
+          <div style="margin-top: 1.5rem;">
+            <h4>Iterative Refinement</h4>
+            <p>Pick one idea that was "interesting but needs work" and use this follow-up:</p>
+            <div class="prompt-box">
+              <div class="prompt-text">I like idea #[number], but [explain your concern or what needs to change]. Can you revise it to [specific improvement you want]?</div>
+            </div>
+            <p><em>This is where AI really shines—rapid iteration based on your expert judgment!</em></p>
+          </div>
+        </div>
+
+        <div class="interactive-box">
+          <h4>Try This: AI as Thought Partner</h4>
+          <p>Use AI to challenge your thinking on a real problem you're facing:</p>
+
+          <div class="prompt-box">
+            <div class="prompt-text">I'm working on [describe your actual challenge or decision]. I'm leaning toward [your current approach]. Play devil's advocate: What are 5 potential problems or oversights with this approach? What alternative perspectives should I consider?</div>
+          </div>
+
+          <p style="margin-top: 1rem;"><strong>Remember:</strong> The AI doesn't know your context as well as you do. Its role is to generate perspectives—yours is to evaluate their relevance and accuracy.</p>
+        </div>
+
+        <h4>Reflection: AI's Role in Your Workflow</h4>
+        <div class="reflection-box">
+          <h4>💭 Think About It</h4>
+          <ul>
+            <li>Where would AI brainstorming genuinely save you time?</li>
+            <li>Where would you NEVER want to use AI, even for initial drafts?</li>
+            <li>How do you balance efficiency with maintaining your authentic voice and expertise?</li>
+          </ul>
+          <textarea class="reflection-textarea" placeholder="Your thoughts..."></textarea>
+        </div>
+
+        <div class="callout callout-success">
+          <strong>Key Takeaway:</strong>
+          Use AI for divergent thinking (generating many possibilities) but reserve convergent thinking (choosing the best option) for yourself. You're the expert—AI is just a very fast brainstorming partner.
+        </div>
+
+        <button class="button" onclick="showSection('wrap-up')">Finish Workshop →</button>
+        <button class="button button-secondary" onclick="showSection('activity3')">← Back</button>
+      </div>
+    </div>
+
+    <!-- SECTION: WRAP-UP -->
+    <div id="wrap-up" class="activity-section">
+      <div class="card">
+        <h2>📝 Workshop Wrap-Up</h2>
+
+        <div class="callout callout-success">
+          <strong>Congratulations!</strong>
+          You've completed all four hands-on activities and explored AI from multiple angles.
+        </div>
+
+        <h3>What We Covered Today</h3>
+        <ul class="checklist">
+          <li class="checked">Understanding AI as a pattern-matching system (not a mind)</li>
+          <li class="checked">Techniques for writing effective prompts</li>
+          <li class="checked">Recognizing hallucinations, bias, and other limitations</li>
+          <li class="checked">Building personal guardrails for responsible use</li>
+          <li class="checked">Using AI as a creative brainstorming partner</li>
+        </ul>
+
+        <h3>Your Action Plan</h3>
+        <p>Before you leave today, commit to one concrete next step:</p>
+        
+        <div class="reflection-box">
+          <h4>🎯 My Next Steps with AI</h4>
+          <div class="options-grid">
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Try one new prompt technique</strong> this week in my actual work
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Share what I learned</strong> with my team or colleagues
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Draft AI usage guidelines</strong> for my course/unit/department
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Experiment with AI</strong> for one specific task I've been avoiding
+            </div>
+            <div class="option-button" onclick="selectGoal(this)">
+              <strong>Explore my institution's AI policies</strong> and available tools
+            </div>
+          </div>
+
+          <h4 style="margin-top: 1.5rem;">Specific action I'll take:</h4>
+          <textarea class="reflection-textarea" placeholder="Be specific: What will you do? When? How will you know you've done it?"></textarea>
+        </div>
+
+        <h3>Additional Resources</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0;">
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>📚 Want to learn more?</strong>
+            Check out the full 4-lesson series this workshop was based on—perfect for self-paced learning or to share with others.
+          </div>
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>🤝 Questions or support?</strong>
+            Contact CITL's AI Fluency Learning Initiative for consulting, workshops, or resources tailored to your needs.
+          </div>
+          <div class="callout callout-info" style="margin: 0;">
+            <strong>💬 Join the conversation</strong>
+            Connect with other campus educators exploring AI—ask your facilitator about communities of practice.
+          </div>
+        </div>
+
+        <h3>Share Your Feedback</h3>
+        <p>Help us improve this workshop for future participants:</p>
+        <div class="reflection-box">
+          <h4>💭 Workshop Feedback</h4>
+          <ul>
+            <li>What was most valuable to you today?</li>
+            <li>What activities worked well or didn't work?</li>
+            <li>What questions do you still have?</li>
+          </ul>
+          <textarea class="reflection-textarea" placeholder="Your feedback helps us improve!"></textarea>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, var(--uiuc-blue) 0%, var(--uiuc-blue-light) 100%); border-radius: 10px; color: white;">
+          <h3 style="margin-top: 0; color: white;">Thank You for Participating! 🎉</h3>
+          <p style="font-size: 1.1rem; margin: 1rem 0;">Remember: You're always the expert. AI is just a tool in your toolbox.</p>
+        </div>
+
+        <button class="button" onclick="showSection('intro')" style="margin-top: 1rem;">Return to Start</button>
+      </div>
+    </div>
+
+    <footer>
+      <p><strong>GenAI Workshop Activity</strong> • University of Illinois Center for Innovation in Teaching & Learning</p>
+      <p>Based on the GenAI on Campus lesson series • Designed for interactive facilitated workshops</p>
+    </footer>
+  </div>
+
+  <script>
+    // Section Navigation
+    function showSection(sectionId) {
+      // Hide all sections
+      document.querySelectorAll('.activity-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      
+      // Show target section
+      document.getElementById(sectionId).classList.add('active');
+      
+      // Update navigation tabs
+      document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      // Update progress bar
+      updateProgress(sectionId);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Progress Bar
+    function updateProgress(sectionId) {
+      const sections = ['intro', 'activity1', 'activity2', 'activity3', 'activity4', 'wrap-up'];
+      const currentIndex = sections.indexOf(sectionId);
+      const progress = ((currentIndex + 1) / sections.length) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    // Checklist Toggle
+    function toggleCheck(element) {
+      element.classList.toggle('checked');
+    }
+
+    // Goal Selection
+    function selectGoal(element) {
+      // Remove selection from all
+      element.parentElement.querySelectorAll('.option-button').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      // Add selection to clicked
+      element.classList.add('selected');
+    }
+
+    // Initialize progress bar
+    updateProgress('intro');
+
+    // Save form data to localStorage on input
+    document.querySelectorAll('textarea').forEach(textarea => {
+      textarea.addEventListener('input', function() {
+        localStorage.setItem('workshop_' + this.parentElement.querySelector('h4')?.textContent, this.value);
+      });
+      
+      // Load saved data
+      const savedValue = localStorage.getItem('workshop_' + textarea.parentElement.querySelector('h4')?.textContent);
+      if (savedValue) {
+        textarea.value = savedValue;
+      }
+    });
+
+    // Auto-save checklist states
+    document.querySelectorAll('.checklist li').forEach(item => {
+      const savedState = localStorage.getItem('checklist_' + item.textContent);
+      if (savedState === 'checked') {
+        item.classList.add('checked');
+      }
+    });
+
+    function toggleCheck(element) {
+      element.classList.toggle('checked');
+      localStorage.setItem('checklist_' + element.textContent, element.classList.contains('checked') ? 'checked' : '');
+    }
+  </script>
+</body>
+</html>

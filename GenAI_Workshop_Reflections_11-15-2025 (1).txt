@@ -1,0 +1,77 @@
+HANDS-ON INTRODUCTION TO GENAI - MY REFLECTIONS
+Center for Innovation in Teaching & Learning
+University of Illinois
+Date: 11/15/2025
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 1: AI AS A PATTERN MACHINE
+
+Discussion Questions - What I Noticed:
+(No notes entered)
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 2: THE POWER OF PROMPTING
+
+My Practice Prompt:
+(No notes entered)
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 3: RECOGNIZING LIMITS & SETTING GUARDRAILS
+
+My AI Guardrails Checklist:
+• I will always verify factual claims, citations, or data before using them
+
+Additional Guardrails for My Context:
+(No notes entered)
+
+════════════════════════════════════════════════════════════
+
+ACTIVITY 4: AI AS A CREATIVE PARTNER
+
+Reflections on AI's Role in My Workflow:
+(No notes entered)
+
+════════════════════════════════════════════════════════════
+
+KNOWLEDGE CHECK RESULTS
+
+Score: Not completed
+
+- How does generative AI actually work? (Not answered)
+- What makes a prompt more effective? (Not answered)
+- What is a "hallucination" in the context of AI? (Not answered)
+- What is the most appropriate way to use AI in your work? (Not answered)
+
+
+════════════════════════════════════════════════════════════
+
+MY ACTION PLAN
+
+Goal Selected:
+Draft AI usage guidelines for my course/unit/department
+
+Specific Action I'll Take:
+(No specific action entered)
+
+════════════════════════════════════════════════════════════
+
+KEY TAKEAWAYS FROM TODAY:
+
+• AI is a pattern-matching system, not a thinking mind
+• Effective prompts include context, role, and desired format
+• Always verify AI outputs and watch for hallucinations
+• Use AI as a brainstorming tool while maintaining critical judgment
+
+════════════════════════════════════════════════════════════
+
+FEEDBACK & CONTACT:
+
+Workshop Feedback Survey:
+https://go.illinois.edu/HO_Intro_Gen_AI
+
+For more information contact CITL at citl-info@illinois.edu
+
+════════════════════════════════════════════════════════════
