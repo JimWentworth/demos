@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI & Education: A Future Being Written Now</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #020617, #0f172a 40%, #1d4ed8 100%);
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.08);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --card-bg: rgba(15, 23, 42, 0.9);
+      --border-soft: rgba(148, 163, 184, 0.4);
+      --shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.5);
+      --radius-xl: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg-gradient);
+      color: var(--text-main);
+      line-height: 1.6;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 40px 20px 10px;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .hero-badge span.dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    header h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      letter-spacing: 0.03em;
+    }
+
+    header p {
+      margin: 0 auto;
+      max-width: 650px;
+      font-size: 0.98rem;
+      color: var(--text-muted);
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 24px auto 40px;
+      padding: 0 20px 40px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1.2fr);
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-xl);
+      padding: 22px 22px 20px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.1), transparent 50%);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .card h2 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 1.15rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 1.05rem;
+    }
+
+    .card p {
+      font-size: 0.95rem;
+      margin: 0 0 8px;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 2px;
+    }
+
+    .pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    /* Dramatic pull quotes */
+
+    .pull-quote {
+      position: relative;
+      padding: 20px 20px 18px;
+      margin: 14px 0;
+      border-radius: var(--radius-xl);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.24), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(56, 189, 248, 0.5);
+      box-shadow: 0 16px 40px rgba(15, 23, 42, 0.8);
+      overflow: hidden;
+    }
+
+    .pull-quote::before {
+      content: "“";
+      position: absolute;
+      font-size: 4.5rem;
+      font-weight: 700;
+      color: rgba(15, 23, 42, 0.6);
+      top: -28px;
+      left: 12px;
+    }
+
+    .pull-quote-text {
+      font-size: 1.4rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      margin: 4px 0 10px;
+    }
+
+    .pull-quote-meta {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: rgba(15, 23, 42, 0.8);
+      background: rgba(248, 250, 252, 0.85);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+    }
+
+    .pull-quote-meta span.role {
+      color: #475569;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+
+    /* Accordion (details/summary) */
+
+    .accordion {
+      margin-top: 14px;
+    }
+
+    .accordion details {
+      background: rgba(15, 23, 42, 0.9);
+      border-radius: var(--radius-xl);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.9);
+    }
+
+    .accordion summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 0.98rem;
+    }
+
+    .accordion summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .accordion summary .label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .accordion summary .label span.icon {
+      font-size: 1.35rem;
+    }
+
+    .accordion summary .chevron {
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+      color: var(--text-muted);
+    }
+
+    details[open] summary .chevron {
+      transform: rotate(90deg);
+    }
+
+    .accordion-body {
+      padding: 0 16px 16px;
+      border-top: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .accordion-body p {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin: 10px 0 12px;
+    }
+
+    .video-wrapper {
+      position: relative;
+      width: 100%;
+      padding-bottom: 56.25%;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(15, 23, 42, 0.9);
+    }
+
+    .video-wrapper iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    /* Sources list */
+
+    .sources {
+      margin-top: 18px;
+      border-top: 1px dashed rgba(148, 163, 184, 0.7);
+      padding-top: 12px;
+    }
+
+    .sources h4 {
+      margin: 0 0 6px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .sources ol {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .sources li {
+      margin-bottom: 4px;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      padding: 14px 20px 26px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid rgba(15, 23, 42, 0.9);
+      background: rgba(15, 23, 42, 0.9);
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <div class="hero-badge">
+      <span class="dot"></span>
+      <span>AI + Education · Live Debate, Not Settled Fact</span>
+    </div>
+    <h1>How AI Is Rewriting the Future of Education</h1>
+    <p>
+      Large language models and teaching assistants, personal tutors at scale, and new forms of assessment are already here.
+      The question is not <em>if</em> AI will change education, but <strong>how we choose to shape that change</strong>.
+    </p>
+  </header>
+
+  <main class="container">
+    <div class="layout">
+      <!-- Left: Narrative & pull quotes -->
+      <section class="card">
+        <div class="section-label">Trajectory</div>
+        <h2>From One-Size-Fits-All to Truly Personal</h2>
+        <p>
+          For a century, we have mostly taught students in lockstep cohorts: same lecture, same pace, same test.
+          AI-powered tutors promise the opposite — instruction that adapts to each learner’s pace, gaps, and goals, without
+          requiring every teacher to clone themselves twenty-five times.
+        </p>
+
+        <div class="pull-quote">
+          <div class="pull-quote-text">
+            AI in the classroom will feel like giving every teacher five amazing graduate assistants.
+          </div>
+          <div class="pull-quote-meta">
+            <span>Sal Khan</span>
+            <span class="role">Founder, Khan Academy</span>
+          </div>
+        </div>
+
+        <p>
+          Systems like Khanmigo are already being piloted as “co-teachers”: handling routine explanations,
+          generating practice questions, and flagging who is stuck so that human teachers can focus on
+          high-leverage mentoring, discussion, and feedback.
+        </p>
+
+        <div class="pull-quote">
+          <div class="pull-quote-text">
+            The future of remote learning will be powered by AI.
+          </div>
+          <div class="pull-quote-meta">
+            <span>Daphne Koller</span>
+            <span class="role">Co-founder, Coursera</span>
+          </div>
+        </div>
+
+        <p>
+          At the same time, we should be skeptical of any narrative that treats AI as a silver bullet.
+          Access to devices, broadband, and well-designed curricula still determines who benefits — and who gets left further behind.
+        </p>
+      </section>
+
+      <!-- Right: Critical lenses & media -->
+      <aside class="card">
+        <div class="section-label">Reframing the Teacher’s Role</div>
+        <h2>Not Replacement, but Redefinition</h2>
+        <p>
+          Across recent policy briefs and research reports, a consistent theme appears:
+          AI is not a replacement for teachers, but a catalyst for redefining their work —
+          away from repetitive tasks and toward coaching, care, and complex thinking.
+        </p>
+
+        <div class="pill-row">
+          <div class="pill">Human–AI collaboration</div>
+          <div class="pill">Assessment redesign</div>
+          <div class="pill">Policy & ethics</div>
+          <div class="pill">Student agency</div>
+        </div>
+
+        <h3>Watch · AI as “Super Tutor” & Teaching Assistant</h3>
+        <div class="accordion">
+          <details>
+            <summary>
+              <div class="label">
+                <span class="icon">🎥</span>
+                <span>How AI Could Save (Not Destroy) Education – Sal Khan (TED)</span>
+              </div>
+              <span class="chevron">›</span>
+            </summary>
+            <div class="accordion-body">
+              <p>
+                In this widely-discussed talk, Sal Khan argues that carefully designed AI tutors could deliver
+                personalized help for every student, while freeing teachers to lean into human strengths
+                like motivation, judgment, and relationship-building.
+              </p>
+              <div class="video-wrapper">
+                <iframe
+                  src="https://www.youtube.com/embed/hJP5GqnTrNo"
+                  title="How AI Could Save (Not Destroy) Education | Sal Khan | TED"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  referrerpolicy="strict-origin-when-cross-origin"
+                  allowfullscreen
+                ></iframe>
+              </div>
+            </div>
+          </details>
+        </div>
+
+        <h3 style="margin-top:18px;">Questions for Your Institution</h3>
+        <p>
+          • What parts of learning do you <strong>refuse</strong> to outsource to AI?<br />
+          • Where could AI relieve painful bottlenecks for students and educators?<br />
+          • Who is at risk of being left out if AI becomes central to your ecosystem?
+        </p>
+
+        <div class="sources">
+          <h4>Selected Sources & Further Reading</h4>
+          <ol>
+            <li>
+              Sal Khan, “How AI Could Save (Not Destroy) Education,”
+              <a href="https://www.youtube.com/watch?v=hJP5GqnTrNo" target="_blank" rel="noopener">
+                TED Talk
+              </a>.
+            </li>
+            <li>
+              Andrew Boryga, “How AI Will Impact the Future of Teaching – A Conversation with Sal Khan,”
+              <a href="https://www.edutopia.org/article/how-ai-will-impact-the-future-of-teaching-a-conversation-with-sal-khan/" target="_blank" rel="noopener">
+                Edutopia
+              </a>, 2024.
+            </li>
+            <li>
+              Business Insider coverage of Khan’s “five amazing graduate students” analogy for AI in the classroom, 2025.
+            </li>
+            <li>
+              Daphne Koller on AI and remote learning,
+              <a href="https://schoolposterprinters.com/ai-and-the-future-of-education-revolutionizing-the-way-we-learn/" target="_blank" rel="noopener">
+                AI & the Future of Education
+              </a>, 2025.
+            </li>
+            <li>
+              Time magazine profile of Kristen DiCerbo on Khanmigo and personalized tutoring,
+              <a href="https://time.com/7012801/kristen-dicerbo/" target="_blank" rel="noopener">
+                TIME 100 AI
+              </a>, 2024.
+            </li>
+          </ol>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <footer>
+    This page is a snapshot of an ongoing debate, not a verdict.
+    Ask yourself: where do you want AI <em>in</em> your learning ecosystem — and where do you want it <em>out</em>?
+  </footer>
+</div>
+</body>
+</html>
