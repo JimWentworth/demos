@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reducing Hallucinations: Prompt Patterns to Elicit Uncertainty</title>
+  <meta name="description" content="A shareable reference of prompt strategies that encourage AI systems to admit uncertainty and avoid fabrication." />
+  <style>
+    :root{
+      --bg: #ffffff;
+      --text: #121212;
+      --muted: #5b5b5b;
+      --card: #f7f7f8;
+      --border: #e4e4e7;
+      --accent: #0d66d0;
+      --accent-2: #0a4ea2;
+      --code: #0a0a0a;
+      --kbd-bg:#f0f0f3;
+      --shadow: 0 1px 2px rgba(0,0,0,.06), 0 4px 12px rgba(0,0,0,.04);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root{
+        --bg: #0b0c0f;
+        --text: #eaecef;
+        --muted: #b6bcc6;
+        --card: #151823;
+        --border: #232634;
+        --accent: #6aa6ff;
+        --accent-2:#9bc1ff;
+        --code: #f1f5f9;
+        --kbd-bg:#1f2433;
+        --shadow: 0 2px 12px rgba(0,0,0,.45);
+      }
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+    }
+    header{
+      padding: 2.5rem 1rem 1rem;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+    h1{
+      font-size: clamp(1.6rem, 2.4vw + 1rem, 2.4rem);
+      line-height:1.2;
+      margin:0 0 .5rem;
+    }
+    .subtitle{
+      color:var(--muted);
+      margin-bottom:1rem;
+      max-width: 72ch;
+    }
+    main{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 1rem;
+      display:grid;
+      gap:1rem;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:1rem;
+      box-shadow: var(--shadow);
+    }
+    h2, h3{
+      margin:.2rem 0 .6rem;
+      line-height:1.25;
+    }
+    h2{ font-size:1.25rem; }
+    h3{ font-size:1.05rem; color:var(--muted); }
+    .grid{
+      display:grid;
+      gap:1rem;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 900px){
+      .grid{
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    details{
+      margin-top:.3rem;
+      border-top:1px dashed var(--border);
+      padding-top:.6rem;
+    }
+    details > summary{
+      cursor:pointer;
+      list-style:none;
+      color:var(--accent);
+      font-weight:600;
+      margin:.2rem 0 .4rem;
+    }
+    details > summary::-webkit-details-marker { display:none; }
+    .codewrap{
+      position:relative;
+      margin:.5rem 0 0;
+    }
+    pre{
+      background: #1e1e1e;  /* dark background */
+      color: #f8f8f2;        /* light text */
+      border-radius:10px;
+      padding: .9rem 1rem;
+      overflow:auto;
+      line-height:1.45;
+      border:1px solid #0f1320;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .92rem;
+      tab-size:2;
+      white-space: pre-wrap;     /* wrap long lines */
+      word-wrap: break-word;     /* legacy support */
+    }
+    .copy{
+      position:absolute;
+      top:.6rem; right:.6rem;
+      background:var(--accent);
+      color:white;
+      border:none;
+      border-radius:8px;
+      padding:.4rem .6rem;
+      font-size:.85rem;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+    }
+    .copy:active{ transform: translateY(1px); }
+    .checklist{
+      padding-left:1rem;
+    }
+    .checklist li{ margin:.35rem 0; }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:var(--kbd-bg);
+      border:1px solid var(--border);
+      border-bottom-width:2px;
+      border-radius:6px;
+      padding:.1rem .35rem;
+      font-size:.9rem;
+    }
+    a{ color:var(--accent); }
+    footer{
+      max-width:980px;
+      margin: 0 auto;
+      padding:2rem 1rem 3rem;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Reducing Hallucinations: Prompts that Make Models Admit Uncertainty</h1>
+    <p class="subtitle">A practical set of prompt patterns to curb fabrication, surface unknowns, and favor accuracy over fluency. Copy what you need, as-is.</p>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>How to use this page</h2>
+      <ul class="checklist">
+        <li>Pick a pattern below. Click <span class="kbd">Copy</span>. Paste into your AI chat.</li>
+        <li>Combine patterns (e.g., “Confidence threshold” + “No fabrication”).</li>
+        <li>Keep your question narrow. Ask for sources or for “what’s missing.”</li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>1) Explicit Uncertainty Clause</h2>
+        <p>Tell the model you prefer honesty over completeness.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p1">Copy</button>
+          <pre id="p1">If you are not certain about a fact, say “I’m not sure” rather than guessing. Do not fabricate names, dates, or citations.</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Reduces the incentive to fill gaps with fluent fiction. Low effort, high impact.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>2) Confidence Thresholding</h2>
+        <p>Force a confidence check before answering.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p2">Copy</button>
+          <pre id="p2">Before answering, rate your confidence (0–100%). If below 80%, respond: “Not confident enough to answer.”</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Pushes the model to self-assess instead of bluffing.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>3) Require Source Justification</h2>
+        <p>Anchor claims to origins; block invented references.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p3">Copy</button>
+          <pre id="p3">Provide an answer only if you can justify it with a specific, checkable source. If you can’t, say you don’t know.</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Grounds responses and suppresses fabricated citations.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>4) Known-Unknown Separation</h2>
+        <p>Classify facts before composing an answer.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p4">Copy</button>
+          <pre id="p4">List what you know for sure, then what you’re unsure about. Only write the final answer using the “Known” items.</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Makes uncertainty visible and prevents overreach.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>5) Self-Check Stage</h2>
+        <p>Insert a verification pause before responding.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p5">Copy</button>
+          <pre id="p5">Think through your answer privately. Then check for assumptions or guesses. If any remain, state the uncertainty rather than answering.</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Encourages internal validation and honest hedging.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>6) Disallow &amp; Redirect</h2>
+        <p>Ban fabrication and specify the fallback.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p6">Copy</button>
+          <pre id="p6">Do not invent names, data, quotes, or dates. If information is missing, respond with: “No verified information available.”</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Removes the “make it up” option and gives a safe exit.
+        </details>
+      </article>
+
+      <article class="card">
+        <h2>7) Per-Statement Certainty Labels</h2>
+        <p>Force sentence-level confidence tags.</p>
+        <div class="codewrap">
+          <button class="copy" data-target="p7">Copy</button>
+          <pre id="p7">Answer in bullet points. After each bullet, append (Certain) or (Uncertain). Only include “Certain” items in your conclusion.</pre>
+        </div>
+        <details>
+          <summary>Why it helps</summary>
+          Suppresses confident nonsense and clarifies doubt.
+        </details>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>Drop-In Anti-Hallucination Wrappers</h2>
+      <p>Use these when you need a quick, general safety net.</p>
+      <div class="codewrap">
+        <button class="copy" data-target="w1">Copy</button>
+        <pre id="w1">Only answer using facts you are highly confident are accurate. If unsure, explicitly state “I’m not certain enough to answer.” Do not speculate.</pre>
+      </div>
+      <div class="codewrap">
+        <button class="copy" data-target="w2">Copy</button>
+        <pre id="w2">If you cannot support a claim with a credible, checkable source, say you don’t know. Do not fabricate citations or specifics.</pre>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Task-Specific Shells</h2>
+      <p>Swap the bracketed text to fit coding, research, or teaching.</p>
+      <div class="codewrap">
+        <button class="copy" data-target="s1">Copy</button>
+        <pre id="s1">[Coding] Evaluate the bug report. First list known facts from the logs. Then list uncertainties and what needs verification. Only propose fixes derived from the known facts. If confidence &lt; 80%, say “insufficient evidence.”</pre>
+      </div>
+      <div class="codewrap">
+        <button class="copy" data-target="s2">Copy</button>
+        <pre id="s2">[Research] Provide findings only if you can cite peer-reviewed sources. If you cannot, return “no verified evidence.” Include a confidence rating per finding.</pre>
+      </div>
+      <div class="codewrap">
+        <button class="copy" data-target="s3">Copy</button>
+        <pre id="s3">[Teaching] Summarize this topic. Use two sections: “What’s well-established” and “Active debates/unknowns.” Do not blur the two. Link to primary sources where possible.</pre>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Facilitator Notes (for your course)</h2>
+      <ul class="checklist">
+        <li>Have students run the same question with and without a wrapper. Compare outputs.</li>
+        <li>Ask them to highlight invented specifics; refine the prompt to remove them.</li>
+        <li>Demonstrate how adding retrieval (docs/web) cuts down speculation further.</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    Built for classroom use. Copy freely. Accessibility: semantic headings, high contrast, larger targets on copy buttons, reduced motion by default.
+  </footer>
+
+  <script>
+    // Copy-to-clipboard for each code block
+    const buttons = document.querySelectorAll('.copy');
+    buttons.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-target');
+        const pre = document.getElementById(id);
+        const text = pre.innerText;
+        try {
+          await navigator.clipboard.writeText(text);
+          const old = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = old, 1400);
+        } catch (e) {
+          // Fallback: create a temporary textarea
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          ta.remove();
+          const old = btn.textContent;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = old, 1400);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

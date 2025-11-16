@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Family, Type, and Modality Explorer</title>
+    <style>
+        /* Basic CSS Styling for the Explorer Page */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f7f9;
+            color: #333;
+        }
+
+        h1 {
+            color: #0056b3;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Container for the filter controls and the model list */
+        .explorer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styling for the Filter/Control Panel */
+        .controls {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            padding: 15px 0;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin: 10px;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #0056b3;
+        }
+
+        .filter-group select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            width: 200px; /* Standardize width for filters */
+            font-size: 16px;
+        }
+
+        /* Styling for the Model List/Cards */
+        #model-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .model-card {
+            background: #e9f5ff; /* Light blue background for cards */
+            border: 1px solid #cceeff;
+            border-left: 5px solid #0056b3; /* Accent border */
+            padding: 15px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+        }
+
+        .model-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .model-card h3 {
+            margin-top: 0;
+            color: #0056b3;
+            border-bottom: 1px dashed #cceeff;
+            padding-bottom: 5px;
+        }
+
+        .model-card p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+
+        /* Utility classes for data attributes, used for filtering */
+        .family-OpenAI { background-color: #f0f8ff; }
+        .family-Google { background-color: #fff0f0; }
+        .family-Meta { background-color: #f0fff0; }
+        .family-Anthropic { background-color: #fffff0; }
+        .family-HuggingFace { background-color: #f8f0ff; }
+
+        .type-Decoder { font-weight: bold; color: #388e3c; } /* Green */
+        .type-Encoder-Decoder { font-weight: bold; color: #f57c00; } /* Orange */
+        .type-Encoder { font-weight: bold; color: #d32f2f; } /* Red */
+        
+        .type-Other { font-weight: bold; color: #555555; }
+        
+        .modality-Text-Only::before { content: "💬 "; }
+        .modality-Multimodal::before { content: "🖼️ "; }
+
+        .no-results {
+            grid-column: 1 / -1; /* Span across all columns */
+            text-align: center;
+            padding: 30px;
+            font-size: 1.2em;
+            color: #888;
+            background-color: #ffdddd;
+            border: 1px solid #ffaaaa;
+            border-radius: 5px;
+            display: none; /* Initially hidden */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="explorer-container">
+        <h1>🧠 LLM Family, Type, and Modality Explorer</h1>
+        <p>Use the dropdown menus below to filter the models and explore their connections. Select 'All' to see all models in that category.</p>
+
+        <div class="controls">
+            <div class="filter-group">
+                <label for="family-filter">Filter by Family</label>
+                <select id="family-filter" onchange="filterModels()">
+                    <option value="All">All Families</option>
+                    </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="type-filter">Filter by Architecture Type</label>
+                <select id="type-filter" onchange="filterModels()">
+                    <option value="All">All Types</option>
+                    </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="modality-filter">Filter by Modality</label>
+                <select id="modality-filter" onchange="filterModels()">
+                    <option value="All">All Modalities</option>
+                    </select>
+            </div>
+        </div>
+
+        <div id="model-list">
+            <div id="no-results" class="no-results">
+                No models match your current filter selection. Please try a different combination.
+            </div>
+            </div>
+
+    </div> <script>
+        // Array of LLM data objects
+        const models = [
+            { name: "GPT-4 (Turbo)", family: "OpenAI", type: "Decoder", modality: "Multimodal", description: "State-of-the-art multimodal model with strong reasoning." },
+            { name: "GPT-3.5", family: "OpenAI", type: "Decoder", modality: "Text-Only", description: "A foundational text model, precursor to GPT-4." },
+            { name: "Llama 3", family: "Meta", type: "Decoder", modality: "Text-Only", description: "Highly capable open-source family of models." },
+            { name: "Gemini Pro", family: "Google", type: "Encoder-Decoder", modality: "Multimodal", description: "Google's powerful model integrated across many products." },
+            { name: "Gemini 2.5", family: "Google", type: "Encoder-Decoder", modality: "Multimodal", description: "Next-gen model with native multimodal reasoning and large context." },
+            { name: "Gemma", family: "Google", type: "Decoder", modality: "Text-Only", description: "Lightweight, open-sourced model family from Google DeepMind." },
+            { name: "Claude 3 (Opus/Sonnet)", family: "Anthropic", type: "Decoder", modality: "Multimodal", description: "Anthropic's latest, highly performant models focused on safety." },
+            { name: "Mistral 7B", family: "HuggingFace", type: "Decoder", modality: "Text-Only", description: "Small but powerful model known for high performance and speed." },
+            { name: "Falcon 180B", family: "HuggingFace", type: "Decoder", modality: "Text-Only", description: "Large, high-ranking open-source model released by TII." },
+            { name: "T5", family: "Google", type: "Encoder-Decoder", modality: "Text-Only", description: "A classic model that views every task as 'text-to-text'." },
+            { name: "BERT", family: "Google", type: "Encoder", modality: "Text-Only", description: "Revolutionary model for understanding context (used for embeddings/search)." }
+        ];
+
+        // --- Core Functions ---
+
+        /**
+         * Renders all models into the DOM.
+         */
+        function renderModels() {
+            const listContainer = document.getElementById('model-list');
+            listContainer.innerHTML = ''; // Clear existing content
+            const noResultsDiv = document.getElementById('no-results');
+            noResultsDiv.style.display = 'none'; // Hide no results message initially
+
+            models.forEach(model => {
+                const card = document.createElement('div');
+                card.className = 'model-card';
+
+                // Add data attributes for filtering (critical for logic)
+                card.setAttribute('data-family', model.family);
+                card.setAttribute('data-type', model.type);
+                card.setAttribute('data-modality', model.modality);
+
+                // Add CSS classes for subtle card differentiation (optional styling)
+                card.classList.add(`family-${model.family.replace(/\s/g, '')}`);
+                card.classList.add(`type-${model.type.replace(/\s/g, '-')}`);
+                card.classList.add(`modality-${model.modality.replace(/\s/g, '-')}`);
+
+
+                card.innerHTML = `
+                    <h3>${model.name}</h3>
+                    <p><strong>Family:</strong> <span class="data-family">${model.family}</span></p>
+                    <p><strong>Architecture:</strong> <span class="data-type">${model.type}</span></p>
+                    <p><strong>Modality:</strong> <span class="data-modality">${model.modality}</span></p>
+                    <p><em>${model.description}</em></p>
+                `;
+
+                listContainer.appendChild(card);
+            });
+
+            // After initial render, populate the filter dropdowns
+            populateFilters();
+            // Then apply the initial filter (which is 'All' for all)
+            filterModels();
+        }
+
+        /**
+         * Populates the filter dropdowns based on unique values in the model list.
+         */
+        function populateFilters() {
+            const getUniqueValues = (key) => [...new Set(models.map(m => m[key]))].sort();
+
+            // Unique values for each category
+            const families = getUniqueValues('family');
+            const types = getUniqueValues('type');
+            const modalities = getUniqueValues('modality');
+
+            // Helper to fill the select element
+            const fillSelect = (selectId, options) => {
+                const select = document.getElementById(selectId);
+                // Clear existing options (but keep the 'All' option)
+                Array.from(select.options).slice(1).forEach(opt => select.removeChild(opt));
+
+                options.forEach(option => {
+                    const optElement = document.createElement('option');
+                    optElement.value = option;
+                    optElement.textContent = option;
+                    select.appendChild(optElement);
+                });
+            };
+
+            fillSelect('family-filter', families);
+            fillSelect('type-filter', types);
+            fillSelect('modality-filter', modalities);
+        }
+
+
+        /**
+         * Filters the models displayed based on the selected dropdown values.
+         */
+        function filterModels() {
+            const selectedFamily = document.getElementById('family-filter').value;
+            const selectedType = document.getElementById('type-filter').value;
+            const selectedModality = document.getElementById('modality-filter').value;
+
+            const allCards = document.querySelectorAll('.model-card');
+            let matchCount = 0;
+            const noResultsDiv = document.getElementById('no-results');
+
+            allCards.forEach(card => {
+                const cardFamily = card.getAttribute('data-family');
+                const cardType = card.getAttribute('data-type');
+                const cardModality = card.getAttribute('data-modality');
+
+                // Check if the card matches all three selected filters
+                const matchesFamily = selectedFamily === 'All' || selectedFamily === cardFamily;
+                const matchesType = selectedType === 'All' || selectedType === cardType;
+                const matchesModality = selectedModality === 'All' || selectedModality === cardModality;
+
+                if (matchesFamily && matchesType && matchesModality) {
+                    card.style.display = 'block'; // Show the card
+                    matchCount++;
+                } else {
+                    card.style.display = 'none'; // Hide the card
+                }
+            });
+
+            // Show/Hide the 'No Results' message
+            if (matchCount === 0) {
+                noResultsDiv.style.display = 'block';
+            } else {
+                noResultsDiv.style.display = 'none';
+            }
+        }
+
+        // Initialize the page on load
+        document.addEventListener('DOMContentLoaded', renderModels);
+    </script>
+
+</body>
+</html>

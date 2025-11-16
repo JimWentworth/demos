@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Problem‑Solving Patterns/title>
+    <!-- Tailwind (for utility classes; app works without it) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --illinois-blue: #13294B;
+        --illinois-orange: #E84A27;
+      }
+      body { color: var(--illinois-blue); background: #fff; }
+      .btn { border:1px solid var(--illinois-blue); border-radius:0.75rem; padding:0.5rem 0.75rem; font-weight:600; }
+      .chip { border:1px solid var(--illinois-blue); border-radius:9999px; padding:0.35rem 0.65rem; font-size:0.875rem; }
+      .card { border:1px solid var(--illinois-blue); border-radius:1rem; }
+      .copy-on { background: var(--illinois-orange); color:#fff; }
+      .accent { color: var(--illinois-orange); }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!-- React 18 UMD + ReactDOM + Babel (for inline JSX) -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+      const { useState, useMemo } = React;
+      const ILLINOIS_BLUE = "#13294B";
+      const ILLINOIS_ORANGE = "#E84A27";
+
+      const DATA = [
+        // STEM
+        {id: "stem1", name: "Hypothesis Testing", description: "Form a claim, derive predictions, and check against evidence.", disciplines: ["STEM", "Social Sciences"], prompt: "Use a hypothesis-testing approach: If X is true, what predictions follow, and how could we check them?"},
+        {id: "stem2", name: "Root Cause Analysis", description: "Trace a problem to its underlying cause(s) via repeated 'why'.", disciplines: ["STEM", "Engineering", "Business"], prompt: "Use root cause analysis to break down this issue: why might system failure X be happening?"},
+        {id: "stem3", name: "Iterative Design", description: "Build → test → revise to improve solutions stepwise.", disciplines: ["STEM", "Engineering", "Design"], prompt: "Walk me through iterative improvements to solve this engineering or design problem."},
+        {id: "stem4", name: "Mathematical Modeling", description: "Represent a system with variables, constraints, and relationships.", disciplines: ["STEM", "Economics"], prompt: "Model this real-world problem mathematically and identify the variables and constraints."},
+        {id: "stem5", name: "Dimensional Analysis", description: "Check unit consistency, scaling, and plausibility.", disciplines: ["STEM", "Physics", "Engineering"], prompt: "Use dimensional analysis to break down this formula or system and identify inconsistencies or assumptions."},
+        {id: "stem6", name: "Simulation & Modeling", description: "Explore outcomes via computational or thought simulations.", disciplines: ["STEM", "Social Sciences", "Business"], prompt: "Simulate possible outcomes of this scenario and explain the assumptions involved."},
+        {id: "stem7", name: "Constraint-Based Solving", description: "Solve within limits; optimize under stated constraints.", disciplines: ["STEM", "Engineering", "Design"], prompt: "Solve this problem using constraint-based reasoning—state the constraints first, then explore solutions."},
+        {id: "stem8", name: "Algorithmic Decomposition", description: "Break a problem into small, ordered logical steps.", disciplines: ["STEM", "Computer Science"], prompt: "Decompose this problem into logical algorithmic steps before proposing a solution."},
+
+        // Humanities
+        {id: "hum1", name: "Comparative Analysis", description: "Juxtapose texts, viewpoints, eras to surface difference and similarity.", disciplines: ["Humanities", "Social Sciences"], prompt: "Compare two interpretations of this topic using comparative analysis."},
+        {id: "hum2", name: "Narrative Structure Analysis", description: "Identify actors, motives, conflict, and arc to clarify dynamics.", disciplines: ["Humanities", "Design"], prompt: "Analyze this issue using the structure of a story—who are the actors, motivations, and tensions?"},
+        {id: "hum3", name: "Rhetorical Strategy Analysis", description: "Examine persuasion via ethos, pathos, logos, framing.", disciplines: ["Humanities", "Law", "Business"], prompt: "Use rhetorical analysis to explain how this argument tries to persuade its audience."},
+        {id: "hum4", name: "Contextual/Hermeneutic Reading", description: "Interpret meaning through cultural and historical context.", disciplines: ["Humanities"], prompt: "Interpret this concept through contextual analysis—what assumptions or histories shape it?"},
+        {id: "hum5", name: "Genealogical Analysis", description: "Trace how a concept emerges and mutates over time.", disciplines: ["Humanities", "Social Sciences"], prompt: "Use genealogical analysis to explain where this concept originated and how it has changed over time."},
+        {id: "hum6", name: "Discourse Analysis", description: "Study how language encodes power, ideology, identity.", disciplines: ["Humanities", "Social Sciences", "Law"], prompt: "Analyze this text or debate through a discourse analysis lens."},
+        {id: "hum7", name: "Critical Theory Lens", description: "Interrogate representation, bias, inequity, and hegemony.", disciplines: ["Humanities", "Social Sciences", "Education"], prompt: "Apply a critical theory lens to uncover assumptions or inequities in this issue."},
+        {id: "hum8", name: "Semiotic Analysis", description: "Interpret symbols, signs, and meaning systems.", disciplines: ["Humanities", "Design"], prompt: "Use semiotic analysis to interpret how meaning is constructed in this artifact."},
+
+        // Law & Policy
+        {id: "law1", name: "Precedent-Based Reasoning", description: "Apply relevant past cases to current facts.", disciplines: ["Law", "Policy"], prompt: "Use precedent-based reasoning—what similar case examples would apply here?"},
+        {id: "law2", name: "IRAC", description: "Issue–Rule–Application–Conclusion as a structured analysis.", disciplines: ["Law"], prompt: "Analyze this scenario using IRAC: identify the issue, rule, application, and conclusion."},
+        {id: "law3", name: "Statutory Interpretation", description: "Interpret legal text via plain meaning, intent, and scope.", disciplines: ["Law", "Policy"], prompt: "Interpret this policy using statutory analysis—text, intent, and scope."},
+        {id: "law4", name: "Argumentation Framing", description: "Structure claims, counterclaims, burdens, and remedies.", disciplines: ["Law", "Policy", "Business"], prompt: "Frame both sides of this legal argument, then identify the strongest case and why."},
+        {id: "law5", name: "Analogical Reasoning (Law)", description: "Use similarity to extend doctrine to new facts.", disciplines: ["Law"], prompt: "Use analogy to evaluate this case—what similar situations offer guidance?"},
+        {id: "law6", name: "Burden of Proof Analysis", description: "Identify who must prove what, and to which standard.", disciplines: ["Law"], prompt: "Analyze this situation in terms of burden of proof and evidentiary standards."},
+        {id: "law7", name: "Multi-Jurisdictional Comparison", description: "Compare rules or outcomes across legal systems.", disciplines: ["Law", "Policy"], prompt: "Compare how different jurisdictions would handle this legal scenario."},
+        {id: "law8", name: "Policy Impact Assessment", description: "Forecast intended/unintended effects across populations.", disciplines: ["Law", "Policy", "Social Sciences"], prompt: "Do a policy impact analysis for this proposal—intended and unintended effects."},
+
+        // Business & Management
+        {id: "bus1", name: "SWOT Analysis", description: "Assess strengths, weaknesses, opportunities, threats.", disciplines: ["Business"], prompt: "Apply a SWOT analysis to this organization or decision."},
+        {id: "bus2", name: "Design Thinking", description: "Empathize → define → ideate → prototype → test.", disciplines: ["Business", "Design", "Education"], prompt: "Use design thinking steps to propose a solution to this problem."},
+        {id: "bus3", name: "Decision Matrix / Tradeoff Analysis", description: "Score options across criteria to reveal best fit.", disciplines: ["Business", "Policy", "STEM"], prompt: "Create a decision matrix to compare solution paths with criteria X, Y, Z."},
+        {id: "bus4", name: "Systems Thinking (Org)", description: "Map interdependencies and ripple effects in orgs.", disciplines: ["Business", "Policy", "Social Sciences"], prompt: "Use systems thinking to map how this issue affects other parts of the organization."},
+        {id: "bus5", name: "Lean / Six Sigma", description: "Reduce defects and waste; standardize improvements.", disciplines: ["Business", "Engineering"], prompt: "Analyze this workflow using Lean or Six Sigma problem-solving patterns."},
+        {id: "bus6", name: "Branching Strategy Planning", description: "Explore primary and secondary decision impacts.", disciplines: ["Business", "Policy"], prompt: "Map primary and secondary impacts of this decision using branching strategy thinking."},
+        {id: "bus7", name: "Balanced Scorecard", description: "Evaluate via financial, customer, process, learning.", disciplines: ["Business"], prompt: "Assess this initiative using a balanced scorecard approach."},
+        {id: "bus8", name: "Scenario Planning (Strategy)", description: "Construct alternative futures with triggers and signals.", disciplines: ["Business", "Policy"], prompt: "Create three strategic scenarios and identify triggers or decision points for each."},
+
+        // Social & Behavioral Sciences
+        {id: "soc1", name: "Cost–Benefit Analysis", description: "Weigh outcomes, tradeoffs, and distributional effects.", disciplines: ["Social Sciences", "Policy", "Business"], prompt: "Analyze the pros and cons of this policy using a cost-benefit approach."},
+        {id: "soc2", name: "Survey/Interview Interpretation", description: "Find patterns in quantitative or narrative responses.", disciplines: ["Social Sciences", "Education"], prompt: "Interpret these responses using qualitative analysis patterns."},
+        {id: "soc3", name: "Theoretical Lens Application", description: "Explain patterns using a selected theory or model.", disciplines: ["Social Sciences", "Education"], prompt: "Apply a sociological theory to explain this behavior or trend."},
+        {id: "soc4", name: "Scenario Forecasting", description: "Project likely outcomes under different assumptions.", disciplines: ["Social Sciences", "Policy", "Business"], prompt: "Give three scenarios based on current data and explain the reasoning behind each."},
+        {id: "soc5", name: "Mixed-Methods Reasoning", description: "Integrate quantitative and qualitative evidence.", disciplines: ["Social Sciences", "Education", "Health"], prompt: "Explain this issue using a mixed-methods approach with both numeric and narrative reasoning."},
+        {id: "soc6", name: "Stakeholder Mapping", description: "Identify actors, incentives, and influence pathways.", disciplines: ["Social Sciences", "Policy", "Business"], prompt: "Map the stakeholders involved and describe how each shapes the problem."},
+        {id: "soc7", name: "Theory of Change", description: "Link interventions to outcomes via causal assumptions.", disciplines: ["Social Sciences", "Education", "Policy"], prompt: "Use a theory of change model to explain how action X leads to outcome Y."},
+        {id: "soc8", name: "Comparative Case Study", description: "Compare cases to reveal mechanisms and contingencies.", disciplines: ["Social Sciences", "Policy", "Education"], prompt: "Compare two cases using a structured comparative case study method."},
+
+        // Education & Learning Sciences
+        {id: "edu1", name: "Backward Design", description: "Start with outcomes → assessments → learning activities.", disciplines: ["Education"], prompt: "Use backward design to structure a plan: start with desired outcomes, then work backward."},
+        {id: "edu2", name: "Cognitive Apprenticeship", description: "Model expert moves; scaffold; fade support.", disciplines: ["Education", "STEM", "Humanities"], prompt: "Explain this concept using cognitive apprenticeship—model, scaffold, then fade."},
+        {id: "edu3", name: "Constructivist Framing", description: "Activate prior knowledge; co-construct meaning.", disciplines: ["Education"], prompt: "Apply constructivist reasoning to help a learner make sense of this."},
+        {id: "edu4", name: "Learning Progressions", description: "Sequence complexity from novice to expert.", disciplines: ["Education", "STEM"], prompt: "Organize this topic using a learning progression—from novice to expert understanding."},
+
+        // Creative / Design Fields
+        {id: "cre1", name: "Divergent–Convergent Thinking", description: "Generate many ideas, then select and refine.", disciplines: ["Design", "Business", "Education"], prompt: "Generate broad ideas, then narrow them down using a divergent–convergent thinking approach."},
+        {id: "cre2", name: "Aesthetic Synthesis (Moodboarding)", description: "Blend references into a coherent direction.", disciplines: ["Design", "Arts"], prompt: "Synthesize a concept using aesthetic or moodboard-style reasoning."},
+        {id: "cre3", name: "Metaphoric Reasoning", description: "Use analogy/metaphor to make abstractions concrete.", disciplines: ["Design", "Humanities", "Education"], prompt: "Explain this abstract topic using metaphor-based reasoning."},
+        {id: "cre4", name: "Iterative Creative Critique", description: "Structured feedback loops to strengthen a draft.", disciplines: ["Design", "Arts", "Education"], prompt: "Give feedback using an iterative critique model—strengths, revisions, and next draft guidance."},
+
+        // Cross-Disciplinary
+        {id: "x1", name: "Abductive Reasoning", description: "Infer the best explanation from incomplete info.", disciplines: ["Cross-Disciplinary"], prompt: "Given these observations, use abductive reasoning to propose the most plausible explanation and note alternatives."},
+        {id: "x2", name: "Analogical Mapping", description: "Transfer structure from a known domain to a new one.", disciplines: ["Cross-Disciplinary"], prompt: "Use analogical reasoning—compare this problem to a similar situation in another field and transfer what works."},
+        {id: "x3", name: "Heuristic Decomposition", description: "Simplify complexity with rules of thumb and chunking.", disciplines: ["Cross-Disciplinary"], prompt: "Apply heuristic strategies to break this into manageable components and explain your assumptions."},
+        {id: "x4", name: "Systems Mapping", description: "Visualize parts, relationships, and feedback loops.", disciplines: ["Cross-Disciplinary"], prompt: "Use systems thinking to map cause and effect and show how each part connects to the larger whole."},
+        {id: "x5", name: "Decision Trees / Branch Logic", description: "Enumerate if–then branches and outcomes.", disciplines: ["Cross-Disciplinary"], prompt: "Organize this problem using a decision tree—show branches and the reasoning behind each fork."},
+        {id: "x6", name: "Scenario-Based Reasoning", description: "Explore multiple futures under changing assumptions.", disciplines: ["Cross-Disciplinary"], prompt: "Give three alternative scenarios and walk through the reasoning behind each."},
+        {id: "x7", name: "Constraint Relaxation", description: "Question constraints to open new pathways.", disciplines: ["Cross-Disciplinary"], prompt: "List the constraints shaping this problem and show what changes if we relax or remove them."},
+        {id: "x8", name: "First Principles Reasoning", description: "Strip to fundamentals and rebuild logic.", disciplines: ["Cross-Disciplinary"], prompt: "Solve this using first principles—start with what must be true and reason upward from there."},
+        {id: "x9", name: "Hypothetical Reversal (Flip It)", description: "Invert roles or premises to reveal insight.", disciplines: ["Cross-Disciplinary"], prompt: "Reverse the premise or perspective and show how the problem or solution changes."},
+        {id: "x10", name: "Causal Chain Analysis", description: "Trace links from root conditions to outcomes.", disciplines: ["Cross-Disciplinary"], prompt: "Map the causal chain from root conditions to present outcome, and identify intervention points."},
+        {id: "x11", name: "Red Team / Blue Team", description: "Challenge assumptions by adversarial testing.", disciplines: ["Cross-Disciplinary"], prompt: "Evaluate this idea from a red-team perspective—challenge assumptions, risks, and weak spots."},
+        {id: "x12", name: "Optimization / Tradeoff Balancing", description: "Maximize objectives under constraints and costs.", disciplines: ["Cross-Disciplinary"], prompt: "Optimize this decision under tradeoffs—state criteria, weigh them, and propose the strongest option."},
+        {id: "x13", name: "Dialectical Reasoning", description: "Thesis + antithesis → synthesis.", disciplines: ["Cross-Disciplinary"], prompt: "Present a thesis and counterargument, then synthesize a more complete solution."},
+        {id: "x14", name: "Pattern Generalization & Transfer", description: "Abstract a reusable structure and apply elsewhere.", disciplines: ["Cross-Disciplinary"], prompt: "Identify the pattern here and show how it can be applied to a new context."},
+        {id: "x15", name: "Multi-Criteria Evaluation", description: "Compare options across explicit criteria/weights.", disciplines: ["Cross-Disciplinary"], prompt: "Evaluate options using multi-criteria reasoning—define the criteria, score each option, and justify the top choice."}
+      ];
+
+      function App() {
+        const [query, setQuery] = useState("");
+        const [activeTags, setActiveTags] = useState([]);
+        const [copiedId, setCopiedId] = useState(null);
+
+        const ALL_TAGS = useMemo(
+          () => Array.from(new Set(DATA.flatMap(d => d.disciplines))).sort(),
+          []
+        );
+
+        const toggleTag = (tag) => {
+          setActiveTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+        };
+
+        const clearFilters = () => { setActiveTags([]); setQuery(""); };
+
+        const matchesQuery = (item) => {
+          if (!query.trim()) return true;
+          const q = query.toLowerCase();
+          return (
+            item.name.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.prompt.toLowerCase().includes(q) ||
+            item.disciplines.join(" ").toLowerCase().includes(q)
+          );
+        };
+
+        const matchesTags = (item) => activeTags.length === 0 || activeTags.every(t => item.disciplines.includes(t));
+
+        const filtered = useMemo(() => DATA.filter(d => matchesQuery(d) && matchesTags(d)), [query, activeTags]);
+
+        const copyText = async (text, id) => {
+          try {
+            await navigator.clipboard.writeText(text);
+            setCopiedId(id);
+            setTimeout(() => setCopiedId(null), 1200);
+          } catch (e) {
+            alert("Copy failed. Your browser may block clipboard access.");
+          }
+        };
+
+        const exportJSON = () => {
+          const blob = new Blob([JSON.stringify(DATA, null, 2)], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "problem_solving_patterns.json";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        const exportCSV = () => {
+          const header = ["id","name","description","disciplines","prompt"];
+          const rows = DATA.map(d => [d.id, d.name, d.description, d.disciplines.join("; "), d.prompt]);
+          const csv = [header, ...rows]
+            .map(r => r.map(v => `"${(v+"").replace(/"/g, '""')}"`).join(","))
+            .join("\n");
+          const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = "problem_solving_patterns.csv";
+          a.click();
+          URL.revokeObjectURL(url);
+        };
+
+        return (
+          <div className="min-h-screen w-full bg-white" style={{color: ILLINOIS_BLUE}}>
+            <header className="w-full border-b" style={{borderColor: ILLINOIS_BLUE}}>
+              <div className="max-w-6xl mx-auto px-4 py-6 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-semibold" style={{color: ILLINOIS_BLUE}}>Problem‑Solving Patterns</h1>
+                  <p className="text-sm sm:text-base opacity-80">Minimalist toolkit for collaborating with AI using familiar disciplinary strategies.</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={exportJSON} className="px-3 py-2 rounded-xl text-sm font-medium border" style={{borderColor: ILLINOIS_BLUE}}>Export JSON</button>
+                  <button onClick={exportCSV} className="px-3 py-2 rounded-xl text-sm font-medium border" style={{borderColor: ILLINOIS_BLUE}}>Export CSV</button>
+                </div>
+              </div>
+            </header>
+
+            <section className="max-w-6xl mx-auto px-4 py-4">
+              <div className="grid gap-3 sm:grid-cols-3 items-start">
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search name, description, prompt, or tag…"
+                  className="col-span-2 w-full border rounded-2xl px-4 py-3 outline-none"
+                  style={{borderColor: ILLINOIS_BLUE}}
+                />
+                <button onClick={clearFilters} className="w-full border rounded-2xl px-4 py-3 font-medium" style={{borderColor: ILLINOIS_BLUE}}>
+                  Clear Filters
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap gap-2">
+                {ALL_TAGS.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={`px-3 py-1.5 rounded-full text-sm border ${activeTags.includes(tag) ? "text-white" : ""}`}
+                    style={{
+                      borderColor: ILLINOIS_BLUE,
+                      backgroundColor: activeTags.includes(tag) ? ILLINOIS_ORANGE : "transparent",
+                      color: activeTags.includes(tag) ? "white" : ILLINOIS_BLUE,
+                    }}
+                  >
+                    {tag}
+                  </button>
+                ))}
+              </div>
+
+              <div className="mt-4 text-sm opacity-75">
+                Showing <span className="font-semibold" style={{color: ILLINOIS_ORANGE}}>{filtered.length}</span> of {DATA.length} strategies
+              </div>
+            </section>
+
+            <main className="max-w-6xl mx-auto px-4 pb-16">
+              <div className="grid gap-4 sm:grid-cols-2">
+                {filtered.map(item => (
+                  <article key={item.id} className="rounded-2xl border p-4 flex flex-col gap-3" style={{borderColor: ILLINOIS_BLUE}}>
+                    <div className="flex items-start justify-between gap-4">
+                      <h2 className="text-lg font-semibold">{item.name}</h2>
+                      <button
+                        onClick={() => copyText(item.prompt, item.id)}
+                        className="shrink-0 px-3 py-1.5 rounded-xl text-sm font-medium border"
+                        style={{
+                          borderColor: ILLINOIS_BLUE,
+                          backgroundColor: copiedId === item.id ? ILLINOIS_ORANGE : "transparent",
+                          color: copiedId === item.id ? "white" : ILLINOIS_BLUE,
+                        }}
+                        aria-label={`Copy prompt for ${item.name}`}
+                      >
+                        {copiedId === item.id ? "Copied" : "Copy Prompt"}
+                      </button>
+                    </div>
+                    <p className="text-sm leading-6 opacity-90">{item.description}</p>
+
+                    <div className="flex flex-wrap gap-2">
+                      {item.disciplines.map(t => (
+                        <span key={t} className="px-2 py-1 rounded-full text-xs border" style={{borderColor: ILLINOIS_BLUE}}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+
+                    <div className="border rounded-xl p-3 bg-white/40" style={{borderColor: ILLINOIS_BLUE}}>
+                      <div className="text-xs uppercase tracking-wide opacity-60 mb-1">Example Prompt</div>
+                      <div className="text-sm leading-6 select-text">{item.prompt}</div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </main>
+
+            <footer className="w-full border-t" style={{borderColor: ILLINOIS_BLUE}}>
+              <div className="max-w-6xl mx-auto px-4 py-6 text-xs opacity-70">
+                UI: minimalist, Illinois Blue & Orange • Copy prompts, filter by discipline, search across fields • Export JSON/CSV
+              </div>
+            </footer>
+          </div>
+        );
+      }
+
+      const root = ReactDOM.createRoot(document.getElementById('root'));
+      root.render(<App />);
+    </script>
+  </body>
+</html>

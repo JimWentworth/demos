@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pattern Match: Constraint & Optimization Reasoning</title>
+  <meta name="description" content="Interactive exercise: match real-life scenarios to common reasoning patterns (CSP, knapsack, critical path, etc.).">
+  <style>
+    :root{
+      --bg:#ffffff; --text:#121212; --muted:#5b5b5b;
+      --card:#f7f7f8; --border:#e5e7eb; --accent:#0d66d0; --good:#15803d; --bad:#b91c1c;
+      --shadow: 0 1px 2px rgba(0,0,0,.08), 0 6px 20px rgba(0,0,0,.06);
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0c1117; --text:#e7eaf0; --muted:#a9b0bb;
+        --card:#101826; --border:#1f2937; --accent:#6aa6ff; --good:#22c55e; --bad:#f87171;
+        --shadow: 0 2px 18px rgba(0,0,0,.45);
+      }
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; background:var(--bg); color:var(--text);
+      font:16px/1.55 system-ui,-apple-system,Segoe UI,Inter,Roboto,"Helvetica Neue",Arial;
+    }
+    header{
+      max-width:1000px; margin:0 auto; padding:2rem 1rem 1rem;
+    }
+    h1{ margin:.2rem 0 .5rem; line-height:1.15; font-size:clamp(1.6rem, 1.2rem + 2vw, 2.2rem); }
+    .sub{ color:var(--muted); max-width:72ch; margin:0 0 1rem; }
+    main{ max-width:1000px; margin:0 auto; padding: .5rem 1rem 2rem; }
+    .panel{
+      background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1rem; box-shadow:var(--shadow);
+    }
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap:.5rem; align-items:center; margin:.25rem 0 1rem;
+    }
+    .pill{ border:1px solid var(--border); border-radius:999px; padding:.35rem .7rem; color:var(--muted); }
+    button{
+      background:var(--accent); color:white; border:none; border-radius:10px; padding:.55rem .8rem; cursor:pointer; box-shadow:var(--shadow);
+    }
+    button.secondary{ background:transparent; color:var(--text); border:1px solid var(--border); }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .row{ display:grid; gap:1rem; grid-template-columns:1fr; }
+    @media(min-width:900px){ .row{ grid-template-columns: 2fr 1fr; } }
+    .scenario{
+      background:transparent; border:1px dashed var(--border); border-radius:10px; padding:1rem;
+    }
+    .prompt{ font-weight:600; margin:0 0 .5rem; }
+    .options{ display:grid; gap:.5rem; margin:.25rem 0 .5rem; }
+    label.opt{
+      display:flex; gap:.6rem; align-items:flex-start; border:1px solid var(--border); border-radius:10px; padding:.55rem .7rem; cursor:pointer; background:rgba(0,0,0,0);
+    }
+    input[type="radio"]{ margin-top:.2rem; }
+    .feedback{ margin-top:.6rem; border-radius:10px; padding:.6rem .7rem; display:none; }
+    .feedback.ok{ background:rgba(34,197,94,.12); color:var(--good); border:1px solid rgba(34,197,94,.35); }
+    .feedback.no{ background:rgba(248,113,113,.12); color:var(--bad); border:1px solid rgba(248,113,113,.35); }
+    .explain{ color:var(--muted); margin-top:.35rem; }
+    .score{
+      display:grid; grid-template-columns: repeat(2,1fr); gap:.6rem; align-items:center;
+    }
+    .score .box{ border:1px solid var(--border); border-radius:10px; padding:.6rem .7rem; background:transparent; }
+    .patterns{ display:grid; gap:.5rem; }
+    .patterns .card{ border:1px solid var(--border); border-radius:10px; padding:.6rem .7rem; }
+    code{
+      background: #1e1e1e; color:#f8f8f2; border-radius:8px; padding:.08rem .35rem;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; font-size:.92rem;
+    }
+    .small{ font-size:.9rem; color:var(--muted); }
+    .nav{ display:flex; gap:.5rem; margin-top:.5rem; }
+    .key{ font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Match the Scenario to the Reasoning Pattern</h1>
+    <p class="sub">Eight short scenarios. For each, choose the pattern that best fits (e.g., <em>Constraint Satisfaction</em>, <em>Knapsack</em>, <em>Critical Path</em>). Immediate feedback + explanations. Keyboard friendly: use <span class="key">↑/↓</span> to move and <span class="key">Enter</span> to submit.</p>
+    <div class="toolbar">
+      <button id="btnRestart" class="secondary" aria-label="Restart exercise">Restart</button>
+      <button id="btnShuffle" class="secondary" aria-label="Shuffle scenarios">Shuffle</button>
+      <button id="btnPrint" class="secondary" aria-label="Print handout">Print</button>
+      <span class="pill" id="progressPill" aria-live="polite">Scenario 1 of 8</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="row">
+      <section class="panel" aria-labelledby="scenarioTitle">
+        <h2 id="scenarioTitle" style="margin-top:0">Scenario</h2>
+        <div id="scenarioBox" class="scenario" tabindex="0" aria-live="polite">
+          <!-- scenario text injected here -->
+        </div>
+        <form id="formOptions" class="options" aria-labelledby="optionTitle">
+          <h3 id="optionTitle" class="small" style="margin:.25rem 0">Choose the best-fitting pattern:</h3>
+          <!-- options injected here -->
+        </form>
+        <div id="feedback" class="feedback" role="status" aria-live="polite"></div>
+        <div class="nav">
+          <button id="btnSubmit" aria-label="Submit answer (Enter)">Submit</button>
+          <button id="btnReveal" class="secondary" aria-label="Reveal answer">Reveal</button>
+          <button id="btnNext" class="secondary" aria-label="Next scenario" disabled>Next</button>
+        </div>
+      </section>
+
+      <aside class="panel" aria-labelledby="scoreTitle">
+        <h2 id="scoreTitle" style="margin-top:0">Progress</h2>
+        <div class="score">
+          <div class="box"><strong>Score:</strong> <span id="score">0</span> / <span id="seen">0</span></div>
+          <div class="box"><strong>Streak:</strong> <span id="streak">0</span></div>
+        </div>
+        <h3 style="margin-top:1rem">Pattern Reference</h3>
+        <div class="patterns small" id="refList">
+          <!-- reference list injected -->
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+  (function(){
+    // Patterns pool
+    const patterns = [
+      { id:'csp', name:'Constraint Satisfaction', why:'Multiple variables must be assigned without breaking any rules or constraints.'},
+      { id:'knapsack', name:'Knapsack Optimization', why:'Maximize value under a capacity constraint (e.g., weight, budget, time).'},
+      { id:'critical', name:'Critical Path / Dependency Resolution', why:'Precedence constraints: tasks must occur in a particular order; bottlenecks define schedule.'},
+      { id:'dnc', name:'Divide and Conquer', why:'Split into subproblems, solve each efficiently, then combine (e.g., sorting).'},
+      { id:'backtrack', name:'Backtracking', why:'Systematically try, check, and undo when a partial path fails.'},
+      { id:'matching', name:'Matching / Flow', why:'Pair items from two sets given compatibility or capacity constraints.'},
+      { id:'multi', name:'Multi-Objective Optimization', why:'Balance competing goals; often no single “best,” but Pareto tradeoffs.'},
+      { id:'greedy', name:'Greedy Heuristic', why:'Repeatedly take the best local option; fast but not always globally optimal.'}
+    ];
+
+    // Scenario bank
+    const bank = [
+      { id:'A', text:'Assign 200 students to 10 lab sections. Each student has time conflicts and some require ADA-compatible rooms.', answer:'csp',
+        explain:'Each assignment (student → section → room) must satisfy constraints (time, capacity, accessibility). Classic CSP.' },
+      { id:'B', text:'Pack a delivery truck with items of different weights and values. The truck has a fixed weight limit.', answer:'knapsack',
+        explain:'You are maximizing value subject to a capacity constraint: textbook knapsack.' },
+      { id:'C', text:'Plan a film shoot. Actors cannot film before costumes are done. Costumes cannot start until fabrics arrive.', answer:'critical',
+        explain:'A dependency chain (fabrics → costumes → filming). The critical path determines schedule.' },
+      { id:'D', text:'Sort 5,000 student records by last name as fast as possible.', answer:'dnc',
+        explain:'Efficient sorts (like mergesort/quicksort) use divide-and-conquer.' },
+      { id:'E', text:'Assemble a jigsaw puzzle by trial: place a piece; if it does not fit, undo and try a new location.', answer:'backtrack',
+        explain:'Try, check, undo, retry. That is backtracking.' },
+      { id:'F', text:'Match 40 mentors with 40 mentees based on interests and compatible schedules.', answer:'matching',
+        explain:'Pairing two sets under compatibility → matching/flow (e.g., bipartite matching).' },
+      { id:'G', text:'Design a city transit plan balancing speed, cost, and environmental impact.', answer:'multi',
+        explain:'Conflicting objectives require tradeoffs → multi-objective optimization.' },
+      { id:'H', text:'Make $10 in change with the fewest coins possible.', answer:'greedy',
+        explain:'Taking the largest coin repeatedly is a greedy heuristic (optimal for canonical coin systems).' }
+    ];
+
+    // Shuffle helper
+    function shuffle(arr){
+      const a = arr.slice();
+      for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+      return a;
+    }
+
+    // State
+    let order = shuffle(bank);
+    let idx = 0;
+    let score = 0;
+    let seen = 0;
+    let streak = 0;
+    let answered = false;
+
+    // DOM
+    const scenarioBox = document.getElementById('scenarioBox');
+    const form = document.getElementById('formOptions');
+    const feedback = document.getElementById('feedback');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const btnNext = document.getElementById('btnNext');
+    const btnReveal = document.getElementById('btnReveal');
+    const progressPill = document.getElementById('progressPill');
+    const scoreEl = document.getElementById('score');
+    const seenEl = document.getElementById('seen');
+    const streakEl = document.getElementById('streak');
+    const btnRestart = document.getElementById('btnRestart');
+    const btnShuffle = document.getElementById('btnShuffle');
+    const btnPrint = document.getElementById('btnPrint');
+    const refList = document.getElementById('refList');
+
+    // Build options list
+    function renderOptions(){
+      form.innerHTML = '<h3 id="optionTitle" class="small" style="margin:.25rem 0">Choose the best-fitting pattern:</h3>';
+      patterns.forEach(p => {
+        const id = 'opt_'+p.id;
+        const wrap = document.createElement('label');
+        wrap.className = 'opt';
+        wrap.setAttribute('for', id);
+        wrap.innerHTML = `<input type="radio" name="opt" id="${id}" value="${p.id}"> <div><strong>${p.name}</strong><div class="small">${p.why}</div></div>`;
+        form.appendChild(wrap);
+      });
+    }
+
+    // Build reference sidebar
+    function renderRef(){
+      refList.innerHTML = '';
+      patterns.forEach(p => {
+        const d = document.createElement('div');
+        d.className = 'card';
+        d.innerHTML = `<strong>${p.name}</strong><div class="small">${p.why}</div>`;
+        refList.appendChild(d);
+      });
+    }
+
+    // Load scenario
+    function load(i){
+      const s = order[i];
+      scenarioBox.textContent = `(${s.id}) ${s.text}`;
+      feedback.style.display = 'none';
+      feedback.className = 'feedback';
+      feedback.textContent = '';
+      answered = false;
+      btnNext.disabled = true;
+      // Reset selection
+      const radios = form.querySelectorAll('input[type="radio"]');
+      radios.forEach(r => { r.checked = false; });
+      progressPill.textContent = `Scenario ${i+1} of ${order.length}`;
+      scenarioBox.focus();
+    }
+
+    // Submit handler
+    function submit(){
+      if(answered) return;
+      const choice = form.querySelector('input[name="opt"]:checked');
+      if(!choice){
+        feedback.style.display = 'block';
+        feedback.className = 'feedback no';
+        feedback.textContent = 'Pick an option before submitting.';
+        return;
+      }
+      answered = true;
+      seen += 1; seenEl.textContent = seen;
+      const s = order[idx];
+      if(choice.value === s.answer){
+        score += 1; scoreEl.textContent = score;
+        streak += 1; streakEl.textContent = streak;
+        feedback.style.display = 'block';
+        feedback.className = 'feedback ok';
+        feedback.innerHTML = `✅ Correct: <strong>${patterns.find(p=>p.id===s.answer).name}</strong><div class="explain">${s.explain}</div>`;
+      } else {
+        streak = 0; streakEl.textContent = 0;
+        feedback.style.display = 'block';
+        feedback.className = 'feedback no';
+        const right = patterns.find(p=>p.id===s.answer).name;
+        feedback.innerHTML = `❌ Not quite. Correct is <strong>${right}</strong>.<div class="explain">${s.explain}</div>`;
+      }
+      btnNext.disabled = idx >= order.length-1;
+    }
+
+    // Reveal handler (no score change)
+    function reveal(){
+      const s = order[idx];
+      const right = patterns.find(p=>p.id===s.answer).name;
+      feedback.style.display = 'block';
+      feedback.className = 'feedback ok';
+      feedback.innerHTML = `Answer: <strong>${right}</strong><div class="explain">${s.explain}</div>`;
+    }
+
+    // Next
+    function next(){
+      if(idx < order.length-1){
+        idx += 1; load(idx);
+      }
+    }
+
+    // Restart
+    function restart(){
+      idx = 0; score = 0; seen = 0; streak = 0;
+      scoreEl.textContent = 0; seenEl.textContent = 0; streakEl.textContent = 0;
+      load(0);
+    }
+
+    // Shuffle scenarios (new order, reset progress)
+    function shuffleScenarios(){
+      order = shuffle(bank);
+      restart();
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e)=>{
+      if(e.key==='Enter'){ e.preventDefault(); submit(); }
+      if(e.key==='ArrowRight'){ next(); }
+      if(e.key==='ArrowLeft'){ /* no-op */ }
+      if(e.key==='r' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); restart(); }
+    });
+
+    // Print
+    btnPrint.addEventListener('click', ()=>window.print());
+
+    // Wire buttons
+    btnSubmit.addEventListener('click', submit);
+    btnNext.addEventListener('click', next);
+    btnReveal.addEventListener('click', reveal);
+    btnRestart.addEventListener('click', restart);
+    btnShuffle.addEventListener('click', shuffleScenarios);
+
+    // Init
+    renderOptions(); renderRef(); load(0);
+  })();
+  </script>
+</body>
+</html>

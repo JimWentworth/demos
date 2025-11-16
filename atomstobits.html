@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Being Digital: An Interactive Exploration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chosen Palette: Calm Harmony (Tailwind Stone/Gray + Amber Accent) -->
+    <!-- Application Structure Plan: A single-page, thematic scrolling journey. A sticky top nav allows users to jump between sections. The flow is: 1. Core Concept (Atoms vs. Bits), 2. Commingling Demo (Interactive), 3. Convergence (HTML/CSS Diagram + JS Toggle), 4. Data (Interactive Charts), 5. Predictions (HTML Table). This structure was chosen to logically build the concept from theory to real-world impact, using interaction to reinforce learning. -->
+    <!-- Visualization & Content Choices: 1. Atoms vs. Bits (Concept) -> Goal: Compare -> Viz: Side-by-side HTML cards -> Interaction: None -> Justification: Simple, clear comparison of the core thesis. (HTML/CSS). 2. Commingling Demo (Concept) -> Goal: Inform/Engage -> Viz: JS-updated text block -> Interaction: Click buttons (Movie, Book, Song) -> Justification: Interactively proves the core idea that all media become "010101". (JS). 3. Convergence (Concept) -> Goal: Organize/Inform -> Viz: HTML/CSS flow diagram + JS text toggle -> Interaction: Click "1983" / "2023" buttons -> Justification: Shows the consequence (industry consolidation) interactively. (HTML/CSS + JS). 4. Economic Shift (Data) -> Goal: Change (time) -> Viz: Line Chart (Chart.js) -> Interaction: Hover -> Justification: Shows the replacement of physical by digital. (Chart.js). 5. Sales Breakdown (Data) -> Goal: Compare (composition) -> Viz: Pie Chart (Chart.js) -> Interaction: Click buttons to update chart (2015 vs 2022) -> Justification: Shows the dramatic shift in consumer behavior. (Chart.js + JS). 6. Predictions (Analysis) -> Goal: Inform/Compare -> Viz: HTML table -> Interaction: None -> Justification: Clearly organizes predictions vs. reality. (HTML). -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #1f2937;
+        }
+        .nav-link {
+            @apply px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors;
+        }
+        .nav-link.active {
+            @apply bg-amber-100 text-amber-700;
+        }
+        .content-section {
+            @apply w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .toggle-btn {
+            @apply px-4 py-2 rounded-md text-sm font-medium transition-colors;
+        }
+        .toggle-btn.active {
+            @apply bg-amber-600 text-white;
+        }
+        .toggle-btn.inactive {
+            @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+        }
+        .prediction-cell {
+            @apply px-6 py-4 text-sm text-gray-800;
+        }
+    </style>
+</head>
+<body class="bg-stone-50">
+
+    <header class="bg-white/90 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-amber-700">Being Digital</h1>
+                </div>
+                <div class="hidden sm:block">
+                    <div class="flex space-x-4">
+                        <a href="#concept" class="nav-link">Concept</a>
+                        <a href="#commingling" class="nav-link">Commingling</a>
+                        <a href="#convergence" class="nav-link">Convergence</a>
+                        <a href="#data" class="nav-link">The Data</a>
+                        <a href="#predictions" class="nav-link">Predictions</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <section id="concept" class="content-section">
+            <div class="text-center">
+                <h2 class="text-base font-semibold uppercase tracking-wider text-amber-600">The Core Thesis</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">From Atoms to Bits</p>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-gray-600">
+                    In his 1995 book "Being Digital," Nicholas Negroponte proposed a simple but profound idea: the world was moving from a economy of <strong class="text-gray-900">Atoms</strong> to one of <strong class="text-gray-900">Bits</strong>. This shift, he argued, was "irrevocable and unstoppable."
+                </p>
+            </div>
+            <div class="mt-16 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+                    <h3 class="text-2xl font-bold text-center text-gray-800">ATOMS</h3>
+                    <p class="text-center text-gray-500 italic mb-6">Physical Goods (Books, CDs, Newspapers)</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">📦</span>
+                            <span class="text-gray-700"><strong>Physical:</strong> Have weight, size, and color.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">🚚</span>
+                            <span class="text-gray-700"><strong>Distribution:</strong> Slow and expensive to move (e.g., trucks, ships).</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">🔒</span>
+                            <span class="text-gray-700"><strong>Container:</strong> Information is tied to its physical container (a book, a disc).</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="bg-gray-900 p-8 rounded-lg shadow-lg text-white">
+                    <h3 class="text-2xl font-bold text-center text-white">BITS</h3>
+                    <p class="text-center text-gray-400 italic mb-6">Digital Information (Files, Streams, Data)</p>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">☁️</span>
+                            <span class="text-gray-200"><strong>Weightless:</strong> A bit has no color, size, or weight.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">⚡</span>
+                            <span class="text-gray-200"><strong>Distribution:</strong> Instantaneous and cheap to move at the speed of light.</span>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="text-2xl mr-4">🔄</span>
+                            <span class="text-gray-200"><strong>Fungible:</strong> Information is freed from its container. All media become 1s and 0s.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="commingling" class="content-section bg-stone-100">
+            <div class="text-center">
+                <h2 class="text-base font-semibold uppercase tracking-wider text-amber-600">The "Commingling" of Bits</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">All Media Become One</p>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-gray-600">
+                    Negroponte's key insight was that when all "atoms" (movies, books, songs) are digitized, they become "commingled" into the same stream of bits. Multimedia, he said, "is nothing more than commingled bits."
+                </p>
+                <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600">
+                    <strong>Click the buttons below</strong> to see what different media look like in the digital world.
+                </p>
+            </div>
+            <div class="mt-16 max-w-4xl mx-auto">
+                <div class="flex justify-center flex-wrap gap-4 mb-8">
+                    <button id="btn-movie" class="bit-button px-6 py-3 bg-white rounded-lg shadow-md font-medium text-gray-800 hover:bg-gray-50 transition text-lg">🎬 A Movie</button>
+                    <button id="btn-book" class="bit-button px-6 py-3 bg-white rounded-lg shadow-md font-medium text-gray-800 hover:bg-gray-50 transition text-lg">📖 A Book</button>
+                    <button id="btn-song" class="bit-button px-6 py-3 bg-white rounded-lg shadow-md font-medium text-gray-800 hover:bg-gray-50 transition text-lg">🎵 A Song</button>
+                </div>
+                <div class="bg-gray-900 rounded-lg shadow-inner p-8">
+                    <div id="bit-display" class="text-center font-mono text-2xl text-green-400 break-all" style="min-height: 80px;">
+                        <span id="bit-placeholder" class="text-gray-500 text-xl">Click a button to see the bits...</span>
+                        <span id="bit-stream" class="hidden"></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="convergence" class="content-section">
+            <div class="text-center">
+                <h2 class="text-base font-semibold uppercase tracking-wider text-amber-600">The Impact</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">Convergence & Consolidation</p>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-gray-600">
+                    Because all media are just "bits," the physical walls between industries (like broadcasting, publishing, and computing) vanished. This led to a massive "convergence" of industries and, ultimately, to consolidation.
+                </p>
+            </div>
+            
+            <div class="mt-16 w-full max-w-5xl mx-auto">
+                <h3 class="text-xl font-bold text-center text-gray-800 mb-8">How Commingled Bits Reshaped Industries</h3>
+                <div class="flex flex-col items-center">
+                    <div class="grid grid-cols-3 gap-4 w-full max-w-3xl">
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Broadcasting</div>
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Publishing</div>
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Computing</div>
+                    </div>
+                    <div class="flex justify-center text-4xl font-bold my-6 text-amber-600">
+                        <span>⬇</span>
+                    </div>
+                    <div class="p-6 bg-gray-900 text-white rounded-lg shadow-xl w-full max-w-md text-center">
+                        <h4 class="text-xl font-bold">The Internet: One Pipe for All Bits</h4>
+                    </div>
+                    <div class="flex justify-center text-4xl font-bold my-6 text-amber-600">
+                        <span>⬇</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-3xl">
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Streaming Video (Netflix)</div>
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Digital News (Online)</div>
+                        <div class="p-4 bg-white rounded-lg shadow text-center font-medium">Social Media (Facebook)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-20 max-w-2xl mx-auto text-center">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">This convergence led to consolidation.</h3>
+                <p class="text-lg text-gray-600 mb-6">Who owns the media you consume? Click to see the change.</p>
+                <div class="flex justify-center space-x-4 mb-6">
+                    <button id="btn-1983" class="toggle-btn inactive">1983</button>
+                    <button id="btn-2023" class="toggle-btn inactive">2023</button>
+                </div>
+                <div id="consolidation-display" class="bg-white p-8 rounded-lg shadow-xl" style="min-height: 150px;">
+                    <span id="consolidation-placeholder" class="text-gray-500">Select a year...</span>
+                    <div id="consolidation-1983" class="hidden">
+                        <p class="text-6xl font-bold text-amber-700">50</p>
+                        <p class="text-xl text-gray-700 mt-2">In 1983, 90% of U.S. media was owned by 50 different companies.</p>
+                    </div>
+                    <div id="consolidation-2023" class="hidden">
+                        <p class="text-6xl font-bold text-amber-700">6</p>
+                        <p class="text-xl text-gray-700 mt-2">By 2023, 90% of U.S. media is controlled by just 6 conglomerates.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="data" class="content-section bg-stone-100">
+            <div class="text-center">
+                <h2 class="text-base font-semibold uppercase tracking-wider text-amber-600">The Economic Shift</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">The Data: Atoms vs. Bits</p>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-gray-600">
+                    The move from atoms to bits wasn't just theoretical. It fundamentally and quantifiably reshaped entire industries, especially media and gaming.
+                </p>
+            </div>
+            <div class="mt-16 grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
+                <div class="bg-white p-8 rounded-lg shadow-xl">
+                    <h3 class="text-2xl font-bold text-center text-gray-800 mb-2">The Digital Takeover</h3>
+                    <p class="text-center text-gray-600 mb-8">Video game sales show a clear picture of bits replacing atoms. Physical sales have collapsed as digital downloads became the standard.</p>
+                    <div class="chart-container">
+                        <canvas id="digitalTakeoverChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-8 rounded-lg shadow-xl">
+                    <h3 class="text-2xl font-bold text-center text-gray-800 mb-2">Changing Consumer Habits</h3>
+                    <p class="text-center text-gray-600 mb-6">On a single platform (PlayStation), the shift in just 7 years is stark. Click to toggle between 2015 and 2022.</p>
+                    <div class="flex justify-center space-x-4 mb-6">
+                        <button id="btn-2015" class="toggle-btn inactive">2015</button>
+                        <button id="btn-2022" class="toggle-btn inactive">2022</button>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="playstationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="predictions" class="content-section">
+            <div class="text-center">
+                <h2 class="text-base font-semibold uppercase tracking-wider text-amber-600">Looking Back</h2>
+                <p class="mt-2 text-3xl font-extrabold text-gray-900 tracking-tight sm:text-4xl">Predictions vs. Reality (from 1995)</p>
+                <p class="mt-6 max-w-3xl mx-auto text-xl text-gray-600">
+                    Like any visionary, Negroponte got some things spectacularly right and missed the mark on others.
+                </p>
+            </div>
+            <div class="mt-16 flex flex-col">
+                <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                    <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                        <div class="shadow-xl overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-800">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Prediction</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Reality</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Verdict</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr>
+                                        <td class="prediction-cell font-medium">TV and the PC will become "one and the same."</td>
+                                        <td class="prediction-cell">Smart TVs, PCs streaming TV, and tablets have blurred the line completely.</td>
+                                        <td class="prediction-cell"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Correct</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="prediction-cell font-medium">Video-on-demand will replace video rentals.</td>
+                                        <td class="prediction-cell">Blockbuster went bankrupt. Netflix, Hulu, and Disney+ dominate.</td>
+                                        <td class="prediction-cell"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Correct</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="prediction-cell font-medium">"Agents" (software) will personalize our news and media.</td>
+                                        <td class="prediction-cell">This is the core mechanic of AI-driven feeds on TikTok, Facebook, and Google News.</td>
+                                        <td class="prediction-cell"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Correct</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="prediction-cell font-medium">Printed material (newspapers) will die by 2000.</td>
+                                        <td class="prediction-cell">Print declined severely but is still published today, over 25 years later.</td>
+                                        <td class="prediction-cell"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Incorrect</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="prediction-cell font-medium">Future communication would still rely on hardwired phones.</td>
+                                        <td class="prediction-cell">He completely missed the rise of mobile phones and SMS as the primary driver.</td>
+                                        <td class="prediction-cell"><span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Incorrect</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-gray-400 py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p>An interactive SPA based on the research of "Being Digital" by Nicholas Negroponte.</p>
+            <p class="mt-2 text-sm">Data sourced from research on media industry trends.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('main section');
+
+            const observerOptions = { root: null, rootMargin: '-64px 0px -50% 0px', threshold: 0.01 };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.getAttribute('id');
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => observer.observe(section));
+
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = e.currentTarget.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if(targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 64, 
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            const bitButtons = document.querySelectorAll('.bit-button');
+            const bitPlaceholder = document.getElementById('bit-placeholder');
+            const bitStream = document.getElementById('bit-stream');
+            const bitstreams = {
+                'btn-movie': '01001101 01101111 01110110 01101001 01100101 00100000 01000110 01101001 01101100 01100101 00101110 01101101 01101011 01110110...',
+                'btn-book': '01000010 01101111 01101111 01101011 00100000 01010100 01100101 01111000 01110100 00101110 01100101 01110000 01110101 01100010...',
+                'btn-song': '01010011 01101111 01101110 01100111 00100000 01000001 01110101 01100100 01101001 01101111 00101110 01101101 01110000 00110011...'
+            };
+            bitButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    bitPlaceholder.classList.add('hidden');
+                    bitStream.classList.remove('hidden');
+                    bitStream.textContent = bitstreams[e.currentTarget.id];
+                });
+            });
+
+            const btn1983 = document.getElementById('btn-1983');
+            const btn2023 = document.getElementById('btn-2023');
+            const consolidationPlaceholder = document.getElementById('consolidation-placeholder');
+            const consolidation1983 = document.getElementById('consolidation-1983');
+            const consolidation2023 = document.getElementById('consolidation-2023');
+
+            btn1983.addEventListener('click', () => {
+                consolidationPlaceholder.classList.add('hidden');
+                consolidation2023.classList.add('hidden');
+                consolidation1983.classList.remove('hidden');
+                btn1983.classList.add('active');
+                btn1983.classList.remove('inactive');
+                btn2023.classList.add('inactive');
+                btn2023.classList.remove('active');
+            });
+
+            btn2023.addEventListener('click', () => {
+                consolidationPlaceholder.classList.add('hidden');
+                consolidation1983.classList.add('hidden');
+                consolidation2023.classList.remove('hidden');
+                btn2023.classList.add('active');
+                btn2023.classList.remove('inactive');
+                btn1983.classList.add('inactive');
+                btn1983.classList.remove('active');
+            });
+
+            btn1983.click();
+
+            const tooltipTitleCallback = (tooltipItems) => {
+                const item = tooltipItems[0];
+                let label = item.chart.data.labels[item.dataIndex];
+                if (Array.isArray(label)) {
+                    return label.join(' ');
+                } else {
+                    return label;
+                }
+            };
+            
+            const digitalTakeoverCtx = document.getElementById('digitalTakeoverChart').getContext('2d');
+            new Chart(digitalTakeoverCtx, {
+                type: 'line',
+                data: {
+                    labels: ['2013', '2015', '2018', '2022', '2023'],
+                    datasets: [
+                        {
+                            label: 'Physical Game Sales (%)',
+                            data: [81, 81, 50, 30, 17],
+                            borderColor: '#888888',
+                            backgroundColor: 'rgba(136, 136, 136, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Digital Game Sales (%)',
+                            data: [19, 19, 50, 70, 83],
+                            borderColor: '#d97706',
+                            backgroundColor: 'rgba(217, 119, 6, 0.1)',
+                            fill: true,
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: { callbacks: { title: tooltipTitleCallback } }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: (value) => value + '%' }
+                        }
+                    }
+                }
+            });
+
+            const playstationData = {
+                '2015': {
+                    labels: ['Physical Sales', 'Digital Sales'],
+                    data: [81, 19]
+                },
+                '2022': {
+                    labels: ['Physical Sales', 'Digital Sales'],
+                    data: [30, 70]
+                }
+            };
+
+            const playstationCtx = document.getElementById('playstationChart').getContext('2d');
+            const playstationChart = new Chart(playstationCtx, {
+                type: 'pie',
+                data: {
+                    labels: playstationData['2015'].labels,
+                    datasets: [{
+                        data: playstationData['2015'].data,
+                        backgroundColor: ['#888888', '#d97706'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: { callbacks: { title: tooltipTitleCallback } },
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            const btn2015 = document.getElementById('btn-2015');
+            const btn2022 = document.getElementById('btn-2022');
+
+            btn2015.addEventListener('click', () => {
+                playstationChart.data.labels = playstationData['2015'].labels;
+                playstationChart.data.datasets[0].data = playstationData['2015'].data;
+                playstationChart.update();
+                btn2015.classList.add('active');
+                btn2015.classList.remove('inactive');
+                btn2022.classList.add('inactive');
+                btn2022.classList.remove('active');
+            });
+
+            btn2022.addEventListener('click', () => {
+                playstationChart.data.labels = playstationData['2022'].labels;
+                playstationChart.data.datasets[0].data = playstationData['2022'].data;
+                playstationChart.update();
+                btn2022.classList.add('active');
+                btn2022.classList.remove('inactive');
+                btn2015.classList.add('inactive');
+                btn2015.classList.remove('active');
+            });
+
+            btn2015.click();
+        });
+    </script>
+</body>
+</html>
+

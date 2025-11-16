@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generative AI Tool Spotlight Series</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+        }
+        .tool-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .tool-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        .best-for {
+            color: #008080; /* Teal for prominence */
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Header -->
+        <header class="text-center mb-10 pt-4">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-gray-900 mb-2">
+                Generative AI Tool Spotlight
+            </h1>
+            <p class="text-xl text-gray-600">
+                26 Essential Tools for Creativity, Productivity, and Development
+            </p>
+        </header>
+
+        <!-- Controls (Filter & Sort) -->
+        <div class="flex flex-col sm:flex-row gap-4 mb-8 p-4 bg-white rounded-xl shadow-lg">
+            
+            <!-- Category Filter -->
+            <div class="w-full sm:w-1/2">
+                <label for="category-filter" class="block text-sm font-medium text-gray-700 mb-2">Filter by Category:</label>
+                <select id="category-filter" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <option value="All">All Categories</option>
+                    <!-- Options populated by JS -->
+                </select>
+            </div>
+            
+            <!-- Sort By -->
+            <div class="w-full sm:w-1/2">
+                <label for="sort-by" class="block text-sm font-medium text-gray-700 mb-2">Sort By:</label>
+                <select id="sort-by" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 transition duration-150">
+                    <option value="name-asc">Tool Name (A-Z)</option>
+                    <option value="name-desc">Tool Name (Z-A)</option>
+                    <option value="category">Category</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tool List Container -->
+        <div id="tool-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Tool Cards will be inserted here by JavaScript -->
+        </div>
+
+        <footer class="text-center text-gray-500 text-sm mt-12 p-4">
+            Data compiled for Generative AI Tool Spotlight Series.
+        </footer>
+
+    </div>
+
+    <script>
+        // --- 1. DATA DEFINITION ---
+        const allTools = [
+            {
+                name: "Notion AI",
+                category: "Productivity & Knowledge",
+                subCategory: "Productivity / Knowledge Management",
+                bestFor: "Organizing notes, documents, and project plans—with integrated AI to assist with summarizing, drafting, and brainstorming.",
+                overview: "Notion AI builds on the popular all-in-one workspace Notion by adding generative AI capabilities right inside your notes and documents. It’s ideal for people who manage large volumes of content, tasks, or ideas and want quick, contextual assistance without switching apps.",
+                strengths: ["Seamless integration into a popular productivity app", "Context-aware AI that understands your notes", "Supports collaborative editing and version control"],
+                limitations: ["Requires a paid Notion plan for AI features", "Not ideal for media-rich workflows (images, videos)"],
+                link: "https://www.notion.so/product/ai"
+            },
+            {
+                name: "Runway ML",
+                category: "Video",
+                subCategory: "Video Editing / Creative Toolkit",
+                bestFor: "Artists, designers, and creators working with video, images, and multimedia who want to leverage AI to enhance or automate complex tasks.",
+                overview: "Runway ML is a web-based creative suite offering AI-powered tools for video editing, image generation, motion tracking, and more. It’s known for making advanced machine learning models accessible to non-coders through a clean interface and pre-built templates. Runway supports real-time collaboration and integrates well with creative workflows.",
+                strengths: ["No-code interface with high-quality generative video tools", "Offers real-time previews and collaborative editing", "Hosts a growing library of creative ML models"],
+                limitations: ["Can get expensive for frequent use (credits-based system)", "Requires stable internet and is browser-based (not ideal for low-bandwidth setups)"],
+                link: "https://runwayml.com"
+            },
+            {
+                name: "Manus",
+                category: "Writing & LLM",
+                subCategory: "Interactive Storytelling / Web Publishing",
+                bestFor: "Writers, educators, and creative coders who want to craft AI-assisted interactive stories, essays, or knowledge experiences for the web.",
+                overview: "Manus is a browser-based tool that blends AI-assisted writing with interactive web storytelling. It allows users to combine narrative text with generative prompts, data inputs, and code to create dynamic, exploratory reading experiences. Manus is particularly compelling for creators building public-facing demos, experimental essays, or educational simulations.",
+                strengths: ["Web-native publishing with interactive elements and generative logic", "Flexible enough for both non-coders and technical users", "Clean, minimal aesthetic ideal for educational or narrative content"],
+                limitations: ["Requires some technical familiarity to fully unlock interactive potential", "Not well-suited for long-form static content or closed systems"],
+                link: "https://manus.cool"
+            },
+            {
+                name: "Notebook LM (Google)",
+                category: "Research & Data",
+                subCategory: "Research Companion / Knowledge Management",
+                bestFor: "Students, faculty, and researchers who want to engage in deeper reading, reflection, and synthesis using their own notes and sources.",
+                overview: "Notebook LM is a research-focused AI assistant from Google that allows users to upload documents and then engage in dialogue with the AI based on that content. It organizes uploaded materials into \"notebooks\" and generates key takeaways, summaries, and contextual Q&A responses. It’s ideal for deep engagement with complex or source-rich material.",
+                strengths: ["Context stays grounded in uploaded materials (low hallucination risk)", "Simple interface with strong citation-awareness", "Integrates with Google ecosystem for document uploads"],
+                limitations: ["Limited customization of the AI's tone or logic", "Currently supports only certain file types (PDFs, Google Docs, etc.)"],
+                link: "https://notebooklm.google"
+            },
+            {
+                name: "Adobe Firefly",
+                category: "Image & 3D",
+                subCategory: "Image Generation / Design Companion",
+                bestFor: "Designers, marketers, and educators looking to generate images or creative assets within a familiar Adobe-style interface and licensing structure.",
+                overview: "Adobe Firefly is Adobe’s suite of generative AI tools, focused on image generation, text effects, and vector creation. It’s built with commercial use in mind, offering transparency, content credentials, and safe-to-license assets. Firefly integrates tightly with Adobe Creative Cloud tools like Photoshop and Illustrator.",
+                strengths: ["Designed with creators and licensing in mind", "Seamless integration with Adobe Creative Suite tools", "Focus on responsible, safe-for-commercial-use content"],
+                limitations: ["Requires Adobe subscription (though limited free versions exist)", "Fewer experimental image generation features compared to open tools like Midjourney or DALL·E"],
+                link: "https://firefly.adobe.com"
+            },
+            {
+                name: "Midjourney",
+                category: "Image & 3D",
+                subCategory: "Image Generation / Visual Storytelling",
+                bestFor: "Artists, designers, and educators seeking highly stylized, expressive, and surreal AI-generated images through text prompts.",
+                overview: "Midjourney is a powerful text-to-image generator that runs via Discord, known for its painterly, dreamlike aesthetic and responsive prompt tuning. It has quickly become a favorite among designers, illustrators, and concept artists due to its signature look and high degree of artistic variation. Prompts can be iterated or refined through community feedback loops.",
+                strengths: ["Distinctive visual style that’s hard to replicate elsewhere", "Fast iteration and flexible prompt control via Discord interface", "Large, active community with prompt-sharing and feedback"],
+                limitations: ["Requires Discord access and familiarity (not a traditional app)", "Less control over photorealism or specific image editing features"],
+                link: "https://www.midjourney.com"
+            },
+            {
+                name: "Descript",
+                category: "Audio & Video",
+                subCategory: "Audio & Video Editing / Media Production",
+                bestFor: "Podcasters, instructors, and content creators who want to edit audio/video as easily as text, with AI-driven voice and transcription features.",
+                overview: "Descript revolutionizes media editing by turning audio and video into editable text. Its “Overdub” feature lets users generate synthetic voiceovers, while its timeline and multi-track tools make it easy to cut, rearrange, or remix content—no traditional editing skills needed. Ideal for solo creators, instructors, and teams producing regular media.",
+                strengths: ["Intuitive interface: edit media like a Word doc", "Powerful AI transcription, dubbing, and screen recording features", "Ideal for quick turnaround content with a professional feel"],
+                limitations: ["Voice cloning requires permission and ethical awareness", "Premium features are behind a paywall (free tier limited)"],
+                link: "https://www.descript.com"
+            },
+            {
+                name: "ElevenLabs",
+                category: "Audio & Video",
+                subCategory: "AI Voice Generation / Text-to-Speech",
+                bestFor: "Creators and educators needing high-quality, humanlike voices for narration, accessibility, or character performance.",
+                overview: "ElevenLabs offers some of the most realistic and expressive AI voice generation in the market. It supports voice cloning (with permission), multilingual text-to-speech, and emotion-aware narration. The interface is simple but powerful, making it easy to turn scripts into lifelike audio in seconds.",
+                strengths: ["High naturalness and emotional range of synthetic voices", "Fast processing and clean interface", "Widely used in education, accessibility, and creative audio"],
+                limitations: ["Requires voice cloning consent (privacy + ethics concern)", "Premium plans are required for long audio or custom voices"],
+                link: "https://www.elevenlabs.io"
+            },
+            {
+                name: "ChatGPT",
+                category: "Writing & LLM",
+                subCategory: "Conversational AI / General LLM",
+                bestFor: "Anyone needing a versatile AI assistant for writing, brainstorming, tutoring, or general conversation across a wide range of topics.",
+                overview: "ChatGPT is a large language model by OpenAI, known for its conversational ability and flexible use cases. It's widely used for everything from drafting emails and coding assistance to tutoring students and exploring creative writing. With multimodal capabilities, it can also understand and generate text from images.",
+                strengths: ["Highly versatile and user-friendly", "Can handle a broad range of topics and tasks", "Continuously updated and improved"],
+                limitations: ["Can produce confident-sounding but incorrect answers (always double-check facts)", "Requires an internet connection and is not fully offline-capable"],
+                link: "https://chat.openai.com"
+            },
+            {
+                name: "Gemini (Google)",
+                category: "Writing & LLM",
+                subCategory: "Conversational AI / Multimodal LLM",
+                bestFor: "Users who want a Google-backed AI assistant that integrates with Google services and can handle both text and images.",
+                overview: "Gemini is Google’s conversational AI, designed to integrate deeply with Google Workspace and provide a multimodal experience. It can understand text, images, and even some document formats, making it handy for collaborative tasks, research, and everyday productivity.",
+                strengths: ["Strong integration with Google services (Docs, Gmail, etc.)", "Multimodal understanding for both text and images", "Backed by Google’s AI research and data capabilities"],
+                limitations: ["May prioritize integration within Google’s ecosystem (less flexible outside it)", "Privacy and data use tied to Google policies"],
+                link: "https://gemini.google.com"
+            },
+            {
+                name: "Perplexity AI",
+                category: "Research & Data",
+                subCategory: "Research & Documentation / Conversational Search",
+                bestFor: "Users looking for an AI that excels in research, documentation, and providing sourced answers, especially for academic or technical queries.",
+                overview: "Perplexity AI is a conversational search engine and research assistant that focuses on providing well-sourced and citation-backed answers. It’s particularly useful for academic or professional users who need reliable information and transparency in AI responses. Unlike traditional search engines, it immediately synthesizes information from multiple sources into a narrative answer.",
+                strengths: ["Emphasis on sourced and verifiable answers", "Useful for academic and professional research", "Clear citations for transparency"],
+                limitations: ["May not be as versatile for creative tasks", "Free tier has usage limits on its most powerful model"],
+                link: "https://www.perplexity.ai"
+            },
+            {
+                name: "Claude (Anthropic)",
+                category: "Writing & LLM",
+                subCategory: "Conversational AI / Ethical AI Assistant",
+                bestFor: "Users who prioritize a safety-first, ethics-focused AI for conversational help, especially in educational or sensitive settings.",
+                overview: "Claude is Anthropic’s AI assistant, built with a strong emphasis on ethical behavior and reliability through a set of principles called “Constitutional AI.” It’s designed to be helpful and honest, with safeguards to minimize harmful or biased outputs. It’s great for academic environments or users who want an extra layer of consideration around the ethics of AI responses.",
+                strengths: ["Strong focus on safety, ethics, and transparent reasoning", "Good for educational settings where ethical considerations are key", "Generally provides more cautious responses to reduce potential misuse"],
+                limitations: ["May be more conservative in responses compared to other AI models", "Less widely integrated into external tools than some competitors"],
+                link: "https://www.anthropic.com"
+            },
+            {
+                name: "Leonardo.Ai",
+                category: "Image & 3D",
+                subCategory: "Image Generation / Creative Design",
+                bestFor: "Designers and artists looking for a user-friendly AI platform to create high-quality, customizable images and designs, with a focus on game assets.",
+                overview: "Leonardo.Ai is an AI image generation tool focused on giving users more control over style and design elements, particularly for assets like characters, items, and environments. It offers various fine-tuned models and training capabilities, making it a popular choice for artists and game developers who need a specific, consistent aesthetic.",
+                strengths: ["Excellent control over image composition and style with custom models", "Generous free tier with daily tokens for use", "Community-focused platform for sharing and remixing prompts/styles"],
+                limitations: ["Requires a learning curve to master the custom model training features", "Credit system can get expensive for heavy usage"],
+                link: "https://leonardo.ai"
+            },
+            {
+                name: "Veo (Google)",
+                category: "Video",
+                subCategory: "Video Generation / Creative Video",
+                bestFor: "Developers and creators wanting a state-of-the-art Google model to generate high-fidelity, short video clips with natively generated audio.",
+                overview: "Veo is Google’s most advanced video generation model, capable of creating highly realistic, cinematic-quality 8-second video clips (up to 1080p) from text prompts. Veo excels at prompt adherence and physical realism. A standout feature is its native audio generation, which synchronizes sound effects, ambient noise, and even dialogue with the generated visuals, bringing the videos to life.",
+                strengths: ["Native audio generation for a more immersive and complete final product", "Exceptional realism, physics, and prompt adherence for high-fidelity output", "Available through the Gemini API and integrated into tools like Google Vids and Canva"],
+                limitations: ["Currently generates short clips (typically 8 seconds)", "Access is primarily via API/developer platforms or integrated partner tools"],
+                link: "https://deepmind.google/models/veo/"
+            },
+            {
+                name: "Sora (OpenAI)",
+                category: "Video",
+                subCategory: "Video Generation / Advanced AI Video",
+                bestFor: "Selected creators and developers who need a state-of-the-art model for generating complex, photorealistic video sequences from detailed prompts, often used for experimental or high-end creative projects.",
+                overview: "Sora is OpenAI's flagship text-to-video model, capable of generating incredibly complex and photorealistic scenes, often lasting up to 10 seconds, with deep understanding of physics, motion, and character consistency. It creates an entire video in a single generation, including sound effects and dialogue. Its initial public access is as a social-style iOS app, with access granted through an invite-only process.",
+                strengths: ["Industry-leading realism, scene complexity, and visual coherence over time", "Ability to generate full-scene videos (not just short clips) with synchronized audio", "Allows for collaborative creativity through its 'Remix' feature"],
+                limitations: ["Access is currently *invite-only* through a standalone iOS app", "Operates on a subscription model (not free)"],
+                link: "https://openai.com/sora/"
+            },
+            {
+                name: "HeyGen",
+                category: "Video",
+                subCategory: "AI Video Generation / Avatar & Spokesperson",
+                bestFor: "Businesses, marketers, and educators looking to create professional-quality videos with AI avatars and text-to-speech without hiring actors or using complex video editing.",
+                overview: "HeyGen allows users to generate engaging videos using AI avatars that can speak scripts in various voices and languages. It's incredibly efficient for creating explainer videos, marketing content, training modules, or social media clips where a human-like presenter is desired without the traditional costs and complexities of video production. You can even create custom avatars based on real people.",
+                strengths: ["High-quality, lifelike AI avatars with a range of styles and emotions", "Supports multiple languages and customizable voices (including voice cloning)", "Significantly reduces the time and cost associated with video production"],
+                limitations: ["Free tier has limited video length and features; paid plans can be expensive", "Avatar realism, while good, may not always perfectly match human nuances"],
+                link: "https://www.heygen.com"
+            },
+            {
+                name: "DALL·E 3 (OpenAI)",
+                category: "Image & 3D",
+                subCategory: "Image Generation / Creative Assets",
+                bestFor: "Users who need a highly capable and user-friendly AI for generating detailed, context-aware images from text prompts, especially for creative and marketing content.",
+                overview: "DALL·E 3 is OpenAI's latest text-to-image model, renowned for its exceptional understanding of nuanced prompts and its ability to generate photorealistic or highly artistic images with incredible detail. It often produces more accurate and visually appealing results directly from natural language descriptions compared to previous versions, making it accessible even for complex creative ideas. It integrates seamlessly with ChatGPT and Bing.",
+                strengths: ["Superior prompt understanding, reducing the need for complex prompt engineering", "Produces high-quality, aesthetically pleasing images in various styles", "Integrated directly into ChatGPT Plus/Enterprise and available via Bing Image Creator"],
+                limitations: ["Requires a ChatGPT Plus subscription or use through Bing Image Creator", "Limited control over specific elements post-generation compared to dedicated image editors"],
+                link: "https://openai.com/dall-e-3/"
+            },
+            {
+                name: "Copy.ai",
+                category: "Writing & LLM",
+                subCategory: "AI Writing Assistant / Marketing Copy",
+                bestFor: "Marketers, entrepreneurs, and content creators who need to quickly generate high-quality marketing copy, blog posts, and various forms of written content.",
+                overview: "Copy.ai is an AI-powered writing tool designed to help users generate a wide range of marketing and sales copy, including social media posts, ad copy, product descriptions, and long-form blog posts. It leverages AI models to produce creative and engaging text based on user inputs, significantly speeding up the content creation process. Its intuitive interface and diverse templates make it a favorite for business owners and content teams.",
+                strengths: ["Extensive library of templates for various content types", "User-friendly interface that simplifies AI content generation", "Excellent for overcoming writer's block and generating fresh ideas quickly"],
+                limitations: ["Output may require human editing for brand voice and factual accuracy", "Best for shorter-form marketing copy; long-form content still benefits from human oversight"],
+                link: "https://www.copy.ai"
+            },
+            {
+                name: "Gamma",
+                category: "Productivity & Knowledge",
+                subCategory: "Presentation & Document Creation / AI Design Assistant",
+                bestFor: "Professionals, educators, and students who need to quickly create visually stunning presentations, documents, and webpages with AI-powered design assistance.",
+                overview: "Gamma is an AI-powered tool that helps users create beautiful and engaging presentations, documents, and web pages in minutes, often starting directly from a text prompt. It takes care of the design, layout, and formatting, allowing users to focus on content. It's designed to make professional-looking communication accessible, transforming raw ideas into polished outputs without requiring design skills.",
+                strengths: ["AI-driven design automation for quick and attractive layouts", "Flexible output formats (presentations, documents, webpages)", "User-friendly interface with intuitive editing and customization options"],
+                limitations: ["Free tier has usage limits; advanced features and higher usage require a paid plan", "AI-generated designs might sometimes lack unique human creativity for highly specific branding"],
+                link: "https://gamma.app"
+            },
+            {
+                name: "Masterpiece Studio (Alpha)",
+                category: "Image & 3D",
+                subCategory: "3D Modeling and Design / Text-to-3D",
+                bestFor: "Designers, game developers, and artists who need to rapidly create 3D models and characters from simple text descriptions.",
+                overview: "Masterpiece Studio uses generative AI to instantly create editable 3D models, textures, and rigs from text or 2D image prompts. Its goal is to democratize 3D content creation by eliminating the steep learning curve of traditional 3D software. The generated models can be exported in standard formats, making them ready for use in game engines, VR/AR applications, or professional modeling tools.",
+                strengths: ["Converts text to fully editable 3D models rapidly", "Includes auto-rigging features for easy animation setup", "Integrates well into professional 3D pipelines (e.g., Unity, Blender)"],
+                limitations: ["The technology is still emerging, and model complexity can be limited", "Requires some post-generation cleanup or refinement"],
+                link: "https://www.masterpiecestudio.com"
+            },
+            {
+                name: "Suno AI",
+                category: "Audio & Video",
+                subCategory: "Music and Sound Generation / Text-to-Song",
+                bestFor: "Musicians, content creators, and hobbyists who want to create fully produced songs with vocals and lyrics using simple text prompts.",
+                overview: "Suno AI is a generative music tool that stands out for its ability to produce complete, high-quality songs—including unique lyrics, melodies, and instrumentation—from a few words of description. Unlike tools that only generate instrumental tracks, Suno creates a full composition with human-like vocals, making it popular for personal projects, social media content, and rapid songwriting experiments.",
+                strengths: ["Creates full songs (music, lyrics, and vocals) with a high production quality", "Extremely easy to use with a focus on natural language prompts", "Rapid generation and diverse musical style output"],
+                limitations: ["Free tier has daily limits on generations", "Creative control over specific musical arrangements is less precise than traditional DAWs"],
+                link: "https://www.suno.ai"
+            },
+            {
+                name: "Akkio",
+                category: "Research & Data",
+                subCategory: "Data Analysis / AI Business Automation",
+                bestFor: "Business users and analysts who want to build, deploy, and utilize machine learning models and data-driven predictions without writing code.",
+                overview: "Akkio is a no-code AI platform that focuses on helping businesses extract value from their data. Users can upload a dataset and, using simple prompts, ask Akkio to predict outcomes, classify data, or identify trends. The platform automatically handles the complexities of machine learning model creation and deployment, making predictive analytics accessible to non-data scientists for use cases like sales forecasting and churn prediction.",
+                strengths: ["No-code interface for building and deploying complex ML models", "Focus on actionable business outcomes and predictive analytics", "Fast model training and high interpretability of results"],
+                limitations: ["Effectiveness is highly dependent on the quality and volume of the input data", "Requires a paid subscription for full features and commercial model deployment"],
+                link: "https://www.akkio.com"
+            },
+            // Coding Tools
+            {
+                name: "GitHub Copilot",
+                category: "Coding",
+                subCategory: "AI Code Assistant / Pair Programmer",
+                bestFor: "Developers using GitHub, Visual Studio Code, or JetBrains IDEs who want powerful, context-aware code suggestions and full-feature assistance throughout the SDLC.",
+                overview: "GitHub Copilot, powered by OpenAI models, is arguably the most widely adopted AI pair programmer. It integrates directly into popular IDEs, providing real-time code completions for lines or entire functions, answering coding questions via a chat interface, and assisting with tasks like writing documentation and generating unit tests. It is deeply connected to the GitHub ecosystem for superior context and workflow integration.",
+                strengths: ["Seamless integration into the developer's existing IDE and GitHub workflows", "Context-aware assistance that understands the entire codebase", "Offers enterprise-grade features for security, licensing, and policy management"],
+                limitations: ["Requires a paid subscription for most users", "Code is sent to the cloud for processing, which can be a concern for highly proprietary code"],
+                link: "https://github.com/features/copilot"
+            },
+            {
+                name: "Tabnine",
+                category: "Coding",
+                subCategory: "AI Code Assistant / Privacy & Enterprise Focus",
+                bestFor: "Teams and enterprises that prioritize privacy, code security, and the ability to train AI models on their own proprietary codebases.",
+                overview: "Tabnine is a leading AI code completion tool distinguished by its strong focus on data privacy and flexibility. It provides highly personalized, context-aware code suggestions across over 30 programming languages. Tabnine offers a unique blend of local (on-device) and cloud models, giving enterprises control over where their code is processed, making it ideal for sensitive projects and regulated industries.",
+                strengths: ["Strong emphasis on privacy and security with flexible deployment options", "Personalizes suggestions by learning from the user's specific project codebase", "Wide IDE compatibility (supports nearly all major editors)"],
+                limitations: ["The free tier is limited to basic code completions", "Full enterprise features require higher-tier paid plans"],
+                link: "https://www.tabnine.com"
+            },
+            {
+                name: "Amazon Q Developer (AWS)",
+                category: "Coding",
+                subCategory: "AI Agent / Cloud-Integrated Development",
+                bestFor: "Developers and teams heavily invested in the AWS ecosystem who need a versatile AI assistant for coding, troubleshooting, and managing cloud-related tasks.",
+                overview: "Amazon Q Developer is AWS's generative AI assistant designed to enhance every stage of the software development lifecycle. Built on the foundation of Amazon CodeWhisperer, it goes beyond simple code completion. It functions as an agent, capable of performing multi-step tasks like implementing new features, generating documentation, and reviewing code for security vulnerabilities, all while being tightly integrated with AWS services.",
+                strengths: ["Deep, native integration with AWS services and environments", "Agentic capabilities for handling multi-step development tasks and large projects", "Strong focus on enterprise security and data control within the AWS cloud environment"],
+                limitations: ["Most valuable for developers already working within the AWS ecosystem", "Closed-source model with pricing tied to usage and service tiers"],
+                link: "https://aws.amazon.com/q/developer/"
+            },
+            {
+                name: "Windsurf (formerly Codeium)",
+                category: "Coding",
+                subCategory: "AI Code Assistant / Code Acceleration",
+                bestFor: "Individual developers seeking a free, high-speed, and versatile AI code completion and chat tool across a wide range of IDEs and languages.",
+                overview: "Windsurf, formerly known as Codeium, is an AI-powered code acceleration toolkit providing ultra-fast code completion, code chat, and search capabilities. It aims to be a free and open alternative to proprietary coding assistants, supporting over 70 programming languages. Windsurf differentiates itself by offering a feature-rich experience, including chat and explanation tools, for free, making it highly accessible to the developer community.",
+                strengths: ["Core features (autocomplete, chat) are available for free for individual developers", "Claims ultra-fast performance and high suggestion quality across many languages", "Wide availability as a plugin for major IDEs and a standalone AI-native IDE"],
+                limitations: ["Advanced features like enterprise self-hosting require commercial plans", "The name change and branding transition can sometimes cause user confusion"],
+                link: "https://windsurf.com"
+            }
+        ];
+
+        let filteredTools = [...allTools];
+
+        // --- 2. HELPER FUNCTIONS ---
+
+        /**
+         * Renders the list of tools to the DOM.
+         * @param {Array} tools - The array of tool objects to render.
+         */
+        function renderTools(tools) {
+            const toolListContainer = document.getElementById('tool-list');
+            toolListContainer.innerHTML = tools.length === 0 
+                ? '<p class="text-center text-xl text-gray-500 col-span-full">No tools match the current filter criteria.</p>'
+                : tools.map(tool => `
+                <div class="tool-card bg-white p-6 rounded-xl shadow-md border border-gray-100 flex flex-col justify-between">
+                    <div>
+                        <span class="text-sm font-semibold text-blue-600 uppercase tracking-wider">${tool.category}</span>
+                        <h2 class="text-2xl font-bold text-gray-900 mt-1 mb-3">${tool.name}</h2>
+                        
+                        <div class="mb-4 p-3 bg-teal-50 rounded-lg">
+                            <h3 class="text-sm uppercase font-bold best-for mb-1">🎯 Best For:</h3>
+                            <p class="text-gray-800">${tool.bestFor}</p>
+                        </div>
+
+                        <h3 class="text-md font-semibold text-gray-700 mb-2">🔍 Overview</h3>
+                        <p class="text-gray-600 mb-4 text-sm">${tool.overview}</p>
+
+                        <h3 class="text-md font-semibold text-gray-700 mb-2">✅ Strengths</h3>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4 mb-4">
+                            ${tool.strengths.map(s => `<li>${s}</li>`).join('')}
+                        </ul>
+
+                        <h3 class="text-md font-semibold text-gray-700 mb-2">⚠️ Limitations</h3>
+                        <ul class="list-disc list-inside text-sm text-gray-600 space-y-1 ml-4 mb-4">
+                            ${tool.limitations.map(l => `<li class="text-red-700">${l}</li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <a href="${tool.link}" target="_blank" class="mt-4 inline-block text-center bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-150 shadow-md">
+                        🔗 Official Website
+                    </a>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * Populates the category filter dropdown.
+         */
+        function populateCategoryFilter() {
+            const categories = new Set(allTools.map(tool => tool.category));
+            const filterSelect = document.getElementById('category-filter');
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                filterSelect.appendChild(option);
+            });
+        }
+
+        /**
+         * Applies the current filter and sort settings.
+         */
+        function applyFiltersAndSort() {
+            const categoryFilter = document.getElementById('category-filter').value;
+            const sortBy = document.getElementById('sort-by').value;
+
+            // 1. Filter
+            filteredTools = allTools.filter(tool => {
+                return categoryFilter === 'All' || tool.category === categoryFilter;
+            });
+
+            // 2. Sort
+            filteredTools.sort((a, b) => {
+                if (sortBy === 'name-asc') {
+                    return a.name.localeCompare(b.name);
+                } else if (sortBy === 'name-desc') {
+                    return b.name.localeCompare(a.name);
+                } else if (sortBy === 'category') {
+                    // Sort by category first, then by name
+                    if (a.category !== b.category) {
+                        return a.category.localeCompare(b.category);
+                    }
+                    return a.name.localeCompare(b.name);
+                }
+                return 0; // Default: no change
+            });
+
+            // 3. Render
+            renderTools(filteredTools);
+        }
+
+        // --- 3. EVENT LISTENERS & INITIALIZATION ---
+
+        window.onload = () => {
+            // Setup controls
+            populateCategoryFilter();
+
+            document.getElementById('category-filter').addEventListener('change', applyFiltersAndSort);
+            document.getElementById('sort-by').addEventListener('change', applyFiltersAndSort);
+            
+            // Initial render
+            applyFiltersAndSort(); 
+        };
+    </script>
+</body>
+</html>
