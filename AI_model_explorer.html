@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 0;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            font-size: 0.95em;
+            color: #4a5568;
+            transition: all 0.2s;
+            font-weight: 500;
+            border-top: 3px solid transparent;
+        }
+
+        .tab:hover {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .tab.active {
+            background: white;
+            color: #2c5282;
+            border-top-color: #2c5282;
+            font-weight: 600;
+        }
+
+        .tab-description {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            margin-bottom: 0;
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #2d3748;
+            font-size: 0.95em;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 18px;
+            border: 2px solid #cbd5e0;
+            background: white;
+            color: #4a5568;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
+            border-color: #2c5282;
+            color: #2c5282;
+            background: #edf2f7;
+        }
+
+        .filter-btn.active {
+            background: #2c5282;
+            color: white;
+            border-color: #2c5282;
+        }
+
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .model-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 24px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .model-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #2c5282;
+        }
+
+        .model-header {
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #edf2f7;
+        }
+
+        .model-name {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 6px;
+        }
+
+        .model-family {
+            font-size: 0.9em;
+            color: #2c5282;
+            font-weight: 600;
+        }
+
+        .model-description {
+            font-size: 0.95em;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            max-width: 700px;
+            margin: 50px auto;
+            border-radius: 4px;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+            border: 1px solid #e2e8f0;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8em;
+            cursor: pointer;
+            color: #718096;
+            background: none;
+            border: none;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #2d3748;
+        }
+
+        .modal h2 {
+            color: #1a202c;
+            margin-bottom: 10px;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .modal-family {
+            color: #2c5282;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .modal p {
+            line-height: 1.8;
+            color: #4a5568;
+            font-size: 1em;
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 40px;
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            color: #718096;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('llm')">LLMs</button>
+            <button class="tab" onclick="switchTab('diffusion')">Diffusion Models</button>
+            <button class="tab" onclick="switchTab('video')">Video Models</button>
+        </div>
+
+        <div id="llm" class="tab-content active">
+            <div class="tab-description">
+                Large Language Models (LLMs) are AI systems trained on vast amounts of text data to understand and generate human-like text. They excel at tasks like writing, analysis, coding, question-answering, and complex reasoning.
+            </div>
+            <div class="controls">
+                <div class="filter-group">
+                    <label>Filter by Family:</label>
+                    <div class="filter-buttons" id="llmFamilyFilters"></div>
+                </div>
+            </div>
+            <div class="models-grid" id="llmGrid"></div>
+        </div>
+
+        <div id="diffusion" class="tab-content">
+            <div class="tab-description">
+                Diffusion models generate images by learning to reverse a gradual noising process. Starting from random noise, they iteratively refine images based on text prompts or other inputs, creating highly detailed and controllable visual content.
+            </div>
+            <div class="controls">
+                <div class="filter-group">
+                    <label>Filter by Family:</label>
+                    <div class="filter-buttons" id="diffusionFamilyFilters"></div>
+                </div>
+            </div>
+            <div class="models-grid" id="diffusionGrid"></div>
+        </div>
+
+        <div id="video" class="tab-content">
+            <div class="tab-description">
+                Video generation models create moving images from text descriptions or still images. Unlike diffusion models that focus on single frames, these models understand temporal consistency and motion, generating coherent video sequences.
+            </div>
+            <div class="controls">
+                <div class="filter-group">
+                    <label>Filter by Family:</label>
+                    <div class="filter-buttons" id="videoFamilyFilters"></div>
+                </div>
+            </div>
+            <div class="models-grid" id="videoGrid"></div>
+        </div>
+    </div>
+
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">×</button>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script>
+        const modelData = {
+            llm: [
+                {
+                    name: "GPT-4",
+                    family: "OpenAI",
+                    description: "Advanced reasoning and problem-solving capabilities with strong performance across diverse tasks including complex analysis, creative writing, and code generation.",
+                    details: "GPT-4 represents a significant advancement in language models with enhanced reasoning, factual accuracy, and the ability to handle complex instructions. It excels at tasks requiring nuanced understanding and multi-step reasoning, making it suitable for research, analysis, and sophisticated content generation."
+                },
+                {
+                    name: "GPT-3.5",
+                    family: "OpenAI",
+                    description: "Fast and efficient text generation with strong conversational abilities, ideal for chatbots and general-purpose applications.",
+                    details: "GPT-3.5 offers a balance of performance and speed, making it ideal for chatbots, content generation, and general-purpose text tasks. It provides reliable performance for everyday language tasks at lower computational cost."
+                },
+                {
+                    name: "Claude 4 Opus",
+                    family: "Anthropic",
+                    description: "Highest intelligence and capability for complex analysis, research tasks, and creative writing with advanced reasoning.",
+                    details: "Claude 4 Opus excels at advanced reasoning, research, complex problem-solving, and creative writing with nuanced understanding of context and user intent. It demonstrates particular strength in analytical tasks and maintaining consistency across long conversations."
+                },
+                {
+                    name: "Claude 4.5 Sonnet",
+                    family: "Anthropic",
+                    description: "Balance of intelligence and speed for everyday tasks with particular strength in coding and analysis.",
+                    details: "Claude Sonnet 4.5 offers strong performance across diverse tasks with particular strength in coding, analysis, and multi-step reasoning. It provides an optimal balance for production deployments requiring both quality and efficiency."
+                },
+                {
+                    name: "Gemini Ultra",
+                    family: "Google",
+                    description: "Google's most capable language model with strong reasoning capabilities and mathematical proficiency.",
+                    details: "Gemini Ultra demonstrates state-of-the-art performance on complex reasoning tasks with particular strength in mathematical and scientific domains. It integrates deeply with Google's ecosystem and services."
+                },
+                {
+                    name: "Gemini Pro",
+                    family: "Google",
+                    description: "Efficient model for a wide range of tasks with good performance and cost-effectiveness.",
+                    details: "Gemini Pro provides strong performance across text generation tasks with good efficiency for production deployments. It offers reliable capabilities for everyday language tasks within Google's product suite."
+                },
+                {
+                    name: "LLaMA 3",
+                    family: "Meta",
+                    description: "Open-source model with strong performance across benchmarks and excellent fine-tuning capabilities.",
+                    details: "LLaMA 3 is Meta's flagship open-source model, offering competitive performance with excellent fine-tuning capabilities for custom applications. Its open nature enables research and customization for specific use cases."
+                },
+                {
+                    name: "Mistral Large",
+                    family: "Mistral AI",
+                    description: "High-performance multilingual model with strong reasoning and efficient architecture.",
+                    details: "Mistral Large excels at multilingual tasks, code generation, and reasoning with efficient architecture for cost-effective deployment. It provides European-focused AI capabilities with strong performance."
+                },
+                {
+                    name: "Mixtral 8x7B",
+                    family: "Mistral AI",
+                    description: "Mixture-of-experts model combining efficiency with strong performance through sparse activation.",
+                    details: "Mixtral uses a sparse mixture-of-experts architecture, activating only relevant experts for each input, achieving excellent performance-to-cost ratio. This innovative architecture enables efficient scaling."
+                },
+                {
+                    name: "PaLM 2",
+                    family: "Google",
+                    description: "Multilingual and reasoning-focused model powering various Google products and services.",
+                    details: "PaLM 2 demonstrates strong multilingual capabilities and advanced reasoning, integrated across Google's product ecosystem. It provides foundation capabilities for many Google AI features."
+                },
+                {
+                    name: "Microsoft Phi-3",
+                    family: "Microsoft",
+                    description: "Small language model delivering strong performance with efficient size, designed for edge deployment and resource-constrained environments.",
+                    details: "Phi-3 is part of Microsoft's family of small language models that achieve impressive capabilities despite their compact size. Optimized for running on devices with limited resources while maintaining strong reasoning abilities."
+                },
+                {
+                    name: "DeepSeek V3",
+                    family: "DeepSeek",
+                    description: "Open-source model from China with competitive performance and efficient mixture-of-experts architecture.",
+                    details: "DeepSeek V3 represents advances in efficient model design with strong performance across coding, math, and reasoning tasks. Its mixture-of-experts architecture enables efficient scaling."
+                },
+                {
+                    name: "Qwen 2.5",
+                    family: "Alibaba",
+                    description: "Multilingual model from Alibaba Cloud with strong performance in Chinese and English, plus extensive multilingual support.",
+                    details: "Qwen 2.5 excels at multilingual tasks with particular strength in Chinese language processing. It offers strong coding abilities and is available in various sizes for different deployment needs."
+                }
+            ],
+            diffusion: [
+                {
+                    name: "DALL-E 3",
+                    family: "OpenAI",
+                    description: "Advanced text-to-image generation with improved prompt following and highly detailed outputs.",
+                    details: "DALL-E 3 generates highly detailed and accurate images from text descriptions, with better understanding of nuanced prompts and artistic styles. Integrated with ChatGPT for refined prompt engineering and iterative generation."
+                },
+                {
+                    name: "Stable Diffusion XL",
+                    family: "Stability AI",
+                    description: "Open-source image generation model with high-quality outputs and extensive customization options.",
+                    details: "SDXL produces photorealistic images with improved composition and detail. Available as open-source for customization, fine-tuning, and commercial use, making it ideal for researchers and developers."
+                },
+                {
+                    name: "Stable Diffusion 3",
+                    family: "Stability AI",
+                    description: "Latest generation with improved text rendering and multi-subject composition capabilities.",
+                    details: "SD3 uses a new architecture for better text accuracy in images and handling complex scenes with multiple subjects and detailed compositions. It represents significant advancement in controllability."
+                },
+                {
+                    name: "Midjourney v6",
+                    family: "Midjourney",
+                    description: "Artistic image generation with strong aesthetic quality and exceptional prompt understanding.",
+                    details: "Midjourney v6 excels at creating visually striking, artistic images with improved prompt accuracy and detailed rendering capabilities. Particularly strong for creative and stylistic applications."
+                },
+                {
+                    name: "Imagen 2",
+                    family: "Google",
+                    description: "Google's text-to-image model with strong photorealism and accurate text rendering.",
+                    details: "Imagen 2 generates highly realistic images with accurate text rendering and strong adherence to prompts, integrated into Google products. Demonstrates excellent photorealistic capabilities."
+                }
+            ],
+            video: [
+                {
+                    name: "Sora",
+                    family: "OpenAI",
+                    description: "Advanced text-to-video model capable of generating up to 60 seconds of high-quality video with complex scenes and realistic motion.",
+                    details: "Sora can generate videos up to 60 seconds with complex scenes, multiple characters, and consistent physics. It demonstrates deep understanding of how objects exist in physical space and maintains impressive temporal coherence across extended sequences."
+                },
+                {
+                    name: "Veo 2",
+                    family: "Google",
+                    description: "Google's text-to-video model generating high-resolution videos with advanced understanding of real-world physics and human movement.",
+                    details: "Veo 2 creates videos with realistic motion, accurate physics simulation, and natural human expressions. It excels at understanding complex prompts and generating cinematic-quality footage with strong temporal consistency."
+                },
+                {
+                    name: "Runway Gen-3",
+                    family: "Runway",
+                    description: "Latest generation video model with improved temporal consistency, motion quality, and text prompt adherence.",
+                    details: "Gen-3 represents a significant leap in video generation quality with better character consistency, more natural motion, and improved understanding of complex prompts. Designed for creative professionals and filmmakers."
+                },
+                {
+                    name: "Pika 1.5",
+                    family: "Pika",
+                    description: "Video generation platform with editing capabilities, lip-sync features, and creative effects for transforming ideas into video.",
+                    details: "Pika 1.5 offers accessible video creation with unique features like Pikaffects for creative transformations, lip-sync for matching audio, and region-specific editing. Focuses on making video AI approachable for all creators."
+                },
+                {
+                    name: "Kling AI",
+                    family: "Kuaishou",
+                    description: "Chinese video generation model known for impressive motion physics and long-duration video generation capabilities.",
+                    details: "Kling AI generates videos with highly realistic physics simulation and natural movement. It supports longer video durations and demonstrates strong performance in understanding complex physical interactions."
+                },
+                {
+                    name: "Stable Video Diffusion",
+                    family: "Stability AI",
+                    description: "Open-source model that animates still images into short video clips with temporal consistency.",
+                    details: "SVD converts still images into short animated videos, useful for creating motion from single frames with temporal consistency. As an open-source solution, it enables researchers and developers to experiment with video generation."
+                }
+            ]
+        };
+
+        let activeFilters = {};
+
+        function initializeFilters(category) {
+            activeFilters[category] = { family: new Set() };
+        }
+
+        Object.keys(modelData).forEach(category => initializeFilters(category));
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function getAllUnique(category, field) {
+            return [...new Set(modelData[category].map(m => m[field]))].sort();
+        }
+
+        function createFilterButtons(category) {
+            const families = getAllUnique(category, 'family');
+            const familyDiv = document.getElementById(`${category}FamilyFilters`);
+            familyDiv.innerHTML = '';
+
+            families.forEach(family => {
+                const btn = document.createElement('button');
+                btn.className = 'filter-btn';
+                btn.textContent = family;
+                btn.onclick = () => toggleFilter(category, family, btn);
+                familyDiv.appendChild(btn);
+            });
+        }
+
+        function toggleFilter(category, value, btn) {
+            if (activeFilters[category].family.has(value)) {
+                activeFilters[category].family.delete(value);
+                btn.classList.remove('active');
+            } else {
+                activeFilters[category].family.add(value);
+                btn.classList.add('active');
+            }
+            renderModels(category);
+        }
+
+        function filterModels(category) {
+            return modelData[category].filter(model => {
+                if (activeFilters[category].family.size > 0 && !activeFilters[category].family.has(model.family)) {
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        function renderModels(category) {
+            const grid = document.getElementById(`${category}Grid`);
+            const filtered = filterModels(category);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-results">No models match your filters. Try adjusting your selection.</div>';
+                return;
+            }
+
+            grid.innerHTML = filtered.map(model => `
+                <div class="model-card" onclick='showModal(${JSON.stringify(model).replace(/'/g, "&#39;")})'>
+                    <div class="model-header">
+                        <div class="model-name">${model.name}</div>
+                        <div class="model-family">${model.family}</div>
+                    </div>
+                    <div class="model-description">${model.description}</div>
+                </div>
+            `).join('');
+        }
+
+        function showModal(model) {
+            const modal = document.getElementById('modal');
+            const modalBody = document.getElementById('modalBody');
+            
+            modalBody.innerHTML = `
+                <h2>${model.name}</h2>
+                <span class="modal-family">${model.family}</span>
+                <p>${model.details}</p>
+            `;
+            
+            modal.style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('modal').style.display = 'none';
+        }
+
+        function updateStats(category) {
+            // Stats removed per user request
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        Object.keys(modelData).forEach(category => {
+            createFilterButtons(category);
+            renderModels(category);
+            updateStats(category);
+        });
+    </script>
+</body>
+</html>
