@@ -6,6 +6,7 @@ on:
     paths:
       - '**.html'
       - '!index.html'
+      - 'category-mapping.json'
   workflow_dispatch:
 
 permissions:
@@ -27,7 +28,7 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Extract demo data
+    - name: Extract demo data with custom mappings
       run: |
         python3 << 'PYTHON_SCRIPT'
         import os
@@ -36,15 +37,31 @@ jobs:
         from html.parser import HTMLParser
         import json
 
-        class TitleExtractor(HTMLParser):
+        class MetaExtractor(HTMLParser):
             def __init__(self):
                 super().__init__()
                 self.title = None
+                self.description = None
+                self.tags = []
+                self.category = None
                 self.in_title = False
                 
             def handle_starttag(self, tag, attrs):
+                attrs_dict = dict(attrs)
+                
                 if tag == 'title':
                     self.in_title = True
+                    
+                elif tag == 'meta':
+                    name = attrs_dict.get('name', '').lower()
+                    content = attrs_dict.get('content', '')
+                    
+                    if name == 'description':
+                        self.description = content
+                    elif name == 'tags' or name == 'keywords':
+                        self.tags = [t.strip() for t in content.split(',') if t.strip()]
+                    elif name == 'category':
+                        self.category = content
                     
             def handle_endtag(self, tag):
                 if tag == 'title':
@@ -54,60 +71,116 @@ jobs:
                 if self.in_title and self.title is None:
                     self.title = data.strip()
 
-        def extract_title(filepath):
+        def load_category_mappings():
+            """Load category mappings from config file if it exists"""
+            try:
+                if os.path.exists('category-mapping.json'):
+                    with open('category-mapping.json', 'r') as f:
+                        return json.load(f)
+            except Exception as e:
+                print(f"Warning: Could not load category-mapping.json: {e}")
+            return {'mappings': {}, 'icon_overrides': {}}
+
+        def extract_metadata(filepath):
             try:
                 with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
-                    parser = TitleExtractor()
+                    parser = MetaExtractor()
                     parser.feed(content)
-                    return parser.title if parser.title else None
+                    return {
+                        'title': parser.title,
+                        'description': parser.description,
+                        'tags': parser.tags,
+                        'category': parser.category
+                    }
             except Exception as e:
-                print(f"Error extracting title from {filepath}: {e}")
-                return None
+                print(f"Error extracting metadata from {filepath}: {e}")
+                return {'title': None, 'description': None, 'tags': [], 'category': None}
 
         def format_name(filename):
             """Convert filename to readable name"""
             name = Path(filename).stem
             name = name.replace('_', ' ').replace('-', ' ')
-            name = re.sub(r'\d+\s*', '', name)  # Remove leading numbers
+            name = re.sub(r'\d+\s*', '', name)
             return name.title()
 
-        # Find all HTML files, excluding index.html
+        def apply_category_mapping(path, auto_category, config):
+            """Apply custom category mapping based on path"""
+            mappings = config.get('mappings', {})
+            
+            # Check for exact path matches first
+            for pattern, custom_category in mappings.items():
+                if path.startswith(pattern):
+                    return custom_category
+            
+            return auto_category
+
+        # Load custom configuration
+        config = load_category_mappings()
+        
+        # Find all HTML files
         demos = []
+        all_tags = set()
+        
         for root, dirs, files in os.walk('.'):
-            # Skip .git and .github directories
             dirs[:] = [d for d in dirs if d not in ['.git', '.github', 'node_modules']]
             
             for file in files:
                 if file.endswith('.html') and file != 'index.html':
                     filepath = os.path.join(root, file)
-                    rel_path = filepath[2:]  # Remove './'
+                    rel_path = filepath[2:]
                     
-                    title = extract_title(filepath)
-                    if not title:
-                        title = format_name(file)
+                    metadata = extract_metadata(filepath)
                     
-                    # Categorize by directory
+                    # Use extracted title or format from filename
+                    title = metadata['title'] if metadata['title'] else format_name(file)
+                    
+                    # Determine category with priority:
+                    # 1. Meta tag override
+                    # 2. Category mapping from config
+                    # 3. Auto-detected from folder
                     parts = rel_path.split('/')
-                    category = 'Main' if len(parts) == 1 else parts[0].replace('_', ' ').title()
+                    auto_category = 'Main' if len(parts) == 1 else parts[0].replace('_', ' ').title()
+                    
+                    if metadata['category']:
+                        # Meta tag has highest priority
+                        category = metadata['category']
+                    else:
+                        # Apply mapping if exists, otherwise use auto
+                        category = apply_category_mapping(rel_path, auto_category, config)
+                    
+                    # Collect tags
+                    tags = metadata['tags']
+                    all_tags.update(tags)
                     
                     demos.append({
                         'path': rel_path,
                         'title': title,
+                        'description': metadata['description'] or '',
                         'category': category,
+                        'tags': tags,
                         'filename': file
                     })
 
         # Sort by category then title
         demos.sort(key=lambda x: (x['category'], x['title']))
 
-        with open('demos_data.json', 'w') as f:
-            json.dump(demos, f, indent=2)
+        # Save data with icon overrides
+        output = {
+            'demos': demos,
+            'allTags': sorted(list(all_tags)),
+            'iconOverrides': config.get('icon_overrides', {})
+        }
         
-        print(f"✅ Found {len(demos)} HTML files")
+        with open('demos_data.json', 'w') as f:
+            json.dump(output, f, indent=2)
+        
+        print(f"✅ Found {len(demos)} HTML files with {len(all_tags)} unique tags")
+        if config.get('mappings'):
+            print(f"📁 Applied {len(config['mappings'])} custom category mappings")
         PYTHON_SCRIPT
     
-    - name: Generate index.html
+    - name: Generate index.html with custom icons
       run: |
         cat > index.html << 'EOF'
         <!DOCTYPE html>
@@ -189,6 +262,23 @@ jobs:
                     box-shadow: 0 0 0 3px rgba(232, 74, 39, 0.2);
                 }
 
+                .filter-section {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                    backdrop-filter: blur(10px);
+                }
+
+                .filter-label {
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 0.75rem;
+                    display: block;
+                }
+
                 .filter-buttons {
                     display: flex;
                     gap: 0.5rem;
@@ -212,6 +302,18 @@ jobs:
                     background: #E84A27;
                     border-color: #E84A27;
                     transform: translateY(-2px);
+                }
+
+                .tag-btn {
+                    background: rgba(232, 74, 39, 0.2);
+                    border-color: #E84A27;
+                    font-size: 0.85rem;
+                }
+
+                .tag-btn:hover,
+                .tag-btn.active {
+                    background: #E84A27;
+                    border-color: #E84A27;
                 }
 
                 .category-section {
@@ -315,9 +417,33 @@ jobs:
                     line-height: 1.4;
                 }
 
-                .card-path {
+                .card-description {
                     color: #666;
-                    font-size: 0.85rem;
+                    font-size: 0.9rem;
+                    margin-bottom: 0.75rem;
+                    line-height: 1.4;
+                    flex: 1;
+                }
+
+                .card-tags {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.25rem;
+                    margin-bottom: 1rem;
+                }
+
+                .card-tag {
+                    background: rgba(232, 74, 39, 0.1);
+                    color: #E84A27;
+                    font-size: 0.75rem;
+                    padding: 0.25rem 0.5rem;
+                    border-radius: 12px;
+                    border: 1px solid rgba(232, 74, 39, 0.3);
+                }
+
+                .card-path {
+                    color: #999;
+                    font-size: 0.75rem;
                     font-family: 'Courier New', monospace;
                     margin-bottom: 1rem;
                     opacity: 0.7;
@@ -368,10 +494,6 @@ jobs:
                     font-size: 0.9rem;
                     text-transform: uppercase;
                     letter-spacing: 1px;
-                }
-
-                .hidden {
-                    display: none;
                 }
 
                 footer {
@@ -431,13 +553,25 @@ jobs:
                         <span class="stat-number" id="totalCategories">0</span>
                         <span class="stat-label">Categories</span>
                     </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalTags">0</span>
+                        <span class="stat-label">Tags</span>
+                    </div>
                 </div>
 
                 <div class="search-filter">
                     <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search projects...">
                 </div>
 
-                <div class="filter-buttons" id="filterButtons"></div>
+                <div class="filter-section">
+                    <label class="filter-label">📁 Filter by Category</label>
+                    <div class="filter-buttons" id="categoryButtons"></div>
+                </div>
+
+                <div class="filter-section" id="tagFilterSection" style="display: none;">
+                    <label class="filter-label">🏷️ Filter by Tag</label>
+                    <div class="filter-buttons" id="tagButtons"></div>
+                </div>
 
                 <div id="gallery"></div>
 
@@ -450,18 +584,20 @@ jobs:
             </div>
 
             <script>
-                const demos = 
+                const data = 
         EOF
         
-        # Append the JSON data
         cat demos_data.json >> index.html
         
-        # Append the JavaScript
         cat >> index.html << 'EOFJS'
         ;
 
-                // Icon mapping for different project types
-                const iconMap = {
+                const demos = data.demos;
+                const allTags = data.allTags;
+                const iconOverrides = data.iconOverrides || {};
+
+                // Default icon mapping
+                const defaultIconMap = {
                     'Main': '🏠',
                     'Ai Frameworks': '🤖',
                     'Canvas Course': '📚',
@@ -479,7 +615,11 @@ jobs:
                     'Workload Calculator': '⏱️'
                 };
 
-                let currentFilter = 'All';
+                // Merge custom icons with defaults
+                const iconMap = {...defaultIconMap, ...iconOverrides};
+
+                let currentCategoryFilter = 'All';
+                let currentTagFilter = null;
 
                 function getIcon(category) {
                     return iconMap[category] || '📄';
@@ -487,13 +627,22 @@ jobs:
 
                 function createCard(demo) {
                     const icon = getIcon(demo.category);
+                    const tagsHTML = demo.tags && demo.tags.length > 0 
+                        ? `<div class="card-tags">${demo.tags.map(tag => `<span class="card-tag">${tag}</span>`).join('')}</div>`
+                        : '';
+                    const descHTML = demo.description 
+                        ? `<div class="card-description">${demo.description}</div>`
+                        : '';
+                    
                     return `
-                        <div class="card" data-category="${demo.category}" data-title="${demo.title.toLowerCase()}" data-path="${demo.path.toLowerCase()}">
+                        <div class="card" data-category="${demo.category}" data-title="${demo.title.toLowerCase()}" data-path="${demo.path.toLowerCase()}" data-tags="${(demo.tags || []).join(',')}">
                             <div class="card-image">
                                 <div class="card-icon">${icon}</div>
                             </div>
                             <div class="card-content">
                                 <h3 class="card-title">${demo.title}</h3>
+                                ${descHTML}
+                                ${tagsHTML}
                                 <div class="card-path">${demo.path}</div>
                                 <a href="${demo.path}" class="card-link" target="_blank">Open Demo →</a>
                             </div>
@@ -512,7 +661,7 @@ jobs:
                     return groups;
                 }
 
-                function renderGallery(filter = 'All', searchTerm = '') {
+                function renderGallery(categoryFilter = 'All', tagFilter = null, searchTerm = '') {
                     const gallery = document.getElementById('gallery');
                     const groups = groupByCategory(demos);
                     
@@ -520,13 +669,23 @@ jobs:
                     let visibleCount = 0;
 
                     Object.keys(groups).sort().forEach(category => {
-                        if (filter !== 'All' && filter !== category) return;
+                        if (categoryFilter !== 'All' && categoryFilter !== category) return;
 
                         const categoryDemos = groups[category].filter(demo => {
-                            if (!searchTerm) return true;
-                            const search = searchTerm.toLowerCase();
-                            return demo.title.toLowerCase().includes(search) || 
-                                   demo.path.toLowerCase().includes(search);
+                            if (tagFilter && (!demo.tags || !demo.tags.includes(tagFilter))) {
+                                return false;
+                            }
+                            
+                            if (searchTerm) {
+                                const search = searchTerm.toLowerCase();
+                                const matchesSearch = demo.title.toLowerCase().includes(search) || 
+                                       demo.path.toLowerCase().includes(search) ||
+                                       (demo.description && demo.description.toLowerCase().includes(search)) ||
+                                       (demo.tags && demo.tags.some(tag => tag.toLowerCase().includes(search)));
+                                if (!matchesSearch) return false;
+                            }
+                            
+                            return true;
                         });
 
                         if (categoryDemos.length === 0) return;
@@ -546,17 +705,16 @@ jobs:
                         `;
                     });
 
-                    gallery.innerHTML = html || '<p style="color: white; text-align: center; padding: 3rem;">No projects found matching your search.</p>';
+                    gallery.innerHTML = html || '<p style="color: white; text-align: center; padding: 3rem;">No projects found matching your filters.</p>';
                     
-                    // Update stats
                     document.getElementById('totalProjects').textContent = visibleCount;
                 }
 
-                function createFilterButtons() {
+                function createCategoryButtons() {
                     const categories = ['All', ...new Set(demos.map(d => d.category))].sort();
-                    const filterButtons = document.getElementById('filterButtons');
+                    const categoryButtons = document.getElementById('categoryButtons');
                     
-                    filterButtons.innerHTML = categories.map(cat => 
+                    categoryButtons.innerHTML = categories.map(cat => 
                         `<button class="filter-btn ${cat === 'All' ? 'active' : ''}" data-filter="${cat}">
                             ${cat === 'All' ? '🌟 ' : getIcon(cat) + ' '}${cat}
                         </button>`
@@ -564,24 +722,49 @@ jobs:
 
                     document.getElementById('totalCategories').textContent = categories.length - 1;
 
-                    // Add click handlers
-                    filterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                    categoryButtons.querySelectorAll('.filter-btn').forEach(btn => {
                         btn.addEventListener('click', () => {
-                            currentFilter = btn.dataset.filter;
-                            filterButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                            currentCategoryFilter = btn.dataset.filter;
+                            categoryButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
                             btn.classList.add('active');
-                            renderGallery(currentFilter, document.getElementById('searchBox').value);
+                            renderGallery(currentCategoryFilter, currentTagFilter, document.getElementById('searchBox').value);
                         });
                     });
                 }
 
-                // Search functionality
+                function createTagButtons() {
+                    if (allTags.length === 0) return;
+                    
+                    const tagSection = document.getElementById('tagFilterSection');
+                    const tagButtons = document.getElementById('tagButtons');
+                    
+                    tagSection.style.display = 'block';
+                    
+                    tagButtons.innerHTML = `
+                        <button class="filter-btn tag-btn active" data-tag="">🌟 All</button>
+                        ${allTags.map(tag => 
+                            `<button class="filter-btn tag-btn" data-tag="${tag}">🏷️ ${tag}</button>`
+                        ).join('')}
+                    `;
+
+                    document.getElementById('totalTags').textContent = allTags.length;
+
+                    tagButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            currentTagFilter = btn.dataset.tag || null;
+                            tagButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            renderGallery(currentCategoryFilter, currentTagFilter, document.getElementById('searchBox').value);
+                        });
+                    });
+                }
+
                 document.getElementById('searchBox').addEventListener('input', (e) => {
-                    renderGallery(currentFilter, e.target.value);
+                    renderGallery(currentCategoryFilter, currentTagFilter, e.target.value);
                 });
 
-                // Initialize
-                createFilterButtons();
+                createCategoryButtons();
+                createTagButtons();
                 renderGallery();
             </script>
         </body>
