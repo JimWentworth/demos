@@ -1,0 +1,24 @@
+MODULE: Week 1: Introduction to Game Design
+PAGE: Course Overview
+PAGE: Syllabus
+PAGE: What is Game Design?
+PAGE: Getting Started with Tools
+
+MODULE: Week 2: The Nature of Play
+PAGE: Defining Play and Games
+PAGE: The Psychology of Fun
+PAGE: Types of Players and Motivations
+PAGE: Visual Style and Mood
+PAGE: Color, Shape, and Emotion
+
+MODULE: Week 3: Core Mechanics
+PAGE: Rules, Goals, and Feedback Systems
+PAGE: Balancing Skill and Chance
+PAGE: Mechanic Analysis Activity
+PAGE: Game Economies
+PAGE: Designing Simple Systems
+
+MODULE: Week 4: Systems Thinking in Games
+PAGE: Loops and Emergent Behavior
+PAGE: Game Economies
+PAGE: Designing Simple Systems

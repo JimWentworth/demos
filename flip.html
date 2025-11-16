@@ -1,0 +1,627 @@
+
+Create flip-card interface with tabs
+Nov 3
+·
+GenAI-Testing
+·
+…odex/create-flip-card-interface-with-tabs-xqywlb
+·
++533
+-0
+
+Archive
+
+Share
+View PR
+
+
+I'd like to make a flip-card interface for this list of prompts, but find a way to categorize them onto tabs so they aren't all in one page. 1. Persona Pattern: This pattern involves creating a "persona" for the language model to help it select the appropriate response[4].
+2. Question Refinement Pattern: This pattern involves structuring a statement to give users more control over the output[1].
+3. Cognitive Verifier Pattern: This pattern involves asking ChatGPT the criteria that were used to generate each output[1].
+4. Audience Persona Pattern: This pattern involves considering the audience for the response and tailoring the prompt accordingly[5].
+5. Flipped Interaction Pattern: This pattern involves asking the GenAI to ask you questions in order to create a more comprehensive response[1].
+6. Few Shot Prompting: This technique involves providing a small amount of information to the language model to generate a response[3][5].
+7. Chain of Thought Prompting: This technique involves prompting the language model with a series of related questions to generate a more comprehensive response[3][5].
+8. ReAct Prompting: This technique involves prompting the language model with a response to its previous output to generate a more focused response[2].
+9. Game Play Pattern: This pattern involves creating a game to practice effective prompting with ChatGPT or other language models[1].
+10. Template Pattern: This pattern involves using a pre-defined template to structure the prompt and generate a specific type of response[2].
+11. Meta Language Creation Pattern: This pattern involves creating a new language or vocabulary to prompt the language model and generate more specific responses[2].
+12. Recipe Pattern: This pattern involves providing a step-by-step process or instructions to prompt the language model and generate a specific type of response[2].
+13. Alternative Approaches Pattern: This pattern involves prompting the language model with alternative approaches or perspectives to generate a more diverse set of responses[2].
+14. Ask for Input Pattern: This pattern involves prompting the language model to ask for input or feedback to generate a more interactive response[1].
+15. Outline Expansion Pattern: This pattern involves prompting the language model to expand on a given outline or structure to generate a more detailed response[5].
+16. Menu Actions Pattern: This pattern involves prompting the language model with a menu of actions to generate a specific type of response[2].
+17. Fact Check List Pattern: This pattern involves prompting the language model to fact-check a given statement or claim to generate a more accurate response[1].
+18. Tail Generation Pattern: This pattern involves prompting the language model to generate a response that is tailored to a specific context or situation[2].
+19. Semantic Filter Pattern: This pattern involves prompting the language model to filter out irrelevant or inappropriate responses based on a set of semantic criteria[2].
+Copy
+Summary
+
+Introduced a dedicated prompt pattern flip-card page with tabbed navigation that groups persona, interactive, structured, and reasoning strategies for easier exploration.
+
+Applied translucent card styling, responsive grid layout, and flip animations to deliver an engaging browsing experience across devices.
+
+Added lightweight JavaScript that manages accessible tab state and panel visibility without reloading the page.
+
+Testing
+
+⚠️ Not run (static HTML page).
+
+
+File (1)
+decent, but it's not quite working, they are all on one tab, with no change when I click on tabs
+Copy
+Summary
+
+Ensured tab panels respect the hidden attribute by explicitly hiding any element marked as hidden, so only the active category’s cards are visible.
+
+Updated the tab toggling script to set aria-selected using string values, keeping accessibility state accurate when switching tabs.
+
+Testing
+
+⚠️ Not run (static HTML page)
+
+
+File (1)
+not sure what's going on., but still not working.
+Copy
+Summary
+
+Hardened the tab activation script to toggle the hidden property, sync aria-hidden, and manage focus so only the selected panel remains visible when switching tabs. 
+
+Added keyboard navigation support and a resilient initialization path to keep the tab list accessible even if the preset selection is missing. 
+
+Testing
+
+⚠️ Not run (static HTML page)
+
+
+File (1)
+
+prompt_patterns_flip_cards.html
+New
+
+I'm still having an issue. Not 
+
+
+Diff
+Logs
+
+prompt_patterns_flip_cards.html
+New
++533
+-0
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prompt Pattern Flip Cards</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f6fb;
+      --card-bg: #ffffffcc;
+      --accent: #4f46e5;
+      --accent-dark: #4338ca;
+      --text: #1f2937;
+      --muted: #6b7280;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #eef2ff, #e0f2fe);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: var(--text);
+    }
+
+    header {
+      width: min(1100px, 90vw);
+      text-align: center;
+      padding: 3rem 0 1.5rem;
+    }
+
+    h1 {
+      font-size: clamp(2.25rem, 3vw, 3.25rem);
+      margin-bottom: 0.5rem;
+      color: var(--accent-dark);
+    }
+
+    p.subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      margin: 0 auto;
+      max-width: 700px;
+    }
+
+    .tab-container {
+      width: min(1100px, 90vw);
+      background: var(--card-bg);
+      border-radius: 20px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.12);
+      backdrop-filter: blur(12px);
+      padding: 1.5rem;
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      border-bottom: 1px solid rgba(79, 70, 229, 0.15);
+      padding-bottom: 1rem;
+    }
+
+    .tab-button {
+      background: transparent;
+      border: none;
+      padding: 0.75rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--muted);
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .tab-button.active {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 12px 20px rgba(79, 70, 229, 0.25);
+    }
+
+    .tab-button:focus-visible {
+      outline: 3px solid rgba(79, 70, 229, 0.4);
+      outline-offset: 2px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .flip-card {
+      perspective: 1200px;
+      height: 220px;
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+
+    .flip-card:hover .flip-card-inner,
+    .flip-card:focus-within .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .flip-card-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: 16px;
+      padding: 1.25rem;
+      box-shadow: 0 12px 24px rgba(30, 64, 175, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      background: white;
+      color: var(--text);
+    }
+
+    .flip-card-face.back {
+      transform: rotateY(180deg);
+      background: linear-gradient(160deg, rgba(79, 70, 229, 0.92), rgba(14, 165, 233, 0.85));
+      color: white;
+      align-items: center;
+      text-align: center;
+    }
+
+    .flip-card h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      line-height: 1.35;
+    }
+
+    .flip-card p {
+      margin: 0.75rem 0 0;
+      font-size: 0.9rem;
+      line-height: 1.45;
+      color: inherit;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(79, 70, 229, 0.1);
+      color: var(--accent-dark);
+      border-radius: 999px;
+      padding: 0.25rem 0.8rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+    }
+
+    .flip-card-face.back .badge {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 640px) {
+      .flip-card {
+        height: 240px;
+      }
+      .flip-card h3 {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Prompt Pattern Flip Cards</h1>
+    <p class="subtitle">
+      Explore prompt engineering patterns by flipping each card. Use the tabs to focus on related strategies without being overwhelmed by the entire list.
+    </p>
+  </header>
+
+  <main class="tab-container">
+    <nav class="tabs" role="tablist" aria-label="Prompt categories">
+      <button class="tab-button active" role="tab" aria-selected="true" aria-controls="panel-persona" id="tab-persona">Persona &amp; Audience</button>
+      <button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-interactive" id="tab-interactive">Interactive &amp; Feedback</button>
+      <button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-structured" id="tab-structured">Structured Frameworks</button>
+      <button class="tab-button" role="tab" aria-selected="false" aria-controls="panel-reasoning" id="tab-reasoning">Reasoning Strategies</button>
+    </nav>
+
+    <section id="panel-persona" class="cards" role="tabpanel" aria-labelledby="tab-persona">
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Persona</span>
+            <h3>Persona Pattern</h3>
+            <p>Create a persona for the model to shape how it responds.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Define tone, expertise, and constraints so the model selects responses that align with the fictional persona.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Audience</span>
+            <h3>Audience Persona Pattern</h3>
+            <p>Shape the response based on who will receive it.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Clarify audience needs, knowledge level, and tone so the model tailors its message effectively.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Tailoring</span>
+            <h3>Tail Generation Pattern</h3>
+            <p>Request responses tuned to a specific context or scenario.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Guide the model to reflect niche requirements, edge cases, or highly specific constraints.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="panel-interactive" class="cards" role="tabpanel" aria-labelledby="tab-interactive" hidden>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Dialogue</span>
+            <h3>Flipped Interaction Pattern</h3>
+            <p>Invite the model to interview you for missing details.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Creates a back-and-forth dynamic that surfaces requirements before drafting a final response.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Play</span>
+            <h3>Game Play Pattern</h3>
+            <p>Turn prompting practice into a repeatable game.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Engages users through rules, scoring, or challenges that reinforce effective prompt habits.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Collaboration</span>
+            <h3>Ask for Input Pattern</h3>
+            <p>Encourage the model to request clarification or feedback.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Keeps the conversation interactive so gaps can be filled before the model finalizes its answer.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Verification</span>
+            <h3>Fact Check List Pattern</h3>
+            <p>Ask the model to validate statements against explicit criteria.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Encourages scrutiny by prompting for corroboration, citations, or uncertainty when evidence is lacking.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="panel-structured" class="cards" role="tabpanel" aria-labelledby="tab-structured" hidden>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Control</span>
+            <h3>Question Refinement Pattern</h3>
+            <p>Iteratively tighten your question to guide the output.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Provides scaffolding so users can specify format, depth, or boundaries before the model answers.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Template</span>
+            <h3>Template Pattern</h3>
+            <p>Use a structured prompt to produce consistent outputs.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Applies pre-defined sections or phrasing that reduce variability while speeding up prompt crafting.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Vocabulary</span>
+            <h3>Meta Language Creation Pattern</h3>
+            <p>Invent shorthand or labels the model can use.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Creates a custom lexicon so repeated concepts or workflows remain precise and concise.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Process</span>
+            <h3>Recipe Pattern</h3>
+            <p>Provide the model a step-by-step script to follow.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Ensures ordered execution of tasks, especially when the response requires multiple stages.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Menu</span>
+            <h3>Menu Actions Pattern</h3>
+            <p>Offer the model a menu of next steps to choose from.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Constrains generation to relevant actions and clarifies what should happen next.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section id="panel-reasoning" class="cards" role="tabpanel" aria-labelledby="tab-reasoning" hidden>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Audit</span>
+            <h3>Cognitive Verifier Pattern</h3>
+            <p>Ask the model to disclose how it reached a conclusion.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Surfaces the implicit evaluation criteria so you can gauge reliability and alignment.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Guidance</span>
+            <h3>Few Shot Prompting</h3>
+            <p>Prime the model with curated examples before it responds.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Provides context that nudges the model toward the desired format, tone, or reasoning pattern.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Depth</span>
+            <h3>Chain of Thought Prompting</h3>
+            <p>Encourage step-by-step reasoning across connected questions.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Produces transparent intermediate steps that improve complex or multi-part answers.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Focus</span>
+            <h3>ReAct Prompting</h3>
+            <p>Combine reasoning and action by responding to prior outputs.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Loops the model through deliberate reasoning before deciding on the next operation or tool call.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Alternatives</span>
+            <h3>Alternative Approaches Pattern</h3>
+            <p>Prompt for multiple strategies or viewpoints.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Broadens ideation by surfacing different angles, trade-offs, or solution paths.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Detail</span>
+            <h3>Outline Expansion Pattern</h3>
+            <p>Ask the model to elaborate on each part of an outline.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Transforms bullet points into fleshed-out sections while preserving the original structure.</p>
+          </div>
+        </div>
+      </article>
+      <article class="flip-card" tabindex="0">
+        <div class="flip-card-inner">
+          <div class="flip-card-face front">
+            <span class="badge">Filter</span>
+            <h3>Semantic Filter Pattern</h3>
+            <p>Define rules that screen out irrelevant or unsafe outputs.</p>
+          </div>
+          <div class="flip-card-face back">
+            <span class="badge">How it helps</span>
+            <p>Sets semantic guardrails so the model focuses on responses that meet your criteria.</p>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const tabList = document.querySelector('.tabs');
+    const tabs = tabList ? Array.from(tabList.querySelectorAll('[role="tab"]')) : [];
+    const panels = Array.from(document.querySelectorAll('[role="tabpanel"]'));
+
+    const activateTab = targetTab => {
+      const targetId = targetTab?.getAttribute('aria-controls');
+      if (!targetId) return;
+
+      tabs.forEach(tab => {
+        const isActive = tab === targetTab;
+        tab.classList.toggle('active', isActive);
+        tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      panels.forEach(panel => {
+        const shouldShow = panel.id === targetId;
+        panel.hidden = !shouldShow;
+        panel.setAttribute('aria-hidden', shouldShow ? 'false' : 'true');
+      });
+
+      targetTab.focus();
+    };
+
+    const handleKeydown = event => {
+      const { key } = event;
+      const currentIndex = tabs.findIndex(tab => tab.getAttribute('aria-selected') === 'true');
+      if (currentIndex === -1) return;
+
+      let nextIndex = currentIndex;
+
+      if (key === 'ArrowRight' || key === 'ArrowDown') {
+        nextIndex = (currentIndex + 1) % tabs.length;
+      } else if (key === 'ArrowLeft' || key === 'ArrowUp') {
+        nextIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+      } else if (key === 'Home') {
+        nextIndex = 0;
+      } else if (key === 'End') {
+        nextIndex = tabs.length - 1;
+      } else {
+        return;
+      }
+
+      event.preventDefault();
+      activateTab(tabs[nextIndex]);
+    };
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => activateTab(tab));
+      tab.addEventListener('keydown', handleKeydown);
+    });
+
+    const initiallySelected = tabs.find(tab => tab.getAttribute('aria-selected') === 'true');
+    if (initiallySelected) {
+      activateTab(initiallySelected);
+    } else if (tabs.length) {
+      activateTab(tabs[0]);
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>GenAI on Campus – Interactive Workshop Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      color: #111827;
+      background-color: #f4f4f7;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .sidebar {
+      width: 260px;
+      background: #1b3a57;
+      color: #fff;
+      padding: 1.5rem 1rem;
+      box-sizing: border-box;
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+      max-height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar h1 {
+      font-size: 1.25rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .sidebar p {
+      font-size: 0.9rem;
+      margin: 0 0 1rem;
+      color: #d4e3f3;
+    }
+
+    .sidebar nav a {
+      display: block;
+      color: #e3f2ff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.15rem;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a:focus {
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+    }
+
+    .sidebar .section-label {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #9fb6cf;
+    }
+
+    .content {
+      flex: 1;
+      padding: 1.5rem 1.5rem 3rem;
+      box-sizing: border-box;
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* Typography & Components */
+    h2 {
+      font-size: 1.7rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.3rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    p {
+      margin-top: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #4b5563;
+      margin-bottom: 1rem;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .card-header h3,
+    .card-header h4 {
+      margin-bottom: 0.25rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      background: #edf2ff;
+      color: #1e293b;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      padding-left: 1.25rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    .inline-label {
+      font-weight: 600;
+    }
+
+    .callout {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 0.75rem 0.85rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+    }
+
+    .small-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #6b7280;
+    }
+
+    /* Toggles & Buttons */
+    button.toggle-btn,
+    button.action-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #111827;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.35rem;
+    }
+
+    button.toggle-btn:hover,
+    button.toggle-btn:focus,
+    button.action-btn:hover,
+    button.action-btn:focus {
+      background: #cbd5e1;
+      outline: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Code / prompt blocks */
+    .code-block {
+      background: #0f172a;
+      color: #e5e7eb;
+      padding: 0.75rem 0.85rem;
+      border-radius: 6px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+      margin-bottom: 0.75rem;
+    }
+
+    .code-block code {
+      white-space: pre;
+    }
+
+    /* MCQ & other interactive elements */
+    .mcq-question,
+    .multi-select-question,
+    .order-question {
+      margin-bottom: 0.75rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    fieldset {
+      border: none;
+      padding: 0;
+      margin: 0 0 0.35rem 0;
+    }
+
+    legend {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.2rem;
+      cursor: pointer;
+    }
+
+    .feedback {
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+    }
+
+    .feedback.correct {
+      color: #166534;
+    }
+
+    .feedback.incorrect {
+      color: #b91c1c;
+    }
+
+    .scenario-outcome {
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 120px;
+      padding: 0.5rem;
+      border-radius: 6px;
+      border: 1px solid #d1d5db;
+      font-family: inherit;
+      font-size: 0.95rem;
+      box-sizing: border-box;
+      resize: vertical;
+    }
+
+    .order-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr);
+      gap: 0.5rem;
+      align-items: center;
+      margin-bottom: 0.3rem;
+    }
+
+    select {
+      padding: 0.2rem 0.3rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        position: static;
+        width: 100%;
+        max-height: none;
+      }
+      .content {
+        padding: 1rem 1rem 2.5rem;
+      }
+      .order-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" aria-label="Workshop navigation">
+    <h1>GenAI on Campus</h1>
+    <p>Four short lessons for students, staff, and faculty on how generative AI works, what it cannot do, and how to use it thoughtfully and creatively.</p>
+
+    <div class="section-label">Sections</div>
+    <nav>
+      <a href="#overview">Overview &amp; How to Use</a>
+      <a href="#lesson1">Lesson 1 – From CLI to GenAI</a>
+      <a href="#lesson2">Lesson 2 – Pattern Machines, Not Minds</a>
+      <a href="#lesson3">Lesson 3 – Limits, Risks & Guardrails</a>
+      <a href="#lesson4">Lesson 4 – Creativity, Brainstorming & Temperature</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <!-- Overview -->
+    <section id="overview">
+      <h2>GenAI on Campus – Interactive Workshop</h2>
+      <p class="tagline">
+        Each lesson has a short reading (2–4 minutes) followed by labs you can try right away, including prompt-based activities and other interactive checks and reflections.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>What You’ll Be Able to Do</h3>
+          <span class="badge">Approx. 20–30 minutes per lesson</span>
+        </div>
+        <ul>
+          <li>Place today’s AI tools in the broader history of computing interfaces on campus.</li>
+          <li>Explain to others that GenAI is a <strong>pattern machine</strong>, not a fact oracle or a thinking mind.</li>
+          <li>Recognize core limitations like bias and hallucinations and design safer ways to use AI in your own work.</li>
+          <li>Use GenAI as a brainstorming partner while keeping your own judgment firmly in the loop.</li>
+        </ul>
+        <div class="callout" role="note">
+          <strong>How to use this portal:</strong> Work through all four lessons in order, or dip into the one most relevant to you. You can use any modern GenAI tool for the prompt-based labs.
+        </div>
+      </div>
+    </section>
+
+    <!-- Lesson 1 -->
+    <section id="lesson1">
+      <h2>Lesson 1 – From Command Lines to Generative AI</h2>
+
+      <!-- Reading -->
+      <div class="card" aria-labelledby="lesson1-reading-title">
+        <div class="card-header">
+          <h3 id="lesson1-reading-title">Reading: A Short History of How We Talk to Machines</h3>
+          <span class="badge">2–4 minute read</span>
+        </div>
+        <p>
+          On campus today, it’s easy to forget that not long ago, using a computer meant memorizing strict commands and typing them into a blinking prompt. 
+          Over time, the way we interact with machines has shifted through three big interface eras: <strong>command-line interfaces (CLI)</strong>, 
+          <strong>graphical user interfaces (GUI)</strong>, and today’s <strong>natural language interfaces (NLI)</strong> powered by generative AI.
+        </p>
+        <h4>Command-Line Interfaces (CLI)</h4>
+        <p>
+          In the CLI era, users typed exact commands like <code>mkdir assignments</code> or <code>ls</code> to see files. This approach is powerful and efficient, 
+          but unforgiving. You had to remember syntax, and a single typo could cause an error or unexpected result. On campus, this often meant only technically 
+          trained users or computing staff could fully benefit.
+        </p>
+
+        <h4>Graphical User Interfaces (GUI)</h4>
+        <p>
+          GUIs brought windows, icons, menus, and pointing devices. Instead of typing <code>print myfile.txt</code>, you could click a printer icon.
+          This made computing more accessible across campus: students, faculty, and staff could use software without knowing every command.
+          GUIs shifted expertise from “remembering commands” to “navigating interfaces.”
+        </p>
+
+        <h4>Natural Language Interfaces (NLI) and GenAI</h4>
+        <p>
+          Today, with tools like ChatGPT and other campus-approved platforms, we’re entering an NLI era. Instead of clicking or typing commands, 
+          you can say or type: “Summarize this article for a first-year student,” or “Help me brainstorm outreach ideas for a campus event.”
+          The interface is now <em>conversation</em>. Under the hood, these tools are not magical minds—they are statistical models trained to continue text in plausible ways.
+        </p>
+
+        <h4>From Rule-Based Systems to Generative AI</h4>
+        <p>
+          Before GenAI, many “smart” systems on campus were <strong>rule-based</strong>: people encoded “if this, then that” logic, such as sending an alert 
+          when a student’s grade fell below a threshold. Early AI and machine learning models learned patterns from data, but were often narrow and specialized.
+        </p>
+        <p>
+          Generative AI models are trained on vast amounts of text (and sometimes code, images, or audio) and can produce new text, images, or other media that 
+          follow the patterns they’ve observed. The leap is not that they “understand,” but that they are very good at pattern-based continuation and recombination.
+        </p>
+
+        <div class="callout" role="note">
+          <strong>Key idea:</strong> Each interface shift (CLI → GUI → NLI) makes computing feel more natural, but also hides more of what’s happening underneath. 
+          As we use GenAI on campus, we need to add <em>new literacy</em> about how these tools behave.
+        </div>
+      </div>
+
+      <!-- Labs -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 1.1 – Interface History Checkup (Multiple Choice)</h3>
+          <span class="badge">Interactive quiz</span>
+        </div>
+        <p><strong>Goal:</strong> Check your understanding of the differences between CLI, GUI, NLI, and rule-based vs. generative systems.</p>
+
+        <div class="mcq-question" data-correct="b">
+          <fieldset>
+            <legend>1. Which description best fits a command-line interface (CLI)?</legend>
+            <label>
+              <input type="radio" name="l1q1" value="a" />
+              A system where you click icons and menus to perform actions.
+            </label>
+            <label>
+              <input type="radio" name="l1q1" value="b" />
+              A system where you type text commands into a prompt to perform actions.
+            </label>
+            <label>
+              <input type="radio" name="l1q1" value="c" />
+              A system where you talk to an AI assistant using your voice.
+            </label>
+          </fieldset>
+          <div class="feedback" aria-live="polite"></div>
+        </div>
+
+        <div class="mcq-question" data-correct="c">
+          <fieldset>
+            <legend>2. Which is the best example of a natural language interface (NLI)?</legend>
+            <label>
+              <input type="radio" name="l1q2" value="a" />
+              A calculator app where you click buttons.
+            </label>
+            <label>
+              <input type="radio" name="l1q2" value="b" />
+              A campus website with menu navigation.
+            </label>
+            <label>
+              <input type="radio" name="l1q2" value="c" />
+              A chat tool where you type a question in everyday language and get a generated reply.
+            </label>
+          </fieldset>
+          <div class="feedback" aria-live="polite"></div>
+        </div>
+
+        <div class="mcq-question" data-correct="a">
+          <fieldset>
+            <legend>3. Which statement best describes a rule-based system?</legend>
+            <label>
+              <input type="radio" name="l1q3" value="a" />
+              It follows explicit “if this, then that” rules written by humans.
+            </label>
+            <label>
+              <input type="radio" name="l1q3" value="b" />
+              It invents its own rules without human input and understands context deeply.
+            </label>
+            <label>
+              <input type="radio" name="l1q3" value="c" />
+              It cannot be used for any decisions; it only stores data.
+            </label>
+          </fieldset>
+          <div class="feedback" aria-live="polite"></div>
+        </div>
+
+        <button type="button" class="action-btn" data-role="check-mcq">
+          Check my answers
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 1.2 – Timeline Prompt (Copy &amp; Paste)</h3>
+          <span class="badge">Prompt-based activity</span>
+        </div>
+        <p><strong>Goal:</strong> Use a GenAI tool to generate a short, campus-friendly timeline you could share with others.</p>
+        <p class="small-label">Copy-and-paste prompt:</p>
+        <div class="code-block" role="textbox" aria-label="Prompt for interface history timeline">
+          <code>Act as a friendly campus explainer.
+Create a short timeline that traces how people interact with computers:
+1) command-line interfaces (CLI),
+2) graphical user interfaces (GUI),
+3) natural language interfaces (NLI) and generative AI.
+For each stage, explain:
+- what everyday tasks felt like,
+- who could use the technology comfortably,
+- and one example relevant to a university setting.</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lesson 2 -->
+    <section id="lesson2">
+      <h2>Lesson 2 – Pattern Machines, Not Minds</h2>
+
+      <!-- Reading -->
+      <div class="card" aria-labelledby="lesson2-reading-title">
+        <div class="card-header">
+          <h3 id="lesson2-reading-title">Reading: What GenAI Is (and Is Not)</h3>
+          <span class="badge">2–4 minute read</span>
+        </div>
+        <p>
+          Generative AI tools can sound confident, conversational, and even funny. It’s tempting to talk about them as if they “know” things or “understand” us. 
+          But under the hood, large language models are best understood as <strong>pattern machines</strong> that work on tokens and probabilities—not as minds.
+        </p>
+
+        <h4>Tokens: The Building Blocks</h4>
+        <p>
+          When you type a prompt, the model doesn’t see full sentences the way you do. It breaks your text into tokens—small units such as words or parts of words.
+          It then predicts, step by step, which token is most likely to come next given all the tokens it has seen so far.
+        </p>
+
+        <h4>Patterns, Not Facts</h4>
+        <p>
+          Because the model is trained on large amounts of text, it learns patterns about which words tend to appear together. When you ask a question, it is not looking up 
+          a fact in a database. It is generating a sequence of tokens that <em>fit the patterns</em> it has seen, shaped by your prompt.
+        </p>
+
+        <h4>Prompts as Steering Wheels</h4>
+        <p>
+          Your prompt is the steering wheel. The more clearly you describe your role, your audience, your constraints, and your goal, the more you shape which patterns the model uses.
+          Vague prompts invite vague patterns. Specific prompts invite more focused patterns—though they still require checking.
+        </p>
+
+        <h4>No Understanding, No Intentions</h4>
+        <p>
+          The model does not have beliefs, experiences, or intentions. It does not know when it is wrong. Its outputs can be useful and insightful, 
+          but that is because patterns in the training data reflect human knowledge—not because the model itself “understands” in a human sense.
+        </p>
+
+        <div class="callout" role="note">
+          <strong>Key idea:</strong> Treat GenAI output as a highly sophisticated autocomplete. It can be extremely helpful, but it cannot replace human understanding, judgment, or verification.
+        </div>
+      </div>
+
+      <!-- Labs -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 2.1 – Fact or Pattern? (Select All That Apply)</h3>
+          <span class="badge">Concept check</span>
+        </div>
+        <p><strong>Goal:</strong> Distinguish accurate statements about how GenAI works from inaccurate ones.</p>
+        <p><span class="inline-label">Instructions:</span> Check all statements that you believe are accurate.</p>
+
+        <div class="multi-select-question">
+          <fieldset>
+            <legend>Which statements about large language models are accurate?</legend>
+            <label>
+              <input type="checkbox" value="1" data-correct="true" />
+              They generate text by predicting likely next tokens based on patterns in their training data.
+            </label>
+            <label>
+              <input type="checkbox" value="2" data-correct="false" />
+              They know when they are wrong and will avoid giving incorrect answers.
+            </label>
+            <label>
+              <input type="checkbox" value="3" data-correct="true" />
+              They can produce specific details, such as citations or statistics, that still need to be checked.
+            </label>
+            <label>
+              <input type="checkbox" value="4" data-correct="false" />
+              They store a perfect internal copy of the internet and simply look up the right answer.
+            </label>
+            <label>
+              <input type="checkbox" value="5" data-correct="true" />
+              The way you phrase your prompt strongly influences what kind of patterns they use to answer.
+            </label>
+          </fieldset>
+          <div class="feedback" aria-live="polite"></div>
+        </div>
+
+        <button type="button" class="action-btn" data-role="check-multi">
+          Check my selection
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 2.2 – Explaining the Pattern Machine (Prompt Lab)</h3>
+          <span class="badge">Prompt-based activity</span>
+        </div>
+        <p><strong>Goal:</strong> Generate an explanation you can reuse in a syllabus, presentation, or campus policy.</p>
+        <p class="small-label">Copy-and-paste prompts:</p>
+        <div class="code-block" role="textbox" aria-label="Prompt for student explanation of pattern machine">
+          <code>Explain to a general campus audience that large language models like ChatGPT are pattern machines, not thinking minds.
+Include:
+- a simple metaphor,
+- a brief explanation of what a token is,
+- and why the model can sound confident but still be wrong.
+Keep it under 250 words, and avoid technical jargon.</code>
+        </div>
+        <div class="code-block" role="textbox" aria-label="Prompt for policy language">
+          <code>Write a short paragraph I can paste into a course syllabus or campus guide that explains:
+- what a prompt is,
+- why AI output should be treated as a draft,
+- and why students and staff must still verify facts themselves.
+Use clear, neutral, non-alarmist language.</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lesson 3 -->
+    <section id="lesson3">
+      <h2>Lesson 3 – Limits, Risks & Guardrails</h2>
+
+      <!-- Reading -->
+      <div class="card" aria-labelledby="lesson3-reading-title">
+        <div class="card-header">
+          <h3 id="lesson3-reading-title">Reading: Why Care About Limits?</h3>
+          <span class="badge">2–4 minute read</span>
+        </div>
+        <p>
+          Generative AI tools can be helpful, but they also bring real limitations and risks. On a university campus, where accuracy, ethics, and equity matter,
+          it’s important to understand these patterns so we can build guardrails.
+        </p>
+
+        <h4>Bias and Representation</h4>
+        <p>
+          Models learn from large datasets that reflect the world as it is, including its inequalities and stereotypes.
+          As a result, they can reproduce or amplify biased language and assumptions about people based on race, gender, disability, age, or other characteristics.
+        </p>
+
+        <h4>Hallucinations</h4>
+        <p>
+          A “hallucination” is when the model generates a fluent, detailed answer that is simply wrong or made up. This can include fake citations,
+          incorrect dates, or invented quotes. The model is not lying; it is following patterns that <em>look</em> like answers.
+        </p>
+
+        <h4>Context Windows</h4>
+        <p>
+          Models can only “see” a limited number of tokens at once—this is called the context window. Long documents, long conversations, or many pasted texts
+          may be summarized or truncated in ways you cannot see directly. Important details can be lost or misrepresented.
+        </p>
+
+        <h4>Lack of Understanding and Accountability</h4>
+        <p>
+          The model does not understand consequences or ethics. It does not know campus policies, legal requirements, or your personal values unless you bring 
+          them into the conversation and still check the output against trusted sources.
+        </p>
+
+        <div class="callout" role="note">
+          <strong>Key idea:</strong> Using GenAI responsibly means assuming it <em>will</em> sometimes be biased or wrong, and designing your workflow to catch and correct those issues.
+        </div>
+      </div>
+
+      <!-- Labs -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 3.1 – Scenario Branching: Using AI for a Campus Handout</h3>
+          <span class="badge">Scenario activity</span>
+        </div>
+        <p><strong>Goal:</strong> Explore safer and less safe ways to use AI in a realistic campus scenario.</p>
+        <p><span class="inline-label">Scenario:</span> You’re asked to create a one-page “Introduction to GenAI on Campus” handout for new students.</p>
+
+        <fieldset>
+          <legend>Which approach would you choose first?</legend>
+          <label>
+            <input type="radio" name="l3scenario" value="a" />
+            A. Paste a rough idea into an AI tool, accept the first answer, and publish it as the official handout.
+          </label>
+          <label>
+            <input type="radio" name="l3scenario" value="b" />
+            B. Ask an AI tool to generate a draft, then check facts, adapt the tone for campus values, and review with colleagues before publishing.
+          </label>
+          <label>
+            <input type="radio" name="l3scenario" value="c" />
+            C. Avoid AI entirely and start from a blank page, even if it takes much longer and duplicates work others have done.
+          </label>
+        </fieldset>
+
+        <button type="button" class="action-btn" data-role="show-scenario">
+          See outcome
+        </button>
+        <div id="l3scenario-outcome" class="scenario-outcome" aria-live="polite"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 3.2 – Hallucination & Verification (Prompt + Reflection)</h3>
+          <span class="badge">Prompt-based + journaling</span>
+        </div>
+        <p><strong>Goal:</strong> Practice assuming AI can hallucinate and build a verification habit.</p>
+
+        <p class="small-label">Copy-and-paste prompt:</p>
+        <div class="code-block" role="textbox" aria-label="Prompt about hallucinations and verification">
+          <code>Explain to students what an AI hallucination is, using one concrete example.
+Then provide a simple 3-step checklist they can follow whenever they use AI for factual or research-related tasks.
+Keep it under 200 words and suitable for a campus handout.</code>
+        </div>
+
+        <h4>Reflection Journal</h4>
+        <p><span class="inline-label">Prompt:</span> Think of one way you might be tempted to over-trust AI in your own role (as a student, staff member, or instructor). How could you build in a quick verification step?</p>
+        <label for="l3journal" class="small-label">Write your thoughts (stays in your browser):</label>
+        <textarea id="l3journal"></textarea>
+        <button type="button" class="action-btn" data-role="copy-journal" data-source="l3journal">
+          Copy my notes to clipboard
+        </button>
+        <div class="feedback" id="l3journal-feedback" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <!-- Lesson 4 -->
+    <section id="lesson4">
+      <h2>Lesson 4 – Creativity, Brainstorming & Temperature</h2>
+
+      <!-- Reading -->
+      <div class="card" aria-labelledby="lesson4-reading-title">
+        <div class="card-header">
+          <h3 id="lesson4-reading-title">Reading: Using GenAI as a Brainstorm Partner</h3>
+          <span class="badge">2–4 minute read</span>
+        </div>
+        <p>
+          Generative AI can be a powerful ally for brainstorming: generating options, reframing problems, and surfacing ideas you might not think of on your own.
+          The goal is not to let the tool decide for you, but to give you more raw material to evaluate.
+        </p>
+
+        <h4>Creative Uses on Campus</h4>
+        <ul>
+          <li>Drafting multiple versions of event titles or outreach messages.</li>
+          <li>Brainstorming project ideas, research questions, or group activities.</li>
+          <li>Exploring alternative explanations of a concept for different audiences.</li>
+        </ul>
+
+        <h4>Temperature and Creativity</h4>
+        <p>
+          Many GenAI tools expose a setting called <strong>temperature</strong> (or a similar “creativity” slider). 
+          Lower temperatures push the model toward safer, more predictable completions. Higher temperatures encourage more varied and surprising outputs.
+        </p>
+        <p>
+          When you want <strong>precision</strong> (e.g., summarizing policy language), you typically want lower temperature and very clear prompts.
+          When you want <strong>divergent brainstorming</strong> (e.g., wild ideas for a themed event), you can move the temperature higher or ask explicitly for unusual, experimental options.
+        </p>
+
+        <div class="callout" role="note">
+          <strong>Key idea:</strong> You remain the editor and decision-maker. AI can help you think wider and faster, but you choose what to keep, adapt, or discard.
+        </div>
+      </div>
+
+      <!-- Labs -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 4.1 – Workflow Sorting: When to Use Higher or Lower Temperature</h3>
+          <span class="badge">Ordering activity</span>
+        </div>
+        <p><strong>Goal:</strong> Match tasks with appropriate “safe vs. creative” settings.</p>
+        <p><span class="inline-label">Instructions:</span> For each task, choose the most appropriate setting.</p>
+
+        <div class="order-question">
+          <div class="order-grid">
+            <div>1. Drafting a formal email about a financial aid appeal.</div>
+            <div>
+              <label for="o1" class="small-label">Best setting:</label>
+              <select id="o1" data-correct="Low">
+                <option value="">Select…</option>
+                <option value="Low">Lower / safer</option>
+                <option value="High">Higher / more creative</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="order-grid">
+            <div>2. Brainstorming fun theme ideas for a residence hall event.</div>
+            <div>
+              <label for="o2" class="small-label">Best setting:</label>
+              <select id="o2" data-correct="High">
+                <option value="">Select…</option>
+                <option value="Low">Lower / safer</option>
+                <option value="High">Higher / more creative</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="order-grid">
+            <div>3. Generating possible research questions based on a faculty member’s interests.</div>
+            <div>
+              <label for="o3" class="small-label">Best setting:</label>
+              <select id="o3" data-correct="High">
+                <option value="">Select…</option>
+                <option value="Low">Lower / safer</option>
+                <option value="High">Higher / more creative</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="order-grid">
+            <div>4. Summarizing an official campus policy for a student handbook.</div>
+            <div>
+              <label for="o4" class="small-label">Best setting:</label>
+              <select id="o4" data-correct="Low">
+                <option value="">Select…</option>
+                <option value="Low">Lower / safer</option>
+                <option value="High">Higher / more creative</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="feedback" id="order-feedback" aria-live="polite"></div>
+        </div>
+
+        <button type="button" class="action-btn" data-role="check-order">
+          Check my choices
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Lab 4.2 – Temperature Experiment (Prompt Lab)</h3>
+          <span class="badge">Prompt-based activity</span>
+        </div>
+        <p><strong>Goal:</strong> Experience the difference between “safe” and “creative” outputs in a real brainstorming task.</p>
+        <p class="small-label">Copy-and-paste prompts (run them as two separate prompts; adjust if your tool has an explicit temperature slider):</p>
+        <div class="code-block" role="textbox" aria-label="Prompt for low temperature ideas">
+          <code>You are helping me plan a small campus event for students about using AI responsibly.
+Generate 5 clear, conventional event titles and 5 straightforward discussion questions.
+Keep everything practical, predictable, and easy to understand.</code>
+        </div>
+        <div class="code-block" role="textbox" aria-label="Prompt for high temperature ideas">
+          <code>Using the same goal (a campus event about using AI responsibly),
+generate 10 unusual, imaginative event titles and 10 bold, provocative discussion questions.
+It’s okay if some ideas are a bit weird; lean toward originality and variety.</code>
+        </div>
+        <p class="small-label">Optional discussion:</p>
+        <ul>
+          <li>Which ideas would you actually use as-is?</li>
+          <li>Which would you adapt—and how?</li>
+          <li>Which go too far for your context, and why?</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Accessibility-friendly interactions
+
+    document.addEventListener("DOMContentLoaded", function () {
+      // Multiple choice check
+      const mcqButton = document.querySelector('button[data-role="check-mcq"]');
+      if (mcqButton) {
+        mcqButton.addEventListener("click", () => {
+          const questions = document.querySelectorAll(".mcq-question");
+          questions.forEach((q) => {
+            const correct = q.getAttribute("data-correct");
+            const name = q.querySelector("input[type='radio']")?.name;
+            const selected = name
+              ? document.querySelector(`input[name="${name}"]:checked`)
+              : null;
+            const feedback = q.querySelector(".feedback");
+            if (!feedback) return;
+            if (!selected) {
+              feedback.textContent = "Please select an answer.";
+              feedback.classList.remove("correct", "incorrect");
+              return;
+            }
+            if (selected.value === correct) {
+              feedback.textContent = "Correct!";
+              feedback.classList.add("correct");
+              feedback.classList.remove("incorrect");
+            } else {
+              feedback.textContent = "Not quite. Try again, or review the reading.";
+              feedback.classList.add("incorrect");
+              feedback.classList.remove("correct");
+            }
+          });
+        });
+      }
+
+      // Multi-select check
+      const multiButton = document.querySelector('button[data-role="check-multi"]');
+      if (multiButton) {
+        multiButton.addEventListener("click", () => {
+          const container = document.querySelector(".multi-select-question");
+          if (!container) return;
+          const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+          const feedback = container.querySelector(".feedback");
+          let allCorrect = true;
+          let anyChecked = false;
+
+          checkboxes.forEach((cb) => {
+            const shouldBeChecked = cb.getAttribute("data-correct") === "true";
+            const isChecked = cb.checked;
+            if (isChecked) anyChecked = true;
+            if (isChecked !== shouldBeChecked) {
+              allCorrect = false;
+            }
+          });
+
+          if (!feedback) return;
+          if (!anyChecked) {
+            feedback.textContent = "Select at least one statement before checking.";
+            feedback.classList.remove("correct", "incorrect");
+          } else if (allCorrect) {
+            feedback.textContent = "Nice work – you selected all and only the accurate statements.";
+            feedback.classList.add("correct");
+            feedback.classList.remove("incorrect");
+          } else {
+            feedback.textContent = "Some selections are off. Re-read the statements and try again.";
+            feedback.classList.add("incorrect");
+            feedback.classList.remove("correct");
+          }
+        });
+      }
+
+      // Scenario branching
+      const scenarioButton = document.querySelector('button[data-role="show-scenario"]');
+      if (scenarioButton) {
+        scenarioButton.addEventListener("click", () => {
+          const chosen = document.querySelector('input[name="l3scenario"]:checked');
+          const output = document.getElementById("l3scenario-outcome");
+          if (!output) return;
+          if (!chosen) {
+            output.textContent = "Please choose an option to see what might happen.";
+            return;
+          }
+          if (chosen.value === "a") {
+            output.textContent =
+              "Outcome A: Fast, but risky. You may publish inaccurate or biased information and miss campus policy requirements. This approach is not recommended.";
+          } else if (chosen.value === "b") {
+            output.textContent =
+              "Outcome B: You use AI as a drafting partner, then apply human judgment, verification, and campus values. This is the safest and most sustainable approach.";
+          } else if (chosen.value === "c") {
+            output.textContent =
+              "Outcome C: You avoid AI entirely. This avoids AI-specific risks but may take more time and miss opportunities to model responsible use.";
+          }
+        });
+      }
+
+      // Journal copy to clipboard
+      const copyButtons = document.querySelectorAll('button[data-role="copy-journal"]');
+      copyButtons.forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const sourceId = btn.getAttribute("data-source");
+          if (!sourceId) return;
+          const textarea = document.getElementById(sourceId);
+          const feedback = document.getElementById(sourceId + "-feedback");
+          if (!textarea) return;
+          const text = textarea.value.trim();
+          if (!text) {
+            if (feedback) {
+              feedback.textContent = "Write a few thoughts before copying.";
+              feedback.classList.remove("correct", "incorrect");
+            }
+            return;
+          }
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(text);
+              if (feedback) {
+                feedback.textContent = "Copied to clipboard. You can paste this into a document or notes app.";
+                feedback.classList.add("correct");
+                feedback.classList.remove("incorrect");
+              }
+            } else {
+              textarea.select();
+              document.execCommand("copy");
+              if (feedback) {
+                feedback.textContent = "Copied to clipboard. You can paste this into a document or notes app.";
+                feedback.classList.add("correct");
+                feedback.classList.remove("incorrect");
+              }
+            }
+          } catch (e) {
+            if (feedback) {
+              feedback.textContent = "Unable to copy automatically. You can select and copy your text manually.";
+              feedback.classList.add("incorrect");
+              feedback.classList.remove("correct");
+            }
+          }
+        });
+      });
+
+      // Order / temperature matching
+      const orderButton = document.querySelector('button[data-role="check-order"]');
+      if (orderButton) {
+        orderButton.addEventListener("click", () => {
+          const selects = document.querySelectorAll(".order-question select");
+          const feedback = document.getElementById("order-feedback");
+          if (!feedback) return;
+          let allAnswered = true;
+          let allCorrect = true;
+
+          selects.forEach((sel) => {
+            const correct = sel.getAttribute("data-correct");
+            if (!sel.value) {
+              allAnswered = false;
+            }
+            if (sel.value && sel.value !== correct) {
+              allCorrect = false;
+            }
+          });
+
+          if (!allAnswered) {
+            feedback.textContent = "Please choose a setting for each task before checking.";
+            feedback.classList.remove("correct", "incorrect");
+          } else if (allCorrect) {
+            feedback.textContent = "Looks good – your choices align with safer vs. more creative use of AI.";
+            feedback.classList.add("correct");
+            feedback.classList.remove("incorrect");
+          } else {
+            feedback.textContent = "Some choices may not be ideal. Reconsider where precision vs. creativity matters most.";
+            feedback.classList.add("incorrect");
+            feedback.classList.remove("correct");
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Workflow Guides for Faculty | University of Illinois</title>
+<style>
+  :root {
+    --illini-blue: #13294B;
+    --illini-orange: #FF552E;
+    --light-gray: #f7f7f8;
+    --mid-gray: #e0e0e0;
+    --dark-gray: #444;
+  }
+  body {
+    font-family: "Segoe UI", Roboto, sans-serif;
+    background: var(--light-gray);
+    color: var(--dark-gray);
+    margin: 0;
+    line-height: 1.6;
+  }
+  header {
+    background: var(--illini-blue);
+    color: #fff;
+    text-align: center;
+    padding: 1.5em 0 1em;
+  }
+  header h1 {
+    font-weight: 600;
+    margin: 0;
+  }
+  .tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    background: var(--illini-blue);
+  }
+  .tab {
+    padding: 0.9em 1.5em;
+    cursor: pointer;
+    color: #fff;
+    border-bottom: 3px solid transparent;
+    transition: all .3s;
+    display: flex;
+    align-items: center;
+    gap: .5em;
+  }
+  .tab:hover {
+    background: #1c3a6c;
+  }
+  .tab.active {
+    border-bottom: 3px solid var(--illini-orange);
+    background: #1c3a6c;
+  }
+  .content {
+    display: none;
+    background: #fff;
+    margin: 2em auto;
+    padding: 2em;
+    max-width: 980px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .content.active {
+    display: block;
+  }
+  h2 {
+    color: var(--illini-blue);
+    border-left: 5px solid var(--illini-orange);
+    padding-left: .5em;
+  }
+  details {
+    margin: 1em 0;
+    border-left: 3px solid var(--illini-blue);
+    padding-left: 1em;
+    background: var(--light-gray);
+    border-radius: 6px;
+  }
+  summary {
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--illini-blue);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1em 0;
+    background: #fff;
+  }
+  th, td {
+    border: 1px solid var(--mid-gray);
+    padding: .6em;
+  }
+  th {
+    background: #eef2f6;
+    color: var(--illini-blue);
+  }
+  code {
+    background: #f4f4f4;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    color: var(--illini-blue);
+  }
+  /* Icons (Lucide-like minimalist) */
+  .icon {font-style: normal; font-weight: bold; color: var(--illini-orange);}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>AI Workflow Guides for Faculty</h1>
+  <p>University of Illinois | Center for Innovation in Teaching & Learning</p>
+</header>
+
+<div class="tabs">
+  <div class="tab active" data-tab="1"><span class="icon">📘</span>Gemini → Prezi</div>
+  <div class="tab" data-tab="2"><span class="icon">🧭</span>NotebookLM Dashboard</div>
+  <div class="tab" data-tab="3"><span class="icon">🧩</span>Claude Interactives</div>
+  <div class="tab" data-tab="4"><span class="icon">🎙️</span>ChatGPT Voice</div>
+</div>
+
+<!-- TAB 1 -->
+<div class="content active" id="tab1">
+  <h2>1. From Research to Presentation</h2>
+  <p><strong>Workflow:</strong> Gemini Deep Research → Google Doc → Webpage → Word → Prezi → PPT</p>
+
+  <details open><summary>🎯 Purpose</summary>
+    <p>Transform a research idea into a sequence of evolving media forms—showing how meaning shifts across interfaces.</p>
+  </details>
+
+  <details><summary>⚙️ Steps</summary>
+    <ol>
+      <li><strong>Craft a Research Prompt:</strong> Ask Gemini for 5 peer-reviewed sources on your theme.</li>
+      <li><strong>Refine in Google Docs:</strong> Edit citations, headings, and add comments.</li>
+      <li><strong>Publish to Web:</strong> Use “File → Publish to the web” and observe how presentation changes.</li>
+      <li><strong>Export to Word → Prezi:</strong> Generate an AI-driven slide deck and adjust narrative order.</li>
+      <li><strong>Export to PPT:</strong> Use as your LMS-ready version or feed to NotebookLM.</li>
+    </ol>
+  </details>
+
+  <details><summary>💭 Reflection</summary>
+    <ul>
+      <li>How did tone or authority change between tools?</li>
+      <li>Which version most clarified or distorted meaning?</li>
+    </ul>
+  </details>
+
+  <details><summary>⚠️ Common Pitfalls</summary>
+    <table>
+      <tr><th>Issue</th><th>Mitigation</th></tr>
+      <tr><td>Citation drift</td><td>Verify DOIs before export.</td></tr>
+      <tr><td>Formatting loss</td><td>Keep a PDF snapshot of each stage.</td></tr>
+      <tr><td>Oversimplified slides</td><td>Ensure every deck includes a thesis slide.</td></tr>
+    </table>
+  </details>
+</div>
+
+<!-- TAB 2 -->
+<div class="content" id="tab2">
+  <h2>2. Building a Learning Dashboard with NotebookLM</h2>
+  <p><strong>Workflow:</strong> Gemini doc + 3–5 PDFs + Prezi PPT → NotebookLM → explainer video, audio, outline, mind map</p>
+
+  <details open><summary>🎯 Purpose</summary>
+    <p>Combine multimodal outputs into a coherent learning dashboard for richer comprehension and accessibility.</p>
+  </details>
+
+  <details><summary>⚙️ Steps</summary>
+    <ol>
+      <li>Create a notebook and upload all sources.</li>
+      <li>Annotate each file (theory, critique, case study).</li>
+      <li>Prompt examples: <code>“Summarize how each source defines hyperreality.”</code></li>
+      <li>Generate video, audio, outline, and mind map outputs.</li>
+      <li>Review outputs for accuracy and tone before sharing.</li>
+    </ol>
+  </details>
+
+  <details><summary>💭 Reflection</summary>
+    <ul>
+      <li>Which output offered the most new insight?</li>
+      <li>What does multimodal synthesis reveal or flatten?</li>
+    </ul>
+  </details>
+
+  <details><summary>⚠️ Common Pitfalls</summary>
+    <table>
+      <tr><th>Issue</th><th>Mitigation</th></tr>
+      <tr><td>Missing citations</td><td>Cross-check with PDFs.</td></tr>
+      <tr><td>Mode confusion</td><td>Limit prompt scope to a few sources.</td></tr>
+      <tr><td>Output redundancy</td><td>Select one anchor format per project.</td></tr>
+    </table>
+  </details>
+</div>
+
+<!-- TAB 3 -->
+<div class="content" id="tab3">
+  <h2>3. Creating Interactive Elements with Claude</h2>
+  <p><strong>Workflow:</strong> Structured prompt → Claude → standalone HTML interactive</p>
+
+  <details open><summary>🎯 Purpose</summary>
+    <p>Generate lightweight HTML activities—self-contained, accessible, and embeddable—directly from well-structured prompts.</p>
+  </details>
+
+  <details><summary>⚙️ Steps</summary>
+    <ol>
+      <li>Define the type (quiz, slider, reveal card, etc.).</li>
+      <li>Base prompt:<br>
+      <code>You are a web developer creating self-contained educational interactives. Generate a complete HTML file (with embedded CSS and JS, no external libraries) for [goal]. Include accessibility features.</code></li>
+      <li>Paste code into <code>interactive.html</code> and preview locally.</li>
+      <li>Iterate with specific correction prompts (“Fix button reset”).</li>
+      <li>Embed final file in Canvas or website.</li>
+    </ol>
+  </details>
+
+  <details><summary>💭 Reflection</summary>
+    <ul>
+      <li>What prompt phrasing produced the cleanest code?</li>
+      <li>Did accessibility features appear automatically or require tweaks?</li>
+    </ul>
+  </details>
+
+  <details><summary>⚠️ Common Pitfalls</summary>
+    <table>
+      <tr><th>Issue</th><th>Mitigation</th></tr>
+      <tr><td>External library calls</td><td>Add “no external libraries” to prompt.</td></tr>
+      <tr><td>Style inconsistency</td><td>Request minimal semantic markup.</td></tr>
+      <tr><td>Accessibility gaps</td><td>Ask for WCAG 2.1 AA compliance.</td></tr>
+    </table>
+  </details>
+</div>
+
+<!-- TAB 4 -->
+<div class="content" id="tab4">
+  <h2>4. Brainstorming Course Structure with ChatGPT Voice</h2>
+  <p><strong>Workflow:</strong> Voice brainstorming → structured outline → export for Canvas</p>
+
+  <details open><summary>🎯 Purpose</summary>
+    <p>Use ChatGPT’s voice mode to turn spontaneous conversation into a structured course outline ready for LMS import.</p>
+  </details>
+
+  <details><summary>⚙️ Steps</summary>
+    <ol>
+      <li>Set an anchor prompt (e.g., “Design an 8-week course on hyperreality”).</li>
+      <li>Speak naturally for 5–10 minutes; let AI summarize key points.</li>
+      <li>Copy transcript, clean, and retain decision notes.</li>
+      <li>Prompt ChatGPT: “Convert this transcript into outcomes, modules, and pages.”</li>
+      <li>Export text for Canvas or IMSCC import; refine with follow-up voice prompts.</li>
+    </ol>
+  </details>
+
+  <details><summary>💭 Reflection</summary>
+    <ul>
+      <li>What surfaced only through speaking aloud?</li>
+      <li>How did AI’s clarifying questions shift your design logic?</li>
+    </ul>
+  </details>
+
+  <details><summary>⚠️ Common Pitfalls</summary>
+    <table>
+      <tr><th>Issue</th><th>Mitigation</th></tr>
+      <tr><td>Wandering conversation</td><td>Begin with a one-sentence goal.</td></tr>
+      <tr><td>Flat outline</td><td>Ask explicitly for module/page hierarchy.</td></tr>
+      <tr><td>Formatting mismatch</td><td>Validate before Canvas import.</td></tr>
+    </table>
+  </details>
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const contents = document.querySelectorAll('.content');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      contents.forEach(c => c.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('tab' + tab.dataset.tab).classList.add('active');
+      window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+</script>
+
+</body>
+</html>

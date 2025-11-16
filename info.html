@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>From Real to Virtual: Decades of Lived Experience</title>
+  <style>
+    :root{
+      --bg:#0b1020;          /* deep navy */
+      --panel:#121a33;       /* card bg */
+      --ink:#e9eefc;         /* primary text */
+      --muted:#9fb0d9;       /* secondary text */
+      --mediated:#6aa9ff;    /* mediated color */
+      --direct:#f6b35e;      /* direct color */
+      --accent:#8ef6d2;      /* accent for milestones */
+      --grid:#243062;        /* grid lines */
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: radial-gradient(1000px 600px at 70% -10%, #1a2550 0%, var(--bg) 60%);
+      color:var(--ink);
+    }
+    .wrap{max-width:1100px; margin:3rem auto; padding:0 1rem}
+    header{display:flex; flex-wrap:wrap; gap:1rem; align-items:flex-end; justify-content:space-between; margin-bottom:1.25rem}
+    h1{font-weight:800; letter-spacing:.2px; margin:0; font-size:clamp(1.4rem, 2.2vw, 2rem)}
+    .subtitle{color:var(--muted); font-size:.95rem; max-width:60ch}
+
+    .panel{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.07); border-radius:16px; padding:1rem; box-shadow: 0 5px 30px rgba(0,0,0,.25)}
+
+    .legend{display:flex; gap:1rem; flex-wrap:wrap; align-items:center}
+    .swatch{width:14px; height:14px; border-radius:4px; display:inline-block; vertical-align:middle; margin-right:.4rem}
+
+    .controls{display:flex; gap:.75rem; flex-wrap:wrap}
+    button, .link{background:#1c254c; color:var(--ink); border:1px solid rgba(255,255,255,.12); padding:.55rem .8rem; border-radius:10px; cursor:pointer; font-weight:600}
+    button:hover, .link:hover{background:#233066}
+
+    .grid{position:relative; width:100%; height:min(70vh,560px); min-height:380px}
+    svg{width:100%; height:100%; display:block}
+
+    .ygrid line{stroke:var(--grid); stroke-width:1}
+    .axis text{fill:var(--muted); font-size:.85rem}
+    .bar{transition:opacity .2s ease, transform .2s ease}
+    .bar:hover{opacity:.92; transform: translateY(-2px)}
+
+    .callouts{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:1rem; margin-top:1rem}
+    .callouts .panel{padding:1rem}
+    .callouts h3{margin:.2rem 0 .5rem; font-size:1rem}
+    ul{margin:.4rem 0 0 1.2rem; color:var(--muted)}
+
+    footer{color:var(--muted); margin-top:1.25rem; font-size:.9rem; line-height:1.4}
+    .note{opacity:.9}
+    .foot{display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; justify-content:space-between}
+
+    @media (max-width:640px){
+      .subtitle{font-size:.9rem}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>From Real to Virtual: Decades of Lived Experience</h1>
+        <p class="subtitle">A visual estimate of how waking hours split between <strong>direct, first‑person experience</strong> and <strong>mediated (screen‑based) experience</strong> from the 1950s to today. Values are approximate and meant for discussion, not precise measurement.</p>
+      </div>
+      <div class="controls">
+        <div class="legend panel" aria-label="Legend: mediated vs direct">
+          <span><span class="swatch" style="background:var(--direct)"></span>Direct, first‑person</span>
+          <span><span class="swatch" style="background:var(--mediated)"></span>Mediated (screen‑based)</span>
+        </div>
+        <button id="downloadBtn" title="Download SVG">Download SVG</button>
+      </div>
+    </header>
+
+    <div class="panel grid" role="img" aria-label="Stacked bars by decade showing proportion of direct vs mediated experience">
+      <svg id="chart" viewBox="0 0 1100 560" preserveAspectRatio="xMidYMid meet" aria-labelledby="chartTitle chartDesc">
+        <title id="chartTitle">Decade Stacked Bars: Direct vs Mediated Experience</title>
+        <desc id="chartDesc">Each bar shows percentage of waking hours per decade. Lower (ochre) = direct, upper (blue) = mediated.</desc>
+      </svg>
+    </div>
+
+    <section class="callouts">
+      <div class="panel">
+        <h3>Milestones</h3>
+        <ul>
+          <li><strong>1950s:</strong> Television scales in households.</li>
+          <li><strong>1980s:</strong> Home computers; cable TV.</li>
+          <li><strong>1990s:</strong> Consumer internet.</li>
+          <li><strong>2000s:</strong> Smartphones & mobile broadband.</li>
+          <li><strong>2010s–2020s:</strong> Always‑on platforms; hybrid/remote life.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Takeaways</h3>
+        <ul>
+          <li>Shift from ~85–90% direct (1950s) toward ~55–60% direct (2020s).</li>
+          <li>Screen time ≈ 6.5–7h/day today → ~40–45% of waking hours.</li>
+          <li>Quality of mediation matters more than quantity.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Caveats</h3>
+        <ul>
+          <li>Categories blur (e.g., audio, AR, co‑present but on phone).</li>
+          <li>Large variation by age, work, culture.</li>
+          <li>Earlier decades are informed estimates, not measured logs.</li>
+        </ul>
+      </div>
+    </section>
+
+    <footer>
+      <div class="foot">
+        <p class="note">Notes: Today’s screen‑time anchors use contemporary syntheses (~6.5–7h/day for adults), mapped to ~16 waking hours. Earlier decades are heuristic estimates to illustrate a trend rather than authoritative figures.</p>
+        <a class="link" href="#" id="toggleValues">Toggle % labels</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // ---- Data (approximate, midpoints within the ranges we discussed) ----
+    const data = [
+      { decade: "1950s", mediated: 15, direct: 85 },
+      { decade: "1960s", mediated: 20, direct: 80 },
+      { decade: "1970s", mediated: 25, direct: 75 },
+      { decade: "1980s", mediated: 30, direct: 70 },
+      { decade: "1990s", mediated: 35, direct: 65 },
+      { decade: "2000s", mediated: 40, direct: 60 },
+      { decade: "2010s", mediated: 45, direct: 55 },
+      { decade: "2020s", mediated: 43, direct: 57 },
+    ];
+
+    // ---- Chart geometry ----
+    const svg = document.getElementById('chart');
+    const W = 1100, H = 560;
+    const margin = { top: 30, right: 24, bottom: 70, left: 64 };
+    const innerW = W - margin.left - margin.right;
+    const innerH = H - margin.top - margin.bottom;
+
+    // Axes & scales
+    const maxY = 100; // percent
+    const y = v => margin.top + innerH * (1 - v / maxY);
+    const xBand = {
+      step: innerW / data.length,
+      bw: (innerW / data.length) * 0.6,
+      x: i => margin.left + (i + 0.5) * (innerW / data.length)
+    };
+
+    // Background grid
+    const gridGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+    gridGroup.setAttribute('class','ygrid');
+    [0,20,40,60,80,100].forEach(val=>{
+      const yPos = y(val);
+      const line = document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1', margin.left);
+      line.setAttribute('x2', margin.left + innerW);
+      line.setAttribute('y1', yPos);
+      line.setAttribute('y2', yPos);
+      gridGroup.appendChild(line);
+
+      const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x', margin.left - 10);
+      label.setAttribute('y', yPos + 4);
+      label.setAttribute('text-anchor','end');
+      label.setAttribute('class','axis');
+      label.textContent = val + '%';
+      gridGroup.appendChild(label);
+    });
+    svg.appendChild(gridGroup);
+
+    // Bars group
+    const barsGroup = document.createElementNS('http://www.w3.org/2000/svg','g');
+
+    // Draw bars (stacked: direct at bottom, mediated on top)
+    data.forEach((d, i) => {
+      const cx = xBand.x(i);
+      const bw = xBand.bw;
+
+      const directH = innerH * (d.direct / 100);
+      const medH = innerH * (d.mediated / 100);
+
+      const directRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      directRect.setAttribute('class','bar');
+      directRect.setAttribute('x', cx - bw/2);
+      directRect.setAttribute('width', bw);
+      directRect.setAttribute('y', y(d.direct));
+      directRect.setAttribute('height', directH);
+      directRect.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--direct') );
+      directRect.setAttribute('rx','6');
+      directRect.setAttribute('aria-label', `${d.decade} direct ${d.direct}%`);
+      barsGroup.appendChild(directRect);
+
+      const medRect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      medRect.setAttribute('class','bar');
+      medRect.setAttribute('x', cx - bw/2);
+      medRect.setAttribute('width', bw);
+      medRect.setAttribute('y', y(d.direct + d.mediated));
+      medRect.setAttribute('height', medH);
+      medRect.setAttribute('fill', getComputedStyle(document.documentElement).getPropertyValue('--mediated') );
+      medRect.setAttribute('rx','6');
+      medRect.setAttribute('aria-label', `${d.decade} mediated ${d.mediated}%`);
+      barsGroup.appendChild(medRect);
+
+      // decade labels
+      const label = document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x', cx);
+      label.setAttribute('y', H - 30);
+      label.setAttribute('text-anchor','middle');
+      label.setAttribute('class','axis');
+      label.textContent = d.decade;
+      barsGroup.appendChild(label);
+
+      // value labels (hidden by default; toggled via link)
+      const valDirect = document.createElementNS('http://www.w3.org/2000/svg','text');
+      valDirect.setAttribute('x', cx);
+      valDirect.setAttribute('y', y(d.direct) - 6);
+      valDirect.setAttribute('text-anchor','middle');
+      valDirect.setAttribute('class','axis vlabel');
+      valDirect.textContent = d.direct + '% direct';
+      valDirect.style.display = 'none';
+      barsGroup.appendChild(valDirect);
+
+      const valMed = document.createElementNS('http://www.w3.org/2000/svg','text');
+      valMed.setAttribute('x', cx);
+      valMed.setAttribute('y', y(d.direct + d.mediated) - 6);
+      valMed.setAttribute('text-anchor','middle');
+      valMed.setAttribute('class','axis vlabel');
+      valMed.textContent = d.mediated + '% mediated';
+      valMed.style.display = 'none';
+      barsGroup.appendChild(valMed);
+    });
+    svg.appendChild(barsGroup);
+
+    // Axes titles
+    const yTitle = document.createElementNS('http://www.w3.org/2000/svg','text');
+    yTitle.setAttribute('x', margin.left);
+    yTitle.setAttribute('y', margin.top - 10);
+    yTitle.setAttribute('class','axis');
+    yTitle.textContent = 'Share of waking hours (%)';
+    svg.appendChild(yTitle);
+
+    // Toggle % labels
+    const toggle = document.getElementById('toggleValues');
+    toggle.addEventListener('click', (e)=>{
+      e.preventDefault();
+      const labels = svg.querySelectorAll('.vlabel');
+      const hidden = Array.from(labels).every(el => el.style.display === 'none');
+      labels.forEach(el => el.style.display = hidden ? 'block' : 'none');
+    });
+
+    // Download SVG
+    document.getElementById('downloadBtn').addEventListener('click', ()=>{
+      const serializer = new XMLSerializer();
+      const source = serializer.serializeToString(svg);
+      const blob = new Blob([source], {type: 'image/svg+xml;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'lived-experience-decades.svg';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url), 1000);
+    });
+  </script>
+</body>
+</html>

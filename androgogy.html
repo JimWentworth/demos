@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Andragogy in Action – Faculty Development Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+      color: #111;
+      background-color: #f4f4f7;
+    }
+
+    body {
+      margin: 0;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .sidebar {
+      width: 260px;
+      background: #1b3a57;
+      color: #fff;
+      padding: 1.5rem 1rem;
+      box-sizing: border-box;
+      position: sticky;
+      top: 0;
+      align-self: flex-start;
+      max-height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar h1 {
+      font-size: 1.25rem;
+      margin: 0 0 0.5rem;
+    }
+
+    .sidebar p {
+      font-size: 0.9rem;
+      margin: 0 0 1rem;
+      color: #d4e3f3;
+    }
+
+    .sidebar nav a {
+      display: block;
+      color: #e3f2ff;
+      text-decoration: none;
+      font-size: 0.95rem;
+      padding: 0.35rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.15rem;
+    }
+
+    .sidebar nav a:hover,
+    .sidebar nav a:focus {
+      background: rgba(255, 255, 255, 0.15);
+      outline: none;
+    }
+
+    .sidebar .section-label {
+      margin-top: 1rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #9fb6cf;
+    }
+
+    .content {
+      flex: 1;
+      padding: 1.5rem 1.5rem 3rem;
+      box-sizing: border-box;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* Typography & Components */
+    h2 {
+      font-size: 1.6rem;
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    h4 {
+      font-size: 1.05rem;
+      margin-top: 1rem;
+      margin-bottom: 0.35rem;
+    }
+
+    p {
+      margin-top: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .tagline {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .pill {
+      display: inline-block;
+      font-size: 0.8rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      background: #e1ecff;
+      color: #16375a;
+      margin-right: 0.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.5rem;
+    }
+
+    .card-header h3,
+    .card-header h4 {
+      margin-bottom: 0.25rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      background: #edf2ff;
+      color: #2b3a67;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    ul, ol {
+      padding-left: 1.25rem;
+      margin-top: 0.25rem;
+      margin-bottom: 0.75rem;
+    }
+
+    li {
+      margin-bottom: 0.25rem;
+    }
+
+    .inline-label {
+      font-weight: 600;
+    }
+
+    /* Toggles & Buttons */
+    button.toggle-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+      background: #e2e8f0;
+      color: #111827;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    button.toggle-btn:hover,
+    button.toggle-btn:focus {
+      background: #cbd5e1;
+      outline: none;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .scenario-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+
+    .scenario-meta {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 0.5rem;
+    }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.35rem;
+    }
+
+    .checklist input[type="checkbox"] {
+      margin-top: 0.25rem;
+    }
+
+    .pill-row {
+      margin: 0.25rem 0 0.5rem;
+    }
+
+    .callout {
+      border-left: 4px solid #2563eb;
+      background: #eff6ff;
+      padding: 0.75rem 0.85rem;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      margin: 0.75rem 0;
+    }
+
+    .small-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #6b7280;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+
+    th, td {
+      border: 1px solid #e5e7eb;
+      padding: 0.5rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f9fafb;
+      font-weight: 600;
+    }
+
+    @media (max-width: 840px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        position: static;
+        width: 100%;
+        max-height: none;
+      }
+      .content {
+        padding: 1rem 1rem 2.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" aria-label="Faculty development navigation">
+    <h1>Andragogy in Action</h1>
+    <p>Self-guided portal for faculty to move beyond “teaching adults like big kids” and design truly adult-centered learning.</p>
+
+    <div class="section-label">Sections</div>
+    <nav>
+      <a href="#overview">Overview & Goals</a>
+      <a href="#principles">Core Andragogy Lens</a>
+      <a href="#lab1">Lab 1 – Mental Model</a>
+      <a href="#lab2">Lab 2 – Principle Puzzles</a>
+      <a href="#lab3">Lab 3 – Case Studies</a>
+      <a href="#lab4">Lab 4 – Redesign Sprint</a>
+      <a href="#checklist">Personal Checklist</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <!-- Overview -->
+    <section id="overview">
+      <h2>Overview &amp; Purpose</h2>
+      <p class="tagline">
+        This portal treats andragogy as a <strong>design skill</strong>, not a term to memorize.
+        Work through the labs, redesign one real element of your teaching, and walk away with a reusable checklist.
+      </p>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Big Outcomes for Faculty</h3>
+          <span class="badge">Approx. 60–90 minutes (modular)</span>
+        </div>
+        <ul>
+          <li>Look at any adult-learning situation and quickly spot where it aligns or clashes with andragogy.</li>
+          <li>Redesign real courses, assignments, or workshops to better fit adult learners under real constraints.</li>
+          <li>Explain <em>why</em> a design choice works (or fails) using andragogical principles, not intuition alone.</li>
+        </ul>
+        <p><span class="inline-label">How to use this:</span> Move section by section, or cherry-pick a lab to use in a department meeting or teaching workshop.</p>
+      </div>
+    </section>
+
+    <!-- Principles -->
+    <section id="principles">
+      <h2>Core Andragogy Lens</h2>
+      <p>Instead of memorizing a list, treat these principles as <strong>if–then rules</strong> you can test in your own context.</p>
+
+      <div class="card">
+        <h3>Andragogy Principles as Design Rules</h3>
+        <ul>
+          <li><strong>Need to know:</strong> If adults see the <em>why</em> behind learning, they’re far more likely to invest effort.</li>
+          <li><strong>Self-concept (autonomy):</strong> If adults experience real choice or control, resistance drops and engagement rises.</li>
+          <li><strong>Prior experience:</strong> If you surface and use their experiences, learning feels relevant and deeper.</li>
+          <li><strong>Readiness to learn:</strong> If learning is tied to current roles and goals, adults lean in.</li>
+          <li><strong>Orientation to learning (problem-centered):</strong> If you anchor learning in concrete problems, adults stay with it.</li>
+          <li><strong>Intrinsic motivation:</strong> If learning connects to identity, values, and growth, motivation sustains beyond grades.</li>
+        </ul>
+        <div class="callout" role="note">
+          <strong>Design question:</strong> For any activity you run, can you point to which of these principles you’re intentionally leveraging—and which you are ignoring?
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 1 -->
+    <section id="lab1">
+      <h2>Lab 1 – Diagnose Your Mental Model</h2>
+      <p><strong>Goal:</strong> Surface your current assumptions about adult learners and see where they clash with andragogy.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Step 1: Quick Gut-Check</h3>
+          <span class="badge">Individual reflection</span>
+        </div>
+        <p>Answer these prompts in a notebook, document, or LMS journal. Don’t overthink.</p>
+        <ol>
+          <li>
+            When adults seem “unmotivated,” my default explanation is usually:
+            <ul>
+              <li>a) They’re busy or overwhelmed</li>
+              <li>b) The course feels irrelevant or boring</li>
+              <li>c) They’re just not that interested in learning</li>
+              <li>d) Something else: <em>write your own</em></li>
+            </ul>
+          </li>
+          <li>
+            When I design learning for adults, I tend to focus most on:
+            <ul>
+              <li>a) Covering required content</li>
+              <li>b) Giving practice and feedback</li>
+              <li>c) Providing choice and relevance</li>
+              <li>d) Meeting assessment or compliance requirements</li>
+            </ul>
+          </li>
+          <li>
+            In practice, how much <strong>control</strong> do my adult learners really have?
+            <ul>
+              <li>a) Almost none</li>
+              <li>b) Some choice, but tightly framed</li>
+              <li>c) Meaningful control over path or tasks</li>
+              <li>d) We co-create quite a bit</li>
+            </ul>
+          </li>
+          <li>
+            One place where adults in my context consistently <strong>struggle or resist</strong> is:
+            <br />
+            <em>Example: discussion boards, group projects, compliance training, weekly reflections, etc.</em>
+          </li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <h3>Step 2: Identify the Tensions</h3>
+        <p>Now compare your answers to the core principles above and ask:</p>
+        <ul>
+          <li>Where do my answers <strong>clash</strong> with the andragogy principles?</li>
+          <li>Where am I assuming I’m “doing andragogy” simply because my learners are adults?</li>
+        </ul>
+        <p>Capture three honest bullets:</p>
+        <ul>
+          <li>Here’s where my current practice probably <strong>violates</strong> andragogy:
+            <ul>
+              <li>1. _____________________________</li>
+              <li>2. _____________________________</li>
+              <li>3. _____________________________</li>
+            </ul>
+          </li>
+        </ul>
+        <div class="callout" role="note">
+          Use these bullets as a “before” snapshot. You’ll revisit them in Lab 4 after redesigning something real.
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 2 -->
+    <section id="lab2">
+      <h2>Lab 2 – Principle Puzzles</h2>
+      <p><strong>Goal:</strong> Practice spotting where andragogy is being honored or violated in realistic scenarios.</p>
+
+      <!-- Scenario 1 -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Scenario 1 – Mandatory Webinar Hell</h3>
+          <span class="badge">Try first, then reveal analysis</span>
+        </div>
+        <p class="scenario-meta">
+          You run a 90-minute Zoom webinar on “Data Security Best Practices” for staff. Slides are dense, you lecture most of the time, attendance is mandatory, cameras are off, and participants later report: “Repetitive,” “Not relevant,” “I could’ve watched this at 2x speed.”
+        </p>
+        <h4>Your task</h4>
+        <ol>
+          <li>Which andragogy principles are clearly being <strong>violated</strong>?</li>
+          <li>What is one concrete change you could make that does <em>not</em> require more time or budget?</li>
+        </ol>
+        <button class="toggle-btn" data-target="scenario1-analysis" aria-expanded="false">
+          <span>▶</span> Show model analysis
+        </button>
+        <div id="scenario1-analysis" class="hidden">
+          <h4>Model Analysis</h4>
+          <ul>
+            <li><strong>Need to know:</strong> The “why this matters for <em>my</em> job” is vague or missing.</li>
+            <li><strong>Problem-centered orientation:</strong> The session is topic-centered (“Data Security 101”), not organized around real incidents or decisions.</li>
+            <li><strong>Self-concept (autonomy):</strong> Participation is mandatory, interaction is minimal, and there’s no meaningful choice.</li>
+          </ul>
+          <p><strong>Low-cost design pivots:</strong></p>
+          <ul>
+            <li>Open with 2–3 realistic breach scenarios from your organization and ask, “What would you do?”</li>
+            <li>Let participants choose one scenario to explore in small groups, then connect your key points directly to their responses.</li>
+          </ul>
+          <p><strong>Reflect:</strong> Do you agree those are the main principles at stake, or would you argue a different primary issue?</p>
+        </div>
+      </div>
+
+      <!-- Scenario 2 -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Scenario 2 – Overloaded Master’s Students</h3>
+          <span class="badge">Working professionals in an online course</span>
+        </div>
+        <p class="scenario-meta">
+          You teach an online master’s course. Students are working full time. Each week includes heavy readings, two discussion posts plus replies, and a paper every two weeks. Many students are late and say “life got in the way.”
+        </p>
+        <h4>Your task</h4>
+        <ol>
+          <li>Which principles might actually be <strong>respected</strong> here?</li>
+          <li>Which are being underused or ignored?</li>
+          <li>What is one change that uses students’ <strong>prior experience</strong> instead of simply adding more content?</li>
+        </ol>
+        <button class="toggle-btn" data-target="scenario2-analysis" aria-expanded="false">
+          <span>▶</span> Show model analysis
+        </button>
+        <div id="scenario2-analysis" class="hidden">
+          <h4>Model Analysis</h4>
+          <p><strong>Potentially respected:</strong></p>
+          <ul>
+            <li><strong>Readiness to learn:</strong> Students chose this degree, so content likely aligns with their professional goals.</li>
+            <li><strong>Intrinsic motivation:</strong> Time and money invested suggest at least baseline motivation.</li>
+          </ul>
+          <p><strong>Underused:</strong></p>
+          <ul>
+            <li><strong>Prior experience:</strong> Assignments often treat them like novices instead of practitioners.</li>
+            <li><strong>Self-concept:</strong> Little flexibility in how they demonstrate learning.</li>
+            <li><strong>Problem-centered orientation:</strong> Heavy on “read and talk about content,” lighter on solving real problems from their contexts.</li>
+          </ul>
+          <p><strong>Example pivot:</strong></p>
+          <ul>
+            <li>Replace one weekly discussion with: “Bring a real problem from your workplace that connects to this week’s reading. Briefly describe it, apply one concept, and propose one concrete experiment you could try next week.”</li>
+          </ul>
+          <p><strong>Challenge yourself:</strong> Is the issue simply “too much work,” or “the wrong kind of work” for adult learners?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 3 -->
+    <section id="lab3">
+      <h2>Lab 3 – Case Studies & Design Fixes</h2>
+      <p><strong>Goal:</strong> Move from diagnosis to concrete redesigns in faculty-facing and student-facing contexts.</p>
+
+      <!-- Case Study A -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Case Study A – Skeptical Faculty Workshop</h3>
+          <span class="badge">Workshop redesign</span>
+        </div>
+        <p class="scenario-meta">
+          You’re running a 90-minute workshop on “Using AI to Support Student Learning.” Many faculty are skeptical or anxious and feel pushed by administration. Your original plan is: 30 minutes presentation, 30 minutes demo, 30 minutes Q&amp;A.
+        </p>
+        <h4>Design Challenge</h4>
+        <p>Rebuild the 90 minutes so it reflects at least <strong>four</strong> andragogy principles.</p>
+        <ol>
+          <li>
+            <strong>Opening (10–15 min):</strong>  
+            How will you surface their prior experiences, concerns, and goals instead of starting with a lecture?
+          </li>
+          <li>
+            <strong>Core activities (50–60 min):</strong>  
+            Where do they get <em>choice</em> in tools, topics, or tasks? How will you make it <em>problem-centered</em> (their courses, not your slides)?
+          </li>
+          <li>
+            <strong>Closing (10–15 min):</strong>  
+            How will you connect this to their intrinsic motivations as teachers (values, identity, disciplines)?
+          </li>
+        </ol>
+        <button class="toggle-btn" data-target="caseA-ideas" aria-expanded="false">
+          <span>▶</span> Show one possible redesign
+        </button>
+        <div id="caseA-ideas" class="hidden">
+          <h4>Example Redesign Sketch</h4>
+          <ul>
+            <li><strong>Opening:</strong> Short poll + paired share: “Where are you right now with AI (avoidant, curious, experimenting, etc.)? What’s one real tension you feel?” Facilitator maps tensions to andragogy principles (autonomy, relevance, etc.).</li>
+            <li><strong>Core:</strong> Faculty choose one real course of theirs. In small groups, they map one concrete pain point (grading load, feedback quality, access, etc.) and experiment with AI workflows that address <em>their</em> problems, not generic demos.</li>
+            <li><strong>Closing:</strong> Quick reflection: “What’s one small, value-consistent experiment you’re willing to run next term?” Emphasize alignment with their teaching identity, not institutional pressure.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Case Study B -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Case Study B – Redesign a Dull Assignment</h3>
+          <span class="badge">Course assignment redesign</span>
+        </div>
+        <p>Pick a real assignment you use with adult learners (or adapt this example):</p>
+        <p><em>“Write a 5-page paper summarizing three theories of motivation.”</em></p>
+        <p>Run it through the andragogy challenge below and rewrite it.</p>
+
+        <h4>Andragogy Challenge</h4>
+        <ol>
+          <li>
+            <strong>Need to know:</strong>  
+            How obvious is the answer to “Why should I care about doing this now?”  
+            Rewrite the prompt to make the “why” explicit.
+          </li>
+          <li>
+            <strong>Self-concept (autonomy):</strong>  
+            Where can you add a meaningful choice (topic, artifact format, workplace context)?
+          </li>
+          <li>
+            <strong>Prior experience:</strong>  
+            Add a step requiring learners to connect theories to their own professional history or decisions.
+          </li>
+          <li>
+            <strong>Problem-centered orientation:</strong>  
+            Turn the abstract summary into a concrete problem (e.g., “A colleague is burning out; design a plan using two theories.”).
+          </li>
+          <li>
+            <strong>Intrinsic motivation:</strong>  
+            Include a brief reflection: “Which theory best explains you at your best/worst? How will that shape how you lead or teach?”
+          </li>
+        </ol>
+        <button class="toggle-btn" data-target="caseB-example" aria-expanded="false">
+          <span>▶</span> Show example re-write
+        </button>
+        <div id="caseB-example" class="hidden">
+          <h4>Example Reframed Assignment</h4>
+          <p><strong>New prompt (sketch):</strong></p>
+          <p>
+            “Using at least two motivation theories from this module, analyze a real motivation challenge in your own course or workplace. Describe the situation, apply the theories to explain what’s happening, and design a concrete intervention you could implement in the next four weeks. Present your work as either a written brief, a slide deck, or a short recorded presentation.”
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 4 -->
+    <section id="lab4">
+      <h2>Lab 4 – Real-World Redesign Sprint</h2>
+      <p><strong>Goal:</strong> Choose one concrete element of your teaching, audit it using andragogy, and commit to a high-leverage change.</p>
+
+      <div class="card">
+        <h3>Step 1: Choose a Testbed</h3>
+        <p>Pick <strong>one</strong> context where you actually have power to change something:</p>
+        <ul>
+          <li>A course you teach this term</li>
+          <li>A recurring training or workshop</li>
+          <li>Orientation or professional development sessions</li>
+          <li>One specific activity (e.g., online discussion, reflection, quiz, group project)</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Step 2: Andragogical Audit</h3>
+        <p>Fill in the table below (copy into a doc or LMS if helpful) to map current practice against andragogy.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Current State (What You Actually Do)</th>
+                <th>Principles Supported / Violated</th>
+                <th>Possible Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Opening of a session or course</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Major assignment / task</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Feedback &amp; assessment</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Use of learners’ prior experience</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td>Opportunities for choice / autonomy</td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="small-label">Prompt:</p>
+        <ul>
+          <li>Where are you unintentionally treating adults like compliant children?</li>
+          <li>Where are you already leaning into andragogy but could make it more explicit?</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Step 3: Commit to One High-Leverage Change</h3>
+        <p>Instead of trying to fix everything, identify <strong>one</strong> change with high impact and realistic effort.</p>
+        <ul>
+          <li>Convert a “syllabus + lecture” first session into a co-constructed expectations and goals conversation.</li>
+          <li>Swap one content-heavy assignment for a workplace-based project.</li>
+          <li>Offer choice of artifact format (paper, video, proposal) while keeping the same learning outcomes.</li>
+        </ul>
+        <p><strong>Write a design statement:</strong></p>
+        <div class="callout" role="note">
+          “In <em>[context]</em>, I will change <em>[X]</em> to <em>[Y]</em> because it better supports <em>[named andragogy principles]</em>. I expect this will change learner behavior in <em>[specific way]</em>.”
+        </div>
+      </div>
+    </section>
+
+    <!-- Checklist -->
+    <section id="checklist">
+      <h2>Personal Andragogy Checklist</h2>
+      <p><strong>Goal:</strong> Build a quick pre-flight check you can apply to any new course, session, or assignment.</p>
+
+      <div class="card">
+        <div class="card-header">
+          <h3>Draft Checklist (Customize for Your Context)</h3>
+          <span class="badge">Interactive</span>
+        </div>
+        <p>Use this as a starting point. Tweak or add items so the checklist makes you slightly uncomfortable—in a productive way.</p>
+        <ul class="checklist">
+          <li>
+            <input type="checkbox" id="chk1" />
+            <label for="chk1">Every major task clearly answers “Why this, for you, right now?” in language my learners would recognize.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk2" />
+            <label for="chk2">Learners have at least one meaningful choice (topic, artifact, path, or problem) that affects how they learn.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk3" />
+            <label for="chk3">At least one required activity <strong>uses</strong> their prior professional or life experience, not just invites it optionally.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk4" />
+            <label for="chk4">Each week or module is framed around real problems or decisions they face, not just content headings.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk5" />
+            <label for="chk5">I can point to one place where learners’ values or identity (as professionals, caregivers, community members, etc.) are explicitly acknowledged.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk6" />
+            <label for="chk6">Nothing in the course treats adults like compliant children without a strong, articulated reason.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk7" />
+            <label for="chk7">Feedback and assessment emphasize growth and application, not just error detection.</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk8" />
+            <label for="chk8">At least one activity results in an artifact they can re-use beyond the course (portfolio, template, plan, etc.).</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk9" />
+            <label for="chk9">I’ve removed or redesigned at least one legacy element that exists “because we’ve always done it that way.”</label>
+          </li>
+          <li>
+            <input type="checkbox" id="chk10" />
+            <label for="chk10">I can name which andragogy principles I’m intentionally leaning on—and which I’m consciously not addressing yet.</label>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Simple toggle for model answers and examples
+    document.addEventListener("DOMContentLoaded", function () {
+      const buttons = document.querySelectorAll("button.toggle-btn");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const target = document.getElementById(targetId);
+          if (!target) return;
+          const isHidden = target.classList.contains("hidden");
+          target.classList.toggle("hidden");
+          btn.setAttribute("aria-expanded", isHidden ? "true" : "false");
+          const iconSpan = btn.querySelector("span");
+          if (iconSpan) {
+            iconSpan.textContent = isHidden ? "▼" : "▶";
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

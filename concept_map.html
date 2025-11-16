@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Conceptual Atlas – 60 concepts (zoomable)</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root {
+      --sidebar-w: 320px;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      height: 100vh;
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-rows: 1fr;
+      overflow: hidden;
+      background: #f3f4f6;
+    }
+    /* Sidebar (left) */
+    #sidebar {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      background: #fff;
+      border-right: 1px solid #ddd;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    #sidebar h2 { margin: 0 0 8px; font-size: 1.2rem; }
+    #sidebar p { font-size: 0.9rem; line-height: 1.45; }
+    .legend {
+      position: static;
+      background: #fff;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 6px 8px;
+      font-size: 12px;
+      max-width: 260px;
+      margin-top: 10px;
+    }
+    .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; line-height: 1.2; }
+    .legend-swatch { width: 12px; height: 12px; border-radius: 999px; }
+
+    /* Main map (right) */
+    #main {
+      grid-column: 2 / 3;
+      grid-row: 1 / 2;
+      padding: 12px;
+      box-sizing: border-box;
+    }
+    #map-panel {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 24px); /* fill available height minus padding */
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .tooltip {
+      position: absolute;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 11px;
+      pointer-events: none;
+      opacity: 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    }
+    .label {
+      font-size: 11px;  /* bumped for readability */
+      pointer-events: none;
+      user-select: none;
+      fill: #2b2b2b;
+      text-shadow: 0 1px 2px #fff;
+      font-weight: 500;
+    }
+    .hint {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      font-size: 12px;
+      color: #6b7280;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      padding: 4px 8px;
+    }
+    .pan-bg { cursor: grab; }
+    .pan-bg.grabbing { cursor: grabbing; }
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <h2>Conceptual Atlas</h2>
+    <p><em>Click a node to see details.</em> Scroll to zoom; drag background to pan; drag nodes to arrange.</p>
+    <p>This demo shows 60 concepts spanning identity, learning, systems, bias, communication, and social lenses.</p>
+    <div id="details-intro">
+      <p><strong>Tip:</strong> Start with <em>Systems Thinking</em>, <em>Metacognition</em>, or <em>Media Literacy</em> then follow connections.</p>
+    </div>
+    <div id="legend" class="legend"></div>
+  </div>
+
+  <!-- Main map -->
+  <div id="main">
+    <div id="map-panel">
+      <svg id="chart" width="100%" height="100%"></svg>
+      <div id="tooltip" class="tooltip"></div>
+      <div class="hint">Pan: drag the white background • Zoom: scroll • Drag nodes to adjust</div>
+    </div>
+  </div>
+
+  <script>
+    // -------- 1) DATA: 60 concepts (40 prior + 20 new) --------
+    const concepts = [
+      { name: "Imposter Syndrome", category: "Identity & Motivation", description: "Persistent belief that one’s success is undeserved despite evidence of competence.", connections: ["Self-Efficacy","Growth Mindset","Social Comparison Theory"] },
+      { name: "Self-Efficacy", category: "Identity & Motivation", description: "Belief in one’s ability to execute actions required to achieve goals.", connections: ["Imposter Syndrome","Growth Mindset","Locus of Control"] },
+      { name: "Growth Mindset", category: "Learning & Adaptation", description: "The view that abilities can be developed through effort, strategies, and feedback.", connections: ["Self-Efficacy","Neuroplasticity","Feedback Loop","Plasticity"] },
+      { name: "Neuroplasticity", category: "Learning & Adaptation", description: "The brain’s ability to reorganize itself by forming new neural connections.", connections: ["Growth Mindset","Resilience","Cognitive Reappraisal","Metacognition","Plasticity"] },
+      { name: "Resilience", category: "Emotion & Regulation", description: "Capacity to recover from difficulties and adapt positively to change.", connections: ["Neuroplasticity","Mindfulness","Flow","Belongingness","Burnout"] },
+      { name: "Mindfulness", category: "Emotion & Regulation", description: "Nonjudgmental awareness of the present moment that enhances emotional balance.", connections: ["Resilience","Cognitive Reappraisal","Flow","Emotional Intelligence","Burnout"] },
+      { name: "Cognitive Reappraisal", category: "Emotion & Regulation", description: "Reinterpreting a situation to alter its emotional impact.", connections: ["Neuroplasticity","Mindfulness","Metacognition","Socratic Questioning","Dialectical Thinking"] },
+      { name: "Flow", category: "Creativity & Design", description: "A state of deep immersion where challenge and skill are balanced.", connections: ["Resilience","Mindfulness","Divergent Thinking","Lateral Thinking"] },
+      { name: "Divergent Thinking", category: "Creativity & Design", description: "Generating multiple possible ideas or solutions in a non-linear way.", connections: ["Flow","Systems Thinking","Metacognition","Lateral Thinking"] },
+      { name: "Systems Thinking", category: "Systems & Change", description: "Understanding how parts of a system interrelate and produce emergent behaviors.", connections: ["Divergent Thinking","Feedback Loop","Media Literacy","Double-Loop Learning","Dialectical Thinking"] },
+      { name: "Social Comparison Theory", category: "Social & Cultural", description: "People evaluate themselves by comparing to others; relevant to self-esteem and imposter feelings.", connections: ["Imposter Syndrome","Belongingness","Media Literacy","Narrative Framing"] },
+      { name: "Locus of Control", category: "Identity & Motivation", description: "Belief about whether outcomes are mainly due to internal effort or external forces.", connections: ["Self-Efficacy","Growth Mindset","Intrinsic vs Extrinsic Motivation"] },
+      { name: "Feedback Loop", category: "Systems & Change", description: "Processes where outputs are fed back as inputs, stabilizing or amplifying behavior.", connections: ["Growth Mindset","Systems Thinking","Metacognition","Double-Loop Learning"] },
+      { name: "Metacognition", category: "Learning & Adaptation", description: "Thinking about thinking; monitoring and regulating one’s own cognitive processes.", connections: ["Cognitive Reappraisal","Neuroplasticity","Divergent Thinking","Feedback Loop","Socratic Questioning","First Principles Thinking","Plasticity"] },
+      { name: "Media Literacy", category: "Knowledge & Communication", description: "Ability to access, analyze, evaluate, and create media in a variety of forms.", connections: ["Social Comparison Theory","Systems Thinking","Confirmation Bias","Narrative Framing","Logical Fallacies"] },
+      { name: "Inclusivity", category: "Social & Cultural", description: "Creating environments where diverse people feel welcomed and valued.", connections: ["Belongingness","Intersectionality","Allyship","Psychological Safety"] },
+      { name: "Belongingness", category: "Social & Cultural", description: "The human need to feel accepted as part of a group or community.", connections: ["Resilience","Social Comparison Theory","Inclusivity","Psychological Safety"] },
+      { name: "Intersectionality", category: "Social & Cultural", description: "Overlapping identities shape experiences of power and exclusion.", connections: ["Inclusivity","Media Literacy","Cultural Competence"] },
+      { name: "Confirmation Bias", category: "Cognition & Bias", description: "Tendency to seek/interpret information that confirms existing beliefs.", connections: ["Media Literacy","Anchoring Bias","Logical Fallacies"] },
+      { name: "Anchoring Bias", category: "Cognition & Bias", description: "Relying too heavily on the first piece of information encountered.", connections: ["Confirmation Bias"] },
+      { name: "Moral Dilemmas", category: "Ethics & Reasoning", description: "Competing moral principles create tension and require judgment.", connections: ["Dialectical Thinking","Perspective-Taking","Cultural Competence"] },
+      { name: "Logical Fallacies", category: "Cognition & Bias", description: "Flaws in reasoning that weaken arguments.", connections: ["Media Literacy","Confirmation Bias","Socratic Questioning"] },
+      { name: "Narrative Framing", category: "Knowledge & Communication", description: "How information is told/structured affects understanding.", connections: ["Media Literacy","Confirmation Bias","Social Comparison Theory"] },
+      { name: "First Principles Thinking", category: "Creativity & Design", description: "Solve by reducing to basic truths and building up.", connections: ["Metacognition","Systems Thinking"] },
+      { name: "Socratic Questioning", category: "Learning & Adaptation", description: "Disciplined questioning to uncover assumptions.", connections: ["Metacognition","Cognitive Reappraisal","Logical Fallacies"] },
+      { name: "Dialectical Thinking", category: "Learning & Adaptation", description: "Hold and integrate opposing ideas.", connections: ["Systems Thinking","Cognitive Reappraisal","Moral Dilemmas"] },
+      { name: "Lateral Thinking", category: "Creativity & Design", description: "Approach problems from new, indirect angles.", connections: ["Divergent Thinking","Flow"] },
+      { name: "Double-Loop Learning", category: "Systems & Change", description: "Fix problems and also question underlying goals/norms.", connections: ["Feedback Loop","Systems Thinking","Metacognition"] },
+      { name: "Perspective-Taking", category: "Social & Cultural", description: "See a situation from someone else’s point of view.", connections: ["Empathy","Cultural Competence","Theory of Mind","Moral Dilemmas"] },
+      { name: "Cultural Competence", category: "Social & Cultural", description: "Interact effectively across cultures and backgrounds.", connections: ["Intersectionality","Inclusivity","Perspective-Taking"] },
+      { name: "Empathy", category: "Social & Cultural", description: "Understand and share another’s feelings.", connections: ["Perspective-Taking","Active Listening","Emotional Intelligence"] },
+      { name: "Active Listening", category: "Social & Cultural", description: "Listen to understand, not to reply.", connections: ["Empathy","Conflict Resolution"] },
+      { name: "Conflict Resolution", category: "Social & Cultural", description: "Resolve disagreements while preserving relationships.", connections: ["Active Listening","Psychological Safety","Allyship"] },
+      { name: "Allyship", category: "Social & Cultural", description: "Use position/privilege to advocate for marginalized groups.", connections: ["Inclusivity","Belongingness","Conflict Resolution"] },
+      { name: "Emotional Intelligence", category: "Emotion & Regulation", description: "Recognize, understand, manage emotions in self/others.", connections: ["Mindfulness","Empathy","Psychological Safety"] },
+      { name: "Psychological Safety", category: "Social & Cultural", description: "Shared belief a team is safe for interpersonal risk-taking.", connections: ["Belongingness","Inclusivity","Emotional Intelligence","Conflict Resolution"] },
+      { name: "Burnout", category: "Emotion & Regulation", description: "Emotional/physical/mental exhaustion from prolonged stress.", connections: ["Mindfulness","Resilience"] },
+      { name: "Intrinsic vs Extrinsic Motivation", category: "Identity & Motivation", description: "Doing something for inherent satisfaction vs external reward.", connections: ["Self-Efficacy","Locus of Control"] },
+      { name: "Theory of Mind", category: "Learning & Adaptation", description: "Others have beliefs/desires/perspectives different from your own.", connections: ["Perspective-Taking","Empathy"] },
+      { name: "Plasticity", category: "Learning & Adaptation", description: "General capacity to adapt and change with experience.", connections: ["Neuroplasticity","Growth Mindset","Metacognition"] },
+
+      /* New 20 */
+      { name: "Opportunity Cost", category: "Ethics & Reasoning", description: "What you forgo when choosing one option over another.", connections: ["Cost-Benefit Analysis","Systems Thinking","First Principles Thinking"] },
+      { name: "Pareto Principle (80/20)", category: "Systems & Change", description: "A minority of causes often drive a majority of outcomes.", connections: ["Systems Thinking","Opportunity Cost"] },
+      { name: "Sunk Cost Fallacy", category: "Cognition & Bias", description: "Continuing a course due to past investments rather than future value.", connections: ["Confirmation Bias","Anchoring Bias","Burnout"] },
+      { name: "Availability Heuristic", category: "Cognition & Bias", description: "Judging likelihood by ease of recall.", connections: ["Media Literacy","Recency Effect","Confirmation Bias"] },
+      { name: "Recency Effect", category: "Cognition & Bias", description: "Recent information weighs more heavily than earlier info.", connections: ["Availability Heuristic","Media Literacy"] },
+      { name: "Fundamental Attribution Error", category: "Cognition & Bias", description: "Over-attribute others’ behavior to disposition over situation.", connections: ["Perspective-Taking","Empathy","Logical Fallacies"] },
+      { name: "Social Proof", category: "Social & Cultural", description: "Assuming a behavior is correct because others do it.", connections: ["Media Literacy","Narrative Framing","Confirmation Bias"] },
+      { name: "Survivorship Bias", category: "Cognition & Bias", description: "Focusing on visible ‘survivors’ and ignoring failures.", connections: ["Media Literacy","Confirmation Bias","Logical Fallacies"] },
+      { name: "Emergent Properties", category: "Systems & Change", description: "System-level behaviors that aren’t obvious from parts alone.", connections: ["Systems Thinking","Feedback Loop","Double-Loop Learning"] },
+      { name: "Entropy", category: "Systems & Change", description: "Tendency toward disorder; metaphor for drift/decay in systems.", connections: ["Systems Thinking","Feedback Loop"] },
+      { name: "Occam’s Razor", category: "Ethics & Reasoning", description: "Prefer simpler explanations that fit the evidence.", connections: ["First Principles Thinking","Logical Fallacies","Media Literacy"] },
+      { name: "Game Theory", category: "Ethics & Reasoning", description: "Strategic decision-making where outcomes depend on others.", connections: ["Moral Dilemmas","Perspective-Taking"] },
+      { name: "Cost-Benefit Analysis", category: "Ethics & Reasoning", description: "Weigh expected gains vs costs to choose among options.", connections: ["Opportunity Cost","First Principles Thinking","Moral Dilemmas"] },
+      { name: "Scientific Uncertainty", category: "Knowledge & Communication", description: "Evidence is probabilistic and revisable, not absolute.", connections: ["Media Literacy","Statistical Significance","Hypothesis Testing"] },
+      { name: "Statistical Significance", category: "Knowledge & Communication", description: "Assess whether observed effects are likely beyond chance.", connections: ["Scientific Uncertainty","Hypothesis Testing"] },
+      { name: "Hypothesis Testing", category: "Knowledge & Communication", description: "Formulate, test, and update beliefs with data.", connections: ["Scientific Uncertainty","Statistical Significance"] },
+      { name: "Cognitive Dissonance", category: "Cognition & Bias", description: "Discomfort from conflicting beliefs/behaviors prompting change.", connections: ["Confirmation Bias","Moral Dilemmas","Cognitive Reappraisal"] },
+      { name: "Heuristics & Biases (Umbrella)", category: "Cognition & Bias", description: "General class of mental shortcuts and their pitfalls.", connections: ["Availability Heuristic","Anchoring Bias","Confirmation Bias"] },
+      { name: "Signal vs Noise", category: "Knowledge & Communication", description: "Distinguish meaningful patterns from randomness/variance.", connections: ["Scientific Uncertainty","Hypothesis Testing","Media Literacy"] },
+      { name: "Trade-offs", category: "Ethics & Reasoning", description: "Mutually incompatible goods require prioritization.", connections: ["Opportunity Cost","Cost-Benefit Analysis","First Principles Thinking"] }
+    ];
+
+    // -------- 2) Build nodes/links (filter out missing targets) --------
+    const nodes = concepts.map(d => ({ id: d.name, category: d.category, description: d.description }));
+    const validNames = new Set(concepts.map(c => c.name));
+    const links = concepts.flatMap(d =>
+      (d.connections || [])
+        .filter(target => validNames.has(target))
+        .map(target => ({ source: d.name, target }))
+    );
+
+    // -------- 3) SVG, zoom & pan --------
+    const width = 1600, height = 850;
+    const svg = d3.select("#chart").attr("viewBox", [0, 0, width, height]);
+    // background rectangle that captures drag-to-pan
+    const panBg = svg.append("rect")
+      .attr("class", "pan-bg")
+      .attr("x", 0).attr("y", 0)
+      .attr("width", width).attr("height", height)
+      .attr("fill", "transparent");
+    // all graph content goes above this
+    const zoomLayer = svg.append("g");
+
+    const zoom = d3.zoom()
+      .scaleExtent([0.25, 4])
+      .filter((event) => {
+        // Always allow wheel zoom
+        if (event.type === "wheel") return true;
+        // Allow drag-to-pan only when starting on the background rectangle
+        if (event.type === "mousedown") return event.target.classList.contains("pan-bg");
+        // Touch: allow if touching the background
+        if (event.type === "touchstart") return event.target.classList.contains("pan-bg");
+        return true;
+      })
+      .on("zoom", (event) => {
+        zoomLayer.attr("transform", event.transform);
+      });
+    svg.call(zoom);
+    panBg.on("mousedown", () => panBg.classed("grabbing", true));
+    svg.on("mouseup", () => panBg.classed("grabbing", false));
+    svg.on("mouseleave", () => panBg.classed("grabbing", false));
+
+    // -------- 4) Colors & legend --------
+    const categories = [...new Set(nodes.map(d => d.category))];
+    const color = d3.scaleOrdinal()
+      .domain(categories)
+      .range(["#2563eb","#f97316","#10b981","#a855f7","#ef4444","#0ea5e9","#facc15","#ec4899","#14b8a6"]);
+
+    const legend = d3.select("#legend");
+    legend.html("");
+    categories.forEach(cat => {
+      const item = legend.append("div").attr("class", "legend-item");
+      item.append("div").attr("class", "legend-swatch").style("background", color(cat));
+      item.append("div").text(cat);
+    });
+
+    const tooltip = d3.select("#tooltip");
+
+    // -------- 5) Links / Nodes / Labels (inside zoomLayer) --------
+    const link = zoomLayer.append("g")
+      .attr("stroke", "#d1d5db")
+      .attr("stroke-width", 1.2)
+      .selectAll("line")
+      .data(links)
+      .join("line");
+
+    const node = zoomLayer.append("g")
+      .selectAll("circle")
+      .data(nodes)
+      .join("circle")
+        .attr("r", 16)                                // larger nodes
+        .attr("fill", d => color(d.category))
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 1.5)
+        .on("mouseover", (event, d) => {
+          tooltip.style("opacity", 1)
+            .html(`<strong>${d.id}</strong><br>${d.category}`)
+            .style("left", (event.pageX + 10) + "px")
+            .style("top", (event.pageY + 10) + "px");
+        })
+        .on("mousemove", (event) => {
+          tooltip.style("left", (event.pageX + 10) + "px")
+                 .style("top", (event.pageY + 10) + "px");
+        })
+        .on("mouseout", () => tooltip.style("opacity", 0))
+        .on("click", (event, d) => showDetails(d))
+        .call(
+          d3.drag()
+            .on("start", (event, d) => {
+              if (!event.active) simulation.alphaTarget(0.3).restart();
+              d.fx = d.x; d.fy = d.y;
+            })
+            .on("drag", (event, d) => {
+              d.fx = event.x; d.fy = event.y;
+            })
+            .on("end", (event, d) => {
+              if (!event.active) simulation.alphaTarget(0);
+              d.fx = null; d.fy = null;
+            })
+        );
+
+    const label = zoomLayer.append("g")
+      .selectAll("text")
+      .data(nodes)
+      .join("text")
+        .attr("class", "label")
+        .attr("text-anchor", "middle")
+        .text(d => d.id);
+
+    // -------- 6) Force simulation (spacious) --------
+    const simulation = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(180))   // more spacing
+      .force("charge", d3.forceManyBody().strength(-300))               // more repulsion
+      .force("center", d3.forceCenter(width / 2, height / 2))
+      .force("collide", d3.forceCollide().radius(34));
+
+    simulation.on("tick", () => {
+      link.attr("x1", d => d.source.x)
+          .attr("y1", d => d.source.y)
+          .attr("x2", d => d.target.x)
+          .attr("y2", d => d.target.y);
+      node.attr("cx", d => d.x).attr("cy", d => d.y);
+      label.attr("x", d => d.x).attr("y", d => d.y - 18);
+    });
+
+    // -------- 7) Sidebar details --------
+    const sidebar = d3.select("#sidebar");
+    function showDetails(d) {
+      const full = concepts.find(c => c.name === d.id);
+      if (!full) return;
+      sidebar.html("");
+      sidebar.append("h2").text(full.name);
+      sidebar.append("p").html(`<strong>Category:</strong> ${full.category}`);
+      sidebar.append("p").text(full.description);
+      if (full.connections && full.connections.length) {
+        sidebar.append("p").html(`<strong>Connections:</strong> ${full.connections.join(", ")}`);
+      }
+      sidebar.append("div").attr("id","legend").attr("class","legend"); // preserve legend spot
+      // rebuild legend after details render
+      const legend2 = d3.select("#legend");
+      legend2.html("");
+      categories.forEach(cat => {
+        const item = legend2.append("div").attr("class", "legend-item");
+        item.append("div").attr("class", "legend-swatch").style("background", color(cat));
+        item.append("div").text(cat);
+      });
+      sidebar.append("p")
+        .style("margin-top","14px").style("font-size","11px").style("color","#6b7280")
+        .text("Tip: drag nodes to explore; scroll to zoom; drag the background to pan.");
+    }
+
+    // -------- 8) Auto-fit once after layout settles --------
+    function fitToNodes() {
+      const xs = nodes.map(n => n.x), ys = nodes.map(n => n.y);
+      const minX = Math.min(...xs), maxX = Math.max(...xs);
+      const minY = Math.min(...ys), maxY = Math.max(...ys);
+      const dx = maxX - minX || 1, dy = maxY - minY || 1;
+      const margin = 60;
+      const k = Math.min((width - margin*2)/dx, (height - margin*2)/dy, 3);
+      const tx = (width - k * (minX + maxX)) / 2;
+      const ty = (height - k * (minY + maxY)) / 2;
+      svg.transition().duration(600).call(zoom.transform, d3.zoomIdentity.translate(tx, ty).scale(k));
+    }
+    setTimeout(fitToNodes, 1200);
+  </script>
+</body>
+</html>
