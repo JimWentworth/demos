@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resource Synthesis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutral (BG: gray-50, Cards: white, Text: gray-800, Accent: teal-600/700) -->
+    <!-- Application Structure Plan: The source material is a diverse list of 34 links, not a structured report. Therefore, the best SPA structure is a filterable dashboard. The information architecture is thematic. 1) A header provides context. 2) A dashboard section uses two Chart.js charts (Pie, Bar) to give a quantitative overview of the *resource list itself* (breakdown by Type and Theme). This immediately orients the user. 3) A primary navigation/filter bar allows users to select a theme (e.g., 'Ethics', 'Practice'). 4) A responsive grid of 'cards' displays all 34 resources. JS-driven interaction allows users to click a theme button to filter this grid, showing only relevant cards. This structure is user-friendly, encourages exploration, and makes the large, disparate list consumable. -->
+    <!-- Visualization & Content Choices: 
+        1. Report Info: Breakdown of the 34 resources by media type (article, book, etc.). Goal: Inform. Viz: Pie Chart (Chart.js/Canvas). Interaction: Hover tooltips. Justification: Shows proportions of the source material clearly.
+        2. Report Info: Breakdown of the 34 resources by key theme. Goal: Inform. Viz: Bar Chart (Chart.js/Canvas). Interaction: Hover tooltips. Justification: Allows easy comparison of topic frequency.
+        3. Report Info: The 34 individual resources. Goal: Organize/Inform. Viz: HTML/Tailwind "Cards" in a responsive grid. Interaction: JS filtering via theme buttons. Justification: A card layout is ideal for summarizing individual items. Filtering is essential for making a list of 34 items navigable and not overwhelming.
+        4. All JS is vanilla for navigation (filtering) and chart instantiation. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 320px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+                max-height: 350px;
+            }
+        }
+        .nav-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-btn.active {
+            background-color: #0d9488; 
+            color: #ffffff;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .nav-btn:not(.active):hover {
+            background-color: #f0fdfa; 
+            color: #134e4a; 
+        }
+        .resource-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: 1px solid #e5e7eb;
+        }
+        .resource-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+
+        <header class="text-center mb-8 md:mb-12">
+            <h1 class="text-3xl md:text-4xl font-bold text-teal-700 mb-2">AI Resource Synthesis</h1>
+            <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                This application synthesizes a provided list of 34 resources on Artificial Intelligence. Explore the key themes and resource types at a glance, or filter the interactive grid to dive into specific topics.
+            </p>
+        </header>
+
+        <section id="dashboard" class="mb-8 md:mb-12">
+            <h2 class="text-2xl font-bold text-center mb-6">Resource Collection Overview</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                The charts below provide a quantitative overview of the resource collection itself, breaking down the 34 items by their media type and our assigned primary theme. This gives a high-level look at the composition of the source material.
+            </p>
+            <div class="flex flex-col md:flex-row gap-8 items-center justify-center">
+                <div class="w-full md:w-1/2 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-semibold text-center mb-4">Resources by Type</h3>
+                    <div class="chart-container">
+                        <canvas id="typeChart"></canvas>
+                    </div>
+                </div>
+                <div class="w-full md:w-1/2 p-4 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <h3 class="text-lg font-semibold text-center mb-4">Resources by Theme</h3>
+                    <div class="chart-container">
+                        <canvas id="themeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="explorer">
+            <h2 class="text-2xl font-bold text-center mb-6">Interactive Resource Explorer</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                Explore the full, filterable list of resources. Click a theme below to narrow your focus. Each card provides a brief synopsis of the source material and its type.
+            </p>
+
+            <nav id="filter-nav" class="flex flex-wrap justify-center gap-2 md:gap-3 mb-8">
+                <button class="nav-btn active filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="all">All Resources (34)</button>
+                <button class="nav-btn filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="practice">AI in Practice (10)</button>
+                <button class="nav-btn filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="ethics">Ethics & Bias (8)</button>
+                <button class="nav-btn filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="legal">Legal & Data (4)</button>
+                <button class="nav-btn filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="concepts">Models & Concepts (7)</button>
+                <button class="nav-btn filter-btn px-4 py-2 rounded-full font-medium text-sm md:text-base bg-gray-200 text-gray-700" data-theme="impact">Societal Impact (5)</button>
+            </nav>
+
+            <div id="resource-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+        </section>
+    </div>
+
+    <footer class="text-center p-6 mt-12 border-t border-gray-200">
+        <p class="text-sm text-gray-500">Generated interactive report based on provided source list.</p>
+    </footer>
+
+    <script>
+        const allResources = [
+            { id: 1, title: 'DEC Slack Channel', source: 'AIGA Educators', type: 'Community', theme: 'practice', synopsis: 'A Slack community for AIGA design educators to discuss topics, including AI in design education.', url: 'aiga-educators.slack.com' },
+            { id: 2, title: 'Want to collaborate in the future?', source: 'Google Doc', type: 'Resource', theme: 'practice', synopsis: 'A shared document for coordinating future collaborations, likely related to AI and design education.', url: 'docs.google.com' },
+            { id: 3, title: 'Adobe Firefly vs. Stable Diffusion', source: 'Adobe', type: 'Article', theme: 'concepts', synopsis: 'Adobe\'s comparison of its generative AI model, Firefly, with the open-source Stable Diffusion, focusing on features and commercial safety.', url: 'adobe.com' },
+            { id: 4, title: 'How design agencies are actually using AI in 2024', source: 'Creative Boom', type: 'Article', theme: 'practice', synopsis: 'A special report detailing the practical adoption of AI tools within design agencies for ideation, production, and workflow optimization.', url: 'creativeboom.com' },
+            { id: 5, title: 'Making AI Art Responsibly: A Field Guide', source: 'Partnership on AI', type: 'Guide', theme: 'ethics', synopsis: 'A guide outlining ethical considerations for creating AI art, covering issues of bias, data consent, and transparency.', url: 'partnershiponai.org' },
+            { id: 6, title: 'Have I Been Trained?', source: 'Spawning AI', type: 'Tool', theme: 'legal', synopsis: 'An online tool allowing artists and individuals to check if their images were used in major AI training datasets.', url: 'haveibeentrained.com' },
+            { id: 7, title: 'How I\'m fighting bias in algorithms', source: 'Joy Buolamwini (TED)', type: 'Video', theme: 'ethics', synopsis: 'A seminal TED talk from the founder of the Algorithmic Justice League, exposing racial and gender bias in facial recognition AI.', url: 'ted.com' },
+            { id: 8, title: 'Copyright and Artificial Intelligence', source: 'U.S. Copyright Office', type: 'Resource', theme: 'legal', synopsis: 'Official overview from the U.S. Copyright Office on the complex legal questions surrounding AI, authorship, and copyright.', url: 'copyright.gov' },
+            { id: 9, title: 'This is how AI image generators see the world', source: 'Washington Post', type: 'Article', theme: 'ethics', synopsis: 'An interactive article demonstrating how popular AI image models perpetuate and amplify harmful racial and gender stereotypes.', url: 'washingtonpost.com' },
+            { id: 10, title: 'Big Data, Big Design', source: 'Helen Armstrong', type: 'Resource', theme: 'practice', synopsis: 'A collection of classroom resources developed by Helen Armstrong for teaching AI and data visualization in design.', url: 'helenarmstrong.info' },
+            { id: 11, title: 'You Look Like a Thing and I Love You', source: 'Janelle Shane', type: 'Book', theme: 'concepts', synopsis: 'A humorous and accessible book explaining the inner workings, capabilities, and often bizarre limitations of AI through experiments.', url: 'janelleshane.com' },
+            { id: 12, title: 'The Technological Singularity', source: 'Murray Shanahan', type: 'Book', theme: 'concepts', synopsis: 'An academic exploration of the concept of a "singularity," where artificial superintelligence could trigger runaway technological growth.', url: 'mitpress.mit.edu' },
+            { id: 13, title: 'The Atlas of AI', source: 'Kate Crawford', type: 'Book', theme: 'ethics', synopsis: 'A critical investigation into the hidden costs of AI, revealing its environmental, material, and human labor footprint.', url: 'katecrawford.net' },
+            { id: 14, title: 'AI Art: How artists are using and confronting ML', source: 'MoMA', type: 'Video', theme: 'practice', synopsis: 'A MoMA video exploring how contemporary artists are using machine learning as both a creative tool and a subject of critique.', url: 'youtube.com' },
+            { id: 15, title: 'The Next Rembrandt', source: 'Dutch Digital Design', type: 'Article / Video', theme: 'practice', synopsis: 'A project that used data analysis and 3D printing to create a "new" painting in the style of Rembrandt, questioning art and authorship.', url: 'medium.com' },
+            { id: 16, title: 'Critical Algorithm Studies: a Reading List', source: 'Social Media Collective', type: 'List', theme: 'ethics', synopsis: 'An academic reading list for "Crit-AI," focusing on the societal power, politics, and cultural implications of algorithms.', url: 'socialmediacollective.org' },
+            { id: 17, title: 'Reading List: What Models Make Worlds', source: 'Ford Foundation', type: 'List', theme: 'ethics', synopsis: 'A reading list accompanying an art exhibition, exploring how AI models and systems actively shape and "make" our worlds.', url: 'fordfoundation.org' },
+            { id: 18, title: 'The AI Database', source: 'Wired Magazine', type: 'Resource', theme: 'impact', synopsis: 'Wired\'s ongoing collection of articles, news, and analysis covering the latest developments in artificial intelligence.', url: 'wired.com' },
+            { id: 19, title: 'How MVRDV is using AI to design their buildings', source: 'MVRDV (YouTube)', type: 'Video', theme: 'practice', synopsis: 'A look into how the architecture firm MVRDV uses AI and generative design tools in their creative and planning processes.', url: 'youtube.com' },
+            { id: 20, title: 'Human_Fallback', source: 'Laura Preston (n+1)', type: 'Essay', theme: 'ethics', synopsis: 'An essay on the invisible human workforce that "falls back" to complete tasks AI systems fail, exposing the myth of full automation.', url: 'nplusonemag.com' },
+            { id: 21, title: 'Amazon Go', source: 'SNL', type: 'Video', theme: 'impact', synopsis: 'A satirical SNL skit highlighting the potential absurdity and failures of "frictionless" automated systems like Amazon Go.', url: 'youtube-nocookie.com' },
+            { id: 22, title: 'Hans Zimmer Isn’t Scared of AI', source: 'WSJ', type: 'Article', theme: 'practice', synopsis: 'Famed composer Hans Zimmer discusses his view of AI as a potential creative collaborator and tool, not a replacement for human artistry.', url: 'gimletmedia.com' },
+            { id: 23, title: 'What happens when you train your AI on AI-generated data?', source: 'WBUR', type: 'Podcast', theme: 'concepts', synopsis: 'An exploration of "model collapse," the phenomenon where AI models degrade in quality when trained on synthetic data from other AIs.', url: 'podcasts.apple.com' },
+            { id: 24, title: 'Every AI Copyright Lawsuit in the US, Visualized', source: 'Wired', type: 'Article', theme: 'legal', synopsis: 'An article and visualization tracking the major, ongoing copyright infringement lawsuits filed against generative AI companies.', url: 'wired.com' },
+            { id: 25, title: 'POV: AI is at its best when combined with traditional processes', source: 'It\'s Nice That', type: 'Article', theme: 'practice', synopsis: 'An opinion piece arguing that AI\'s greatest creative potential lies in its integration with, and augmentation of, traditional artistic processes.', url: 'itsnicethat.com' },
+            { id: 26, title: 'Empire of AI', source: 'Karen Hao', type: 'Book', theme: 'impact', synopsis: 'A book investigating the global power dynamics, geopolitics, and competition (e.g., US vs. China) shaping the future of AI.', url: 'penguinrandomhouse.com' },
+            { id: 27, title: 'ChatGPT is an energy guzzler.', source: 'Washington Post', type: 'Article', theme: 'concepts', synopsis: 'An investigation into the significant energy and water consumption required to train and operate large language models like ChatGPT.', url: 'washingtonpost.com' },
+            { id: 28, title: 'The Culture Wars Came for Wikipedia.', source: 'NYT', type: 'Article', theme: 'impact', synopsis: 'An interview with Jimmy Wales on the challenges of maintaining Wikipedia\'s neutrality and factual accuracy in an age of AI and polarization.', url: 'nytimes.com' },
+            { id: 29, title: 'Human-Centered AI', source: 'Ben Shneiderman', type: 'Book', theme: 'ethics', synopsis: 'A framework advocating for AI systems that are designed to be reliable, safe, and trustworthy, acting as tools to augment human control.', url: 'amazon.com' },
+            { id: 30, title: 'Are we thinking about AI the wrong way?', source: 'WBUR', type: 'Podcast', theme: 'impact', synopsis: 'A podcast, likely featuring Ethan Mollick, discussing new frameworks for understanding and interacting with AI as a "co-intelligence."', url: 'wbur.org' },
+            { id: 31, title: 'Co-Intelligence: Living and Working with AI', source: 'Ethan Mollick', type: 'Book', theme: 'concepts', synopsis: 'A book proposing that humans should treat AI as a "co-intelligence," a new kind of collaborator to work alongside.', url: 'penguinrandomhouse.com' },
+            { id: 32, title: 'Can an AI make a data-driven, visual story?', source: 'The Pudding', type: 'Article', theme: 'practice', synopsis: 'An experimental article by The Pudding where they test the limits of AI in creating one of their signature visual, data-driven essays.', url: 'pudding.cool' },
+            { id: 33, title: 'Every AI Copyright Lawsuit in the US, Visualized (Duplicate)', source: 'Wired', type: 'Article', theme: 'legal', synopsis: 'An article and visualization tracking the major, ongoing copyright infringement lawsuits filed against generative AI companies.', url: 'wired.com' },
+            { id: 34, title: 'Hans Zimmer Isn’t Scared of AI (Duplicate)', source: 'WSJ', type: 'Podcast', theme: 'practice', synopsis: 'Famed composer Hans Zimmer discusses his view of AI as a potential creative collaborator and tool, not a replacement for human artistry.', url: 'gimletmedia.com' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('resource-grid');
+            const filterNav = document.getElementById('filter-nav');
+            const filterButtons = filterNav.querySelectorAll('.filter-btn');
+
+            function getIconForType(type) {
+                switch (type.toLowerCase()) {
+                    case 'article': return '📄';
+                    case 'article / video': return '📄▶️';
+                    case 'book': return '📚';
+                    case 'video': return '▶️';
+                    case 'podcast': return '🎧';
+                    case 'guide': return '🧭';
+                    case 'tool': return '🔧';
+                    case 'resource': return '🔗';
+                    case 'community': return '👥';
+                    case 'list': return '📋';
+                    case 'essay': return '🖋️';
+                    default: return '🔗';
+                }
+            }
+            
+            function getThemeClass(theme) {
+                switch (theme) {
+                    case 'practice': return 'bg-blue-100 text-blue-800';
+                    case 'ethics': return 'bg-red-100 text-red-800';
+                    case 'legal': return 'bg-yellow-100 text-yellow-800';
+                    case 'concepts': return 'bg-green-100 text-green-800';
+                    case 'impact': return 'bg-purple-100 text-purple-800';
+                    default: return 'bg-gray-100 text-gray-800';
+                }
+            }
+
+            function createResourceCard(resource) {
+                return `
+                    <div class="resource-card w-full bg-white rounded-lg shadow-sm overflow-hidden flex flex-col" data-theme="${resource.theme}">
+                        <div class="p-5 flex-grow">
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-3xl">${getIconForType(resource.type)}</span>
+                                <span class="text-xs font-medium px-2.5 py-0.5 rounded-full ${getThemeClass(resource.theme)}">${resource.theme.charAt(0).toUpperCase() + resource.theme.slice(1)}</span>
+                            </div>
+                            <h3 class="text-lg font-semibold mb-2 text-gray-900">${resource.title}</h3>
+                            <p class="text-sm text-gray-500 mb-3 font-medium">${resource.source} | ${resource.type}</p>
+                            <p class="text-sm text-gray-700 mb-4">${resource.synopsis}</p>
+                        </div>
+                        <div class="bg-gray-50 px-5 py-3 border-t border-gray-100">
+                            <code class="text-xs text-gray-500 truncate w-full block">${resource.url}</code>
+                        </div>
+                    </div>
+                `;
+            }
+
+            function populateGrid(filter = 'all') {
+                grid.innerHTML = '';
+                const filteredResources = (filter === 'all')
+                    ? allResources
+                    : allResources.filter(r => r.theme === filter);
+                
+                filteredResources.forEach(resource => {
+                    grid.innerHTML += createResourceCard(resource);
+                });
+            }
+
+            filterNav.addEventListener('click', (e) => {
+                if (e.target.classList.contains('filter-btn')) {
+                    const theme = e.target.dataset.theme;
+                    
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    populateGrid(theme);
+                }
+            });
+
+            function renderCharts() {
+                const types = allResources.map(r => r.type);
+                const typeCounts = types.reduce((acc, type) => {
+                    acc[type] = (acc[type] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const themes = allResources.map(r => r.theme);
+                const themeCounts = themes.reduce((acc, theme) => {
+                    acc[theme] = (acc[theme] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const typeCtx = document.getElementById('typeChart').getContext('2d');
+                new Chart(typeCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(typeCounts),
+                        datasets: [{
+                            label: 'Resources by Type',
+                            data: Object.values(typeCounts),
+                            backgroundColor: [
+                                '#34d399', '#f87171', '#fbbf24', '#60a5fa', '#a78bfa',
+                                '#f472b6', '#2dd4bf', '#a3e635', '#9ca3af', '#f97316'
+                            ],
+                            borderWidth: 0,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: { size: 10 },
+                                    boxWidth: 20,
+                                    padding: 15
+                                }
+                            }
+                        }
+                    }
+                });
+
+                const themeCtx = document.getElementById('themeChart').getContext('2d');
+                new Chart(themeCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(themeCounts).map(t => t.charAt(0).toUpperCase() + t.slice(1)),
+                        datasets: [{
+                            label: 'Resources by Theme',
+                            data: Object.values(themeCounts),
+                            backgroundColor: [
+                                '#60a5fa', // practice
+                                '#f87171', // ethics
+                                '#fbbf24', // legal
+                                '#34d399', // concepts
+                                '#a78bfa'  // impact
+                            ],
+                            borderRadius: 4,
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y',
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                grid: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    precision: 0
+                                }
+                            },
+                            y: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            populateGrid();
+            renderCharts();
+        });
+    </script>
+</body>
+</html>

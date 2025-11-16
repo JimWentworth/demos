@@ -1,0 +1,696 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Models: Four Lenses for a Clear Taxonomy</title>
+<style>
+  :root{
+    --uiuc-navy:#13294B; --uiuc-orange:#E84A27;
+    --ink:#1f2937; --muted:#6b7280; --bg:#f8fafc; --card:#ffffff; --ring:#e5e7eb;
+    --blue:#2563eb; --green:#16a34a; --red:#dc2626; --amber:#f59e0b; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+  a{color:var(--uiuc-navy);text-decoration:none}
+  a:hover{text-decoration:underline}
+
+  .wrap{max-width:1200px;margin:24px auto 32px;padding:0 16px}
+  header h1{margin:0 0 6px 0;font-size:28px;color:var(--uiuc-navy)}
+  header p{margin:0 0 12px 0;color:var(--muted)}
+
+  /* Top quick nav */
+  .topnav{
+    display:flex;gap:8px;flex-wrap:wrap;align-items:center;
+    margin:8px 0 16px 0;
+  }
+  .chip{
+    display:inline-block;border:1px solid var(--ring);background:#fff;border-radius:999px;
+    padding:8px 12px;font-size:14px
+  }
+
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  @media (max-width:1000px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:0 1px 2px rgb(0 0 0 / 6%)}
+  .card h2{margin:0;padding:16px 16px 0 16px;font-size:18px}
+  .card .sub{padding:0 16px 8px 16px;color:var(--muted);font-size:14px}
+
+  .diagram-box{padding:16px}
+  .controls{display:flex;gap:8px;align-items:center;padding:8px 16px 16px}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg button{border:1px solid var(--ring);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+  .seg button.active{border-color:var(--uiuc-navy);outline:2px solid var(--uiuc-navy);color:var(--uiuc-navy)}
+
+  svg{width:100%;height:360px;background:#fff;border:1px dashed var(--ring);border-radius:12px}
+
+  .panel{padding:8px 16px 16px}
+  .search{display:flex;gap:8px;padding:0 16px 8px}
+  .search input{flex:1;padding:8px 10px;border:1px solid var(--ring);border-radius:10px}
+  .group{border-top:1px solid var(--ring);padding:12px 0}
+  .group h3{margin:6px 16px 8px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:999px;display:inline-block}
+  .dot.blue{background:var(--blue)} .dot.green{background:var(--green)} .dot.red{background:var(--red)} .dot.amber{background:var(--amber)}
+  .pills{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px}
+  .pill{position:relative;border:1px solid var(--ring);background:#fff;border-radius:999px;padding:6px 10px;font-size:13px;cursor:pointer}
+  .pill:hover{border-color:var(--uiuc-orange)}
+  /* Using native browser tooltip only (title attr) */
+
+  /* Table */
+  .table-card{margin-top:16px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-top:1px solid var(--ring)}
+  .toolbar input[type="search"]{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--ring);border-radius:10px}
+  .toolbar select{padding:8px 10px;border:1px solid var(--ring);border-radius:10px;background:#fff}
+  table{width:100%;border-collapse:collapse}
+  thead th{position:sticky;top:0;background:#f3f4f6;font-weight:600;font-size:14px;color:#374151;border-bottom:1px solid var(--ring);padding:10px;text-align:left;cursor:pointer}
+  tbody td{border-bottom:1px solid var(--ring);padding:10px;vertical-align:top;font-size:14px}
+  tbody tr:hover{background:#fafafa}
+  .tag{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;border:1px solid #e5e7eb}
+  .mod{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;background:#fff7ed;color:#9a3412;font-size:12px;border:1px solid #fed7aa}
+  .footer{padding:10px 16px;color:var(--muted);font-size:12px}
+  .small{font-size:12px;color:var(--muted)}
+
+  /* Quiz */
+  .quiz{padding:12px 16px 16px}
+  .q{border-top:1px solid var(--ring);padding:12px 0}
+  .q h4{margin:0 0 8px 0;font-size:15px}
+  .choices{display:flex;flex-direction:column;gap:6px}
+  .choice{
+    display:flex;gap:8px;align-items:flex-start;padding:6px 8px;border:1px solid var(--ring);
+    border-radius:10px;background:#fff;cursor:pointer;transition:border-color .12s, background .12s
+  }
+  .choice input{margin-top:2px}
+  .choice.correct{border-color:#16a34a;background:#ecfdf5}   /* green */
+  .choice.incorrect{border-color:#dc2626;background:#fef2f2} /* red */
+  .score{font-weight:600}
+  .btn{display:inline-block;border:1px solid var(--uiuc-navy);color:#fff;background:var(--uiuc-navy);border-radius:999px;padding:8px 14px;cursor:pointer}
+  .btn.alt{background:#fff;color:var(--uiuc-navy)}
+  .panel-links{padding:8px 16px 16px}
+</style>
+</head>
+<body>
+  <div class="wrap" id="top">
+    <header>
+      <h1>AI Models: Four Lenses for a Clear Taxonomy</h1>
+      <p>Distinguish the general idea of an <em>AI model</em> from a practical taxonomy via four lenses: <strong>Training</strong>, <strong>Architecture</strong>, <strong>Family</strong>, and <strong>Lineage</strong>. Includes <strong>Modality</strong> tags and a practical <strong>Quick Quiz</strong>.</p>
+      <nav class="topnav">
+        <a class="chip" href="#table">⤵︎ Jump to Unified Table</a>
+        <a class="chip" href="#quiz">⤵︎ Jump to Quiz</a>
+      </nav>
+    </header>
+
+    <section class="grid">
+      <!-- Diagram -->
+      <div class="card">
+        <h2>Interactive Diagram</h2>
+        <p class="sub">Toggle lenses, show relationships, and click nodes to focus the right panel.</p>
+        <div class="diagram-box">
+          <svg id="diagram" viewBox="0 0 800 360" aria-label="Model taxonomy diagram"></svg>
+        </div>
+        <div class="controls">
+          <label><input type="checkbox" id="show-edges" checked> Show relationships</label>
+          <div class="seg" id="lens-buttons"></div>
+        </div>
+        <div class="panel-links">
+          <a href="#table">See all terms in the table ↓</a>
+        </div>
+      </div>
+
+      <!-- Lens panel -->
+      <div class="card" id="lens-card">
+        <h2 id="lens-title">Training Paradigm</h2>
+        <p class="sub" id="lens-desc">How does the model learn? Learning strategy used to fit parameters.</p>
+        <div class="panel">
+          <div class="search"><input id="lens-search" placeholder="Filter terms…" aria-label="Filter terms"/></div>
+          <div id="lens-groups"></div>
+        </div>
+        <div class="panel-links">
+          <a href="#quiz">Try a quick quiz ↓</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="card table-card" id="table">
+      <h2>Unified Table</h2>
+      <p class="sub">Browse across lenses; search and sort to compare how models differ.</p>
+      <div class="toolbar">
+        <input id="table-search" type="search" placeholder="Search all columns…" aria-label="Search table"/>
+        <select id="modality-filter" aria-label="Filter by modality">
+          <option value="">All modalities</option>
+          <option>Text</option><option>Image</option><option>Video</option>
+          <option>Audio</option><option>Vision</option><option>Multimodal</option><option>Tabular</option>
+        </select>
+        <div class="seg" id="lens-filters"></div>
+      </div>
+      <div style="overflow:auto; max-height: 460px;">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th data-key="lens">Lens</th>
+              <th data-key="category">Category</th>
+              <th data-key="term">Term</th>
+              <th data-key="modality">Modality</th>
+              <th data-key="examples">Examples</th>
+              <th data-key="explain">Layman explanation</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="footer">
+        Tip: click column headers to sort. Shift-click to multi-sort. &nbsp;|&nbsp;
+        <a href="#top">Back to top ↑</a> &nbsp;|&nbsp; <a href="#quiz">Jump to quiz ↓</a>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="card" id="quiz">
+      <h2>Quick Quiz (Modalities & Uses)</h2>
+      <p class="sub">Real tasks, practical choices. Pick the best modality—no acronym memorization needed.</p>
+      <div class="quiz">
+        <div id="quiz-box"></div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn" id="quiz-new">New quiz</button>
+          <button class="btn alt" id="quiz-grade">Grade</button>
+          <div id="quiz-score" class="score" style="margin-left:auto;"></div>
+        </div>
+        <div class="panel-links" style="margin-top:8px;">
+          <a href="#table">Review terms in the table ↓</a> &nbsp;|&nbsp; <a href="#top">Back to top ↑</a>
+        </div>
+      </div>
+    </section>
+
+    <p class="small">All client-side. To customize content, edit the <code>DATA</code> JSON and the <code>USE_CASES</code> list in this file.</p>
+  </div>
+
+<script>
+/* ---------- DATA (edit me) ----------
+   Each term is [term, explain, examples, modality]
+*/
+const DATA = {
+  lenses: {
+    Training: {
+      color:"#2563eb",
+      desc:"How does the model learn? Strategy used to fit parameters.",
+      groups:[
+        { name:"Supervised", color:"blue", terms:[
+          ["Logistic Regression","Learns from labeled examples to predict categories.","Email spam filters","Tabular"],
+          ["Random Forest","Ensemble of decision trees voting to reduce overfitting.","Risk scoring on tabular data","Tabular"],
+          ["Fine-tuning (pretrained backbone)","Start from a pretrained model and teach a labeled task.","BERT/GPT fine-tunes for classification","Text"]
+        ]},
+        { name:"Unsupervised", color:"amber", terms:[
+          ["K-Means","Clusters similar items without labels.","Customer segments","Tabular"],
+          ["PCA","Projects data into fewer directions preserving variance.","Compression/visualization","Tabular"],
+          ["Autoencoder","Compresses then reconstructs to reveal structure.","Anomaly detection","Vision"]
+        ]},
+        { name:"Reinforcement", color:"green", terms:[
+          ["DQN","Learns actions via rewards.","Atari agents","Multimodal"],
+          ["AlphaZero-style","Self-play + tree search.","Chess/Go engines","Multimodal"],
+          ["RLHF phase","Human preference signals shape outputs after pretraining.","Chat alignment","Text"]
+        ]},
+        { name:"Self-supervised", color:"blue", terms:[
+          ["Masked LM","Predict masked tokens to learn language structure.","BERT pretraining","Text"],
+          ["Next-token prediction","Autoregressively predict the next token.","GPT/Mistral/Gemma pretraining","Text"],
+          ["Contrastive learning","Pull same content together, push different apart.","CLIP, SimCLR for vision","Vision"]
+        ]}
+      ]
+    },
+
+    Architecture: {
+      color:"#16a34a",
+      desc:"What is the structural form of the model?",
+      groups:[
+        { name:"Classical", color:"amber", terms:[
+          ["Decision Tree","If-then splits like a flowchart.","Explainable baselines","Tabular"],
+          ["Linear / Logistic Regression","Weighted sums; fast/strong baselines.","Tabular tasks","Tabular"]
+        ]},
+        { name:"Neural Nets", color:"green", terms:[
+          ["CNN","Sliding filters capture spatial patterns.","Vision tasks","Vision"],
+          ["RNN / LSTM","Token-by-token with memory state.","Time-series, early NLP","Text"],
+          ["Transformer (Encoder/Decoder)","Attention relates all tokens at once.","Modern LMs & some vision/audio","Multimodal"],
+          ["State-Space Models (SSM) / Mamba","Sequence models with linear-time scaling.","Long-sequence efficiency","Text"]
+        ]},
+        { name:"Generative", color:"blue", terms:[
+          ["Autoregressive Decoders","Generate one token/pixel at a time.","GPT-style LMs, PixelCNN","Multimodal"],
+          ["Autoencoder / VAE","Compress→reconstruct to learn latent space.","Denoising, representation learning","Vision"],
+          ["Diffusion (DDPM/Score-based)","Denoise noise step-by-step to sample data.","Stable Diffusion, Imagen, Sora (under the hood)","Image"],
+          ["Latent Diffusion","Run diffusion in a learned latent space for speed.","SDXL / SD3","Image"],
+          ["Flow-based Models","Invertible transforms with exact likelihoods.","RealNVP, Glow","Image"]
+        ]}
+      ]
+    },
+
+    Family: {
+      color:"#f59e0b",
+      desc:"Which named family or ecosystem does a model belong to?",
+      groups:[
+        { name:"OpenAI", color:"amber", terms:[
+          ["GPT family","Autoregressive LLMs (e.g., GPT-3.5, GPT-4, o-series).","Chat, tools, code","Text"],
+          ["DALL·E family","Text-to-image diffusion/AR hybrids.","DALL·E 2, DALL·E 3","Image"],
+          ["Sora (video)","Text-to-video generative model (diffusion-like).","Video synthesis","Video"]
+        ]},
+        { name:"Anthropic", color:"blue", terms:[
+          ["Claude family","Safety-aligned LLMs with long context.","Opus, Sonnet, Haiku","Text"]
+        ]},
+        { name:"Google / DeepMind", color:"blue", terms:[
+          ["Gemini family","Multimodal successors to PaLM.","Text-image-audio-tools","Multimodal"],
+          ["Imagen family","High-fidelity image diffusion.","Imagen / Imagen 2","Image"],
+          ["Veo (video)","Text-to-video generation.","Video synthesis","Video"]
+        ]},
+        { name:"Meta", color:"green", terms:[
+          ["LLaMA family","Open(-ish) LLM line with many community variants.","LLaMA-2/3","Text"],
+          ["SAM family","Promptable segmentation models.","Segment Anything","Vision"]
+        ]},
+        { name:"Mistral AI (open-source)", color:"green", terms:[
+          ["Mistral family","Efficient small/medium LLMs.","Mistral 7B","Text"],
+          ["Mixtral family","Mixture-of-Experts (MoE) LLMs.","Mixtral 8×7B, 8×22B","Text"]
+        ]},
+        { name:"Alibaba", color:"green", terms:[
+          ["Qwen family","Open LLMs across sizes and modalities.","Qwen 2/2.5, Qwen-VL","Multimodal"]
+        ]},
+        { name:"Databricks", color:"green", terms:[
+          ["DBRX family","Mixture-of-Experts LLM.","DBRX Instruct","Text"]
+        ]},
+        { name:"Microsoft", color:"green", terms:[
+          ["Phi family","Small, data-curated LLMs for efficiency.","Phi-2, Phi-3, Phi-4 mini","Text"]
+        ]},
+        { name:"xAI", color:"green", terms:[
+          ["Grok family","LLMs with tool use emphasis.","Grok-1.x","Text"]
+        ]},
+        { name:"01.AI", color:"green", terms:[
+          ["Yi family","High-quality open LLMs.","Yi-34B, Yi-1.5","Text"]
+        ]},
+        { name:"Cohere", color:"green", terms:[
+          ["Command family","Enterprise-oriented LLMs.","Command-R / R+","Text"]
+        ]},
+        { name:"Open-source Vision/Multimodal", color:"green", terms:[
+          ["Stable Diffusion family","Latent diffusion for images.","SD 1.5, SD 2.1, SDXL, SD3","Image"],
+          ["CLIP / OpenCLIP","Text-image embedding models.","Retrieval, alignment","Multimodal"],
+          ["DINOv2","Self-supervised vision backbone.","Feature extraction","Vision"]
+        ]},
+        { name:"Independent Audio/Video (closed)", color:"amber", terms:[
+          ["Midjourney","Proprietary TTI (diffusion/AR stack).","MJ v1–v6","Image"],
+          ["Runway Gen family","Text-to-video & image tools.","Gen-1/2/3","Video"],
+          ["Pika","Text-to-video/image.","Pika 1.0/1.5","Video"],
+          ["Suno / Udio","Text-to-music audio models.","Song generation","Audio"]
+        ]}
+      ]
+    },
+
+    Lineage: {
+      color:"#dc2626",
+      desc:"How versions evolve: releases, forks, and inherited innovations.",
+      groups:[
+        { name:"OpenAI (LLM & media)", color:"red", terms:[
+          ["GPT-2 → GPT-3 → 3.5 → 4 → o-series","Scaling + instruction tuning + tool use.","Reasoning & safety improve","Text"],
+          ["DALL·E 1 → 2 → 3","From discrete to high-fidelity diffusion.","Better text rendering","Image"],
+          ["Sora (initial)","First public video model iteration.","Longer, coherent clips","Video"]
+        ]},
+        { name:"Meta", color:"green", terms:[
+          ["LLaMA 1 → 2 → 3","Open weights and community fine-tunes.","Ecosystem acceleration","Text"]
+        ]},
+        { name:"Google / DeepMind", color:"blue", terms:[
+          ["PaLM → PaLM-2 → Gemini","Shift to multimodality + efficiency.","Tool use & long context","Multimodal"],
+          ["Imagen → Imagen 2 → Veo","Image fidelity → video generation.","Photorealism & motion","Image"]
+        ]},
+        { name:"Mistral", color:"green", terms:[
+          ["Mistral 7B → Mixtral 8×7B → 8×22B","From dense to MoE scaling.","Latency/quality trade-offs","Text"]
+        ]},
+        { name:"Alibaba", color:"green", terms:[
+          ["Qwen 1 → 2 → 2.5","Coverage, multilinguality, tools; VL/Audio variants.","","Multimodal"]
+        ]},
+        { name:"Databricks", color:"green", terms:[
+          ["DBRX base → DBRX instruct","Open MoE tuned for RAG.","Enterprise workflows","Text"]
+        ]},
+        { name:"Microsoft", color:"green", terms:[
+          ["Phi-1 → 2 → 3 → 4-mini","Data-centric small LLMs.","Edge & low-cost use","Text"]
+        ]},
+        { name:"01.AI", color:"green", terms:[
+          ["Yi 34B → Yi-1.5","Open large models tuned for quality.","","Text"]
+        ]},
+        { name:"Stable Diffusion (Stability/CompVis)", color:"blue", terms:[
+          ["SD 1.x → SD 2.x → SDXL → SD3","Latent diffusion, larger backbones.","Better text rendering","Image"]
+        ]},
+        { name:"Midjourney (closed)", color:"amber", terms:[
+          ["v1 → v2 → v3 → v4 → v5 → v6","Proprietary stack, strong style control.","Artistic TTI","Image"]
+        ]},
+        { name:"Video Gen (mixed)", color:"amber", terms:[
+          ["Runway Gen-1 → Gen-2 → Gen-3","Text-to-video quality & temporal coherence.","Short clips","Video"],
+          ["Pika 1.0 → 1.5","Fast iteration on video.","Animated assets","Video"]
+        ]},
+        { name:"Emerging Open LLMs", color:"green", terms:[
+          ["DeepSeek V2 → V2.5 → V3","Training efficiency & reasoning focus.","","Text"]
+        ]}
+      ]
+    }
+  },
+  relationships:[["Training","Architecture"],["Training","Family"],["Family","Lineage"],["Architecture","Lineage"]]
+};
+
+/* ---------- Quiz use-cases (edit me) ----------
+   Format: { task: "...", modality: "Text" | "Image" | "Video" | "Audio" | "Vision" | "Multimodal" | "Tabular" }
+*/
+const USE_CASES = [
+  { task:"Summarize a 15-page policy into key bullets", modality:"Text" },
+  { task:"Transcribe a lecture recording into notes", modality:"Audio" },
+  { task:"Turn a product description into a photoreal image", modality:"Image" },
+  { task:"Generate a short explainer clip from a script", modality:"Video" },
+  { task:"Detect objects and segment regions in photos", modality:"Vision" },
+  { task:"Chat with PDFs and spreadsheets at once", modality:"Multimodal" },
+  { task:"Predict customer churn from numeric features", modality:"Tabular" },
+  { task:"Rewrite a student email more professionally", modality:"Text" },
+  { task:"Create background music for a podcast intro", modality:"Audio" },
+  { task:"Upscale and denoise a low-res picture", modality:"Image" },
+  { task:"Storyboard → moving video sequence", modality:"Video" },
+  { task:"OCR + layout analysis on scanned pages", modality:"Vision" },
+  { task:"Answer questions over a slide deck and a CSV", modality:"Multimodal" },
+  { task:"Estimate house price from structured fields", modality:"Tabular" }
+];
+
+/* ---------- State ---------- */
+let ACTIVE_LENS = "Training";
+let showEdges = true;
+const sortState = [];
+
+/* ---------- Helpers ---------- */
+const $ = s=>document.querySelector(s);
+const $$ = s=>Array.from(document.querySelectorAll(s));
+function el(tag, attrs={}, ...children){
+  const n=document.createElement(tag);
+  for(const [k,v] of Object.entries(attrs)){
+    if(k==="class") n.className=v;
+    else if(k==="html") n.innerHTML=v;
+    else n.setAttribute(k,v);
+  }
+  children.flat().forEach(c=>n.append(c));
+  return n;
+}
+function debounce(fn,ms=200){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+function shuffle(x){ const a=[...x]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; }
+function pick(n,arr){ const a=[...arr]; const out=[]; while(out.length<n && a.length){ out.push(a.splice(Math.floor(Math.random()*a.length),1)[0]); } return out; }
+
+/* ---------- Diagram (SVG) ---------- */
+function renderDiagram(){
+  const svg = $("#diagram");
+  svg.innerHTML = "";
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+  const pos = {
+    Training:     { x: W*0.22, y: H*0.30, r: 58, color: DATA.lenses.Training.color },
+    Architecture: { x: W*0.62, y: H*0.30, r: 58, color: DATA.lenses.Architecture.color },
+    Family:       { x: W*0.28, y: H*0.75, r: 58, color: DATA.lenses.Family.color },
+    Lineage:      { x: W*0.68, y: H*0.75, r: 58, color: DATA.lenses.Lineage.color }
+  };
+
+  if (showEdges) {
+    DATA.relationships.forEach(([a,b])=>{
+      const A = pos[a], B = pos[b];
+      const dashed = (a==="Architecture" && b==="Lineage") || (a==="Lineage" && b==="Architecture");
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1", String(A.x));
+      line.setAttribute("y1", String(A.y));
+      line.setAttribute("x2", String(B.x));
+      line.setAttribute("y2", String(B.y));
+      line.setAttribute("stroke", "#9ca3af");
+      line.setAttribute("stroke-width", "2");
+      if (dashed) line.setAttribute("stroke-dasharray", "6 6");
+      svg.appendChild(line);
+    });
+  }
+
+  Object.entries(pos).forEach(([name,p])=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.style.cursor = "pointer";
+    g.addEventListener("click",()=>setActiveLens(name));
+
+    const c = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    c.setAttribute("cx", String(p.x));
+    c.setAttribute("cy", String(p.y));
+    c.setAttribute("r",  String(p.r));
+    c.setAttribute("fill", name===ACTIVE_LENS ? p.color : "#ffffff");
+    c.setAttribute("stroke", p.color);
+    c.setAttribute("stroke-width", "4");
+    g.appendChild(c);
+
+    const t1 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t1.setAttribute("x", String(p.x));
+    t1.setAttribute("y", String(p.y - 4));
+    t1.setAttribute("text-anchor", "middle");
+    t1.setAttribute("font-size", "15");
+    t1.setAttribute("fill", name===ACTIVE_LENS ? "#ffffff" : "#111827");
+    t1.textContent = name;
+    g.appendChild(t1);
+
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t2.setAttribute("x", String(p.x));
+    t2.setAttribute("y", String(p.y + 18));
+    t2.setAttribute("text-anchor", "middle");
+    t2.setAttribute("font-size", "11");
+    t2.setAttribute("fill", name===ACTIVE_LENS ? "#f9fafb" : "#6b7280");
+    t2.textContent = ({Training:"Learning",Architecture:"Structure",Family:"Ecosystem",Lineage:"Releases"})[name];
+    g.appendChild(t2);
+
+    svg.appendChild(g);
+  });
+}
+
+/* ---------- Lens buttons ---------- */
+function renderLensButtons(){
+  const box=$("#lens-buttons"); box.innerHTML="";
+  Object.keys(DATA.lenses).forEach(name=>{
+    const btn=el("button",{class:name===ACTIVE_LENS?"active":""},name);
+    btn.addEventListener("click",()=>setActiveLens(name));
+    box.append(btn);
+  });
+}
+
+/* ---------- Lens panel ---------- */
+function renderLensPanel(){
+  const meta = DATA.lenses[ACTIVE_LENS];
+  $("#lens-title").textContent = ACTIVE_LENS + (ACTIVE_LENS==="Family"?" (Modality/Ecosystem)":ACTIVE_LENS==="Lineage"?" (Releases/Evolution)":"");
+  $("#lens-desc").textContent = meta.desc;
+  const groupsDiv = $("#lens-groups"); groupsDiv.innerHTML="";
+  const query = $("#lens-search").value.trim().toLowerCase();
+
+  meta.groups.forEach(g=>{
+    const group = el("div",{class:"group"});
+    group.append(el("h3",{},el("span",{class:"dot "+g.color}),g.name));
+    const row = el("div",{class:"pills"});
+    g.terms.forEach(([term,explain,examples,mod])=>{
+      if(query && ![term, explain, examples, g.name, mod].join(" ").toLowerCase().includes(query)) return;
+      const pill = el("button",{class:"pill", title:`${explain} • Modality: ${mod}`}, term);
+      pill.addEventListener("click",()=>highlightInTable(term));
+      row.append(pill);
+    });
+    group.append(row);
+    groupsDiv.append(group);
+  });
+}
+
+/* ---------- Table ---------- */
+function tableRows(){
+  const rows=[];
+  Object.entries(DATA.lenses).forEach(([lens,meta])=>{
+    meta.groups.forEach(g=>{
+      g.terms.forEach(([term,explain,examples,modality])=>{
+        rows.push({lens,category:g.name,term,explain,examples,modality});
+      });
+    });
+  });
+  return rows;
+}
+let TABLE_DATA = tableRows();
+
+function renderTable(){
+  const tb=$("#data-table tbody"); tb.innerHTML="";
+  const q=$("#table-search").value.trim().toLowerCase();
+  const lensEnabled=$$("#lens-filters input[type=checkbox]:checked").map(c=>c.value);
+  const modSel=$("#modality-filter").value;
+
+  let view=TABLE_DATA.filter(r=>lensEnabled.includes(r.lens));
+  if(modSel) view=view.filter(r=>r.modality===modSel);
+  if(q) view=view.filter(r=>Object.values(r).join(" ").toLowerCase().includes(q));
+
+  let sorted=[...view];
+  if(sortState.length){
+    sorted.sort((a,b)=>{
+      for(const {key,dir} of sortState){
+        const av=(a[key]??"").toString().toLowerCase();
+        const bv=(b[key]??"").toString().toLowerCase();
+        if(av<bv) return dir==="asc"?-1:1;
+        if(av>bv) return dir==="asc"?1:-1;
+      }
+      return 0;
+    });
+  }
+
+  sorted.forEach(r=>{
+    const tr=el("tr",{},
+      el("td",{},r.lens),
+      el("td",{},r.category),
+      el("td",{},el("span",{class:"tag"},r.term)),
+      el("td",{},el("span",{class:"mod"},r.modality)),
+      el("td",{},r.examples||"—"),
+      el("td",{},r.explain)
+    );
+    tb.append(tr);
+  });
+}
+
+function initTable(){
+  const box=$("#lens-filters"); box.innerHTML="";
+  Object.keys(DATA.lenses).forEach(name=>{
+    const c=el("input",{type:"checkbox",value:name,checked:true});
+    const lab=el("label",{},c," "+name);
+    box.append(lab);
+  });
+
+  $$("#data-table thead th").forEach(th=>{
+    th.addEventListener("click",e=>{
+      const key=th.getAttribute("data-key"); const multi=e.shiftKey;
+      const i=sortState.findIndex(s=>s.key===key);
+      if(i>=0){ sortState[i].dir=sortState[i].dir==="asc"?"desc":"asc"; }
+      else{ if(!multi) sortState.length=0; sortState.push({key,dir:"asc"}); }
+      renderTable();
+    });
+  });
+
+  $("#table-search").addEventListener("input",debounce(renderTable,120));
+  $("#modality-filter").addEventListener("change",renderTable);
+  $$("#lens-filters input[type=checkbox]").forEach(c=>c.addEventListener("change",renderTable));
+
+  renderTable();
+}
+
+function highlightInTable(term){
+  $("#table-search").value=term;
+  renderTable();
+  setTimeout(()=>$("#data-table").scrollIntoView({behavior:"smooth",block:"center"}),80);
+}
+
+/* ---------- Quiz: modalities & uses with INSTANT GRADING ---------- */
+const MODS = ["Text","Image","Video","Audio","Vision","Multimodal","Tabular"];
+
+function allTerms(){
+  const out=[];
+  Object.entries(DATA.lenses).forEach(([lens,meta])=>{
+    meta.groups.forEach(g=>{
+      g.terms.forEach(([term,explain,examples,mod])=>{
+        out.push({lens,group:g.name,term,explain,examples,mod});
+      });
+    });
+  });
+  return out;
+}
+const TERMS = allTerms();
+
+function makeQuiz(){
+  const qs=[];
+
+  // 2 use-case → modality
+  pick(2, USE_CASES).forEach(u=>{
+    const wrong = pick(3, MODS.filter(m=>m!==u.modality));
+    const choices = shuffle([...wrong, u.modality]);
+    qs.push({type:"usecase_mod", prompt:`Which modality is the best fit for: “${u.task}”?`, answer:u.modality, choices});
+  });
+
+  // 2 term → modality
+  pick(2, TERMS).forEach(t=>{
+    const wrong = pick(3, MODS.filter(m=>m!==t.mod));
+    const choices = shuffle([...wrong, t.mod]);
+    qs.push({type:"term_mod", prompt:`“${t.term}” is most associated with which modality?`, answer:t.mod, choices});
+  });
+
+  // 1 modality → use-case
+  const focusMod = MODS[Math.floor(Math.random()*MODS.length)];
+  const correctUC = pick(1, USE_CASES.filter(u=>u.modality===focusMod))[0]
+    || {task:`A task suited to ${focusMod}`, modality:focusMod};
+  const distractors = pick(3, USE_CASES.filter(u=>u.modality!==focusMod));
+  const choicesUC = shuffle([correctUC, ...distractors]).map(u=>u.task);
+  qs.push({type:"mod_to_usecase", prompt:`Which task best fits the modality “${focusMod}”?`, answer:correctUC.task, choices:choicesUC});
+
+  return qs.slice(0,5);
+}
+
+let QUIZ=[];
+function renderQuiz(){
+  const box=$("#quiz-box"); box.innerHTML="";
+  QUIZ.forEach((q,qi)=>{
+    const qdiv=el("div",{class:"q", "data-answer":q.answer});
+    qdiv.append(el("h4",{}, `${qi+1}. ${q.prompt}`));
+    const choices=el("div",{class:"choices"});
+
+    q.choices.forEach((c,ci)=>{
+      const id=`q${qi}_${ci}`;
+      const label=el("label",{class:"choice", for:id});
+      const input=el("input",{type:"radio",name:`q${qi}`,value:c,id});
+      const txt=document.createTextNode(c);
+      label.append(input, txt);
+      // Instant grade on change
+      input.addEventListener("change",()=>instantGradeQuestion(qdiv, input));
+      choices.append(label);
+    });
+
+    qdiv.append(choices); box.append(qdiv);
+  });
+  $("#quiz-score").textContent="";
+}
+
+function instantGradeQuestion(qDiv, pickedInput){
+  // clear previous styles
+  qDiv.querySelectorAll(".choice").forEach(l=>l.classList.remove("correct","incorrect"));
+  const answer = qDiv.getAttribute("data-answer");
+  const labels = Array.from(qDiv.querySelectorAll(".choice"));
+  const getLabel = (inp)=>inp.closest(".choice");
+
+  // always mark the correct one green
+  const correctInput = labels.map(l=>l.querySelector("input")).find(inp=>inp.value===answer);
+  if (correctInput) getLabel(correctInput).classList.add("correct");
+
+  // if picked wrong, mark it red
+  if (pickedInput && pickedInput.value !== answer) {
+    getLabel(pickedInput).classList.add("incorrect");
+  }
+}
+
+function gradeQuiz(){
+  let correct=0;
+  const qs = Array.from(document.querySelectorAll("#quiz-box .q"));
+  qs.forEach(qDiv=>{
+    const answer = qDiv.getAttribute("data-answer");
+    const picked = qDiv.querySelector("input[type=radio]:checked");
+    if(picked && picked.value===answer) correct++;
+    // also enforce highlight if not interacted
+    if (picked) instantGradeQuestion(qDiv, picked);
+    else {
+      // show correct answer lightly if unanswered
+      const labels = qDiv.querySelectorAll(".choice");
+      labels.forEach(l=>l.classList.remove("correct","incorrect"));
+      const correctInput = Array.from(qDiv.querySelectorAll("input")).find(i=>i.value===answer);
+      if (correctInput) correctInput.closest(".choice").classList.add("correct");
+    }
+  });
+  document.querySelector("#quiz-score").textContent=`Score: ${correct}/${qs.length}`;
+}
+
+/* ---------- Wiring ---------- */
+function setActiveLens(name){
+  ACTIVE_LENS=name;
+  renderLensButtons(); renderDiagram(); renderLensPanel();
+}
+
+function init(){
+  $("#show-edges").addEventListener("change",(e)=>{showEdges=e.target.checked; renderDiagram();});
+  $("#lens-search").addEventListener("input",debounce(renderLensPanel,120));
+
+  renderLensButtons(); renderDiagram(); renderLensPanel(); initTable();
+
+  // quiz
+  QUIZ = makeQuiz(); renderQuiz();
+  $("#quiz-new").addEventListener("click",()=>{QUIZ=makeQuiz(); renderQuiz();});
+  $("#quiz-grade").addEventListener("click",gradeQuiz);
+}
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

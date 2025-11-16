@@ -1,0 +1,98 @@
+import React, { useState } from 'react';
+
+export default function App() {
+  const BLUE = "#13294B";
+  const ORANGE = "#E84A27";
+
+  const patterns = [
+    {
+      id: 1,
+      name: "Hypothesis Testing",
+      desc: "Form a claim, derive predictions, and check against evidence.",
+      prompt: "Use a hypothesis-testing approach: If [climate change is accelerating] is true, what predictions follow, and how could we check them?"
+    },
+    {
+      id: 2,
+      name: "Root Cause Analysis",
+      desc: "Trace a problem to its underlying causes via repeated why.",
+      prompt: "Use root cause analysis to break down this issue: why might [system failure in the water treatment plant] be happening?"
+    },
+    {
+      id: 3,
+      name: "First Principles Reasoning",
+      desc: "Strip to fundamentals and rebuild logic.",
+      prompt: "Solve this using first principles—start with what must be true and reason upward from there: [how to make affordable housing viable]."
+    },
+    {
+      id: 4,
+      name: "SWOT Analysis",
+      desc: "Assess strengths, weaknesses, opportunities, threats.",
+      prompt: "Apply a SWOT analysis to this organization or decision: [a startup entering the electric vehicle market]."
+    }
+  ];
+
+  const [copied, setCopied] = useState(null);
+
+  const copyPrompt = (text, id) => {
+    navigator.clipboard.writeText(text);
+    setCopied(id);
+    setTimeout(() => setCopied(null), 2000);
+  };
+
+  return (
+    <div style={{minHeight: '100vh', backgroundColor: 'white', color: BLUE, padding: '40px 20px'}}>
+      <div style={{maxWidth: '1200px', margin: '0 auto'}}>
+        <h1 style={{fontSize: '32px', fontWeight: 'bold', marginBottom: '10px', color: BLUE}}>
+          Problem-Solving Patterns
+        </h1>
+        <p style={{fontSize: '14px', opacity: 0.8, marginBottom: '40px'}}>
+          Replace [bracketed text] with your own context
+        </p>
+
+        <div style={{display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'}}>
+          {patterns.map(p => (
+            <div key={p.id} style={{border: `1px solid ${BLUE}`, borderRadius: '12px', padding: '20px'}}>
+              <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '15px'}}>
+                <h3 style={{fontSize: '18px', fontWeight: 'bold'}}>{p.name}</h3>
+                <button
+                  onClick={() => copyPrompt(p.prompt, p.id)}
+                  style={{
+                    padding: '6px 12px',
+                    border: `1px solid ${BLUE}`,
+                    borderRadius: '8px',
+                    backgroundColor: copied === p.id ? ORANGE : 'white',
+                    color: copied === p.id ? 'white' : BLUE,
+                    cursor: 'pointer',
+                    fontSize: '12px'
+                  }}
+                >
+                  {copied === p.id ? '✓ Copied' : 'Copy'}
+                </button>
+              </div>
+              
+              <p style={{fontSize: '14px', marginBottom: '15px', opacity: 0.9}}>{p.desc}</p>
+              
+              <div style={{backgroundColor: '#f5f5f5', padding: '15px', borderRadius: '8px', border: `1px solid ${BLUE}`}}>
+                <div style={{fontSize: '11px', fontWeight: 'bold', marginBottom: '8px', opacity: 0.6}}>
+                  EXAMPLE PROMPT
+                </div>
+                <div style={{fontSize: '14px', lineHeight: '1.6'}}>
+                  {p.prompt.split(/(\[.*?\])/).map((part, i) => {
+                    if (part.startsWith('[') && part.endsWith(']')) {
+                      return (
+                        <span key={i} style={{backgroundColor: '#fff3cd', padding: '2px 4px', borderRadius: '3px', fontWeight: '500'}}>
+                          {part}
+                        </span>
+                      );
+                    }
+                    return <span key={i}>{part}</span>;
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

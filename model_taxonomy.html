@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Models: Four Lenses for a Clear Taxonomy</title>
+<style>
+  :root{
+    --uiuc-navy:#13294B;
+    --uiuc-orange:#E84A27;
+    --ink:#1f2937;
+    --muted:#6b7280;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --ring:#e5e7eb;
+    --accent:#10b981;
+    --blue:#2563eb;
+    --green:#16a34a;
+    --red:#dc2626;
+    --amber:#f59e0b;
+    --radius:16px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+
+  .wrap{max-width:1200px;margin:32px auto;padding:0 16px}
+  header h1{margin:0 0 4px 0;font-size:28px;color:var(--uiuc-navy)}
+  header p{margin:0 0 16px 0;color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  @media (max-width:1000px){.grid{grid-template-columns:1fr}}
+
+  .card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:0 1px 2px rgb(0 0 0 / 6%)}
+  .card h2{margin:0;padding:16px 16px 0 16px;font-size:18px}
+  .card .sub{padding:0 16px 8px 16px;color:var(--muted);font-size:14px}
+
+  /* Diagram area */
+  .diagram-box{padding:16px}
+  .controls{display:flex;gap:8px;align-items:center;padding:8px 16px 16px}
+  .seg{display:flex;gap:8px;flex-wrap:wrap}
+  .seg button{border:1px solid var(--ring);background:#fff;color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer}
+  .seg button.active{border-color:var(--uiuc-navy);outline:2px solid var(--uiuc-navy);color:var(--uiuc-navy)}
+
+  svg{width:100%;height:360px;background:#fff;border:1px dashed var(--ring);border-radius:12px}
+
+  /* Lens panel */
+  .panel{padding:8px 16px 16px}
+  .search{display:flex;gap:8px;padding:0 16px 8px}
+  .search input{flex:1;padding:8px 10px;border:1px solid var(--ring);border-radius:10px}
+  .group{border-top:1px solid var(--ring);padding:12px 0}
+  .group h3{margin:6px 16px 8px;font-size:16px;display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:999px;display:inline-block}
+  .dot.blue{background:var(--blue)}
+  .dot.green{background:var(--green)}
+  .dot.red{background:var(--red)}
+  .dot.amber{background:var(--amber)}
+
+  .pills{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px}
+  .pill{position:relative;border:1px solid var(--ring);background:#fff;border-radius:999px;padding:6px 10px;font-size:13px;cursor:pointer}
+  .pill:hover{border-color:var(--uiuc-orange)}
+  .pill[data-tip]:hover::after,
+  .pill[data-tip]:focus::after{
+    content:attr(data-tip);
+    position:absolute;left:0;top:calc(100% + 6px);
+    background:#111;color:#fff;padding:8px 10px;border-radius:8px;
+    width:min(320px,80vw);white-space:normal;z-index:10;box-shadow:0 6px 20px rgba(0,0,0,.18)
+  }
+
+  /* Table */
+  .table-card{margin-top:16px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-top:1px solid var(--ring)}
+  .toolbar input[type="search"]{flex:1;min-width:180px;padding:8px 10px;border:1px solid var(--ring);border-radius:10px}
+  .toolbar .chk{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  table{width:100%;border-collapse:collapse}
+  thead th{position:sticky;top:0;background:#f3f4f6;font-weight:600;font-size:14px;color:#374151;border-bottom:1px solid var(--ring);padding:10px;text-align:left;cursor:pointer}
+  tbody td{border-bottom:1px solid var(--ring);padding:10px;vertical-align:top;font-size:14px}
+  tbody tr:hover{background:#fafafa}
+  .tag{display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:999px;background:#eef2ff;color:#3730a3;font-size:12px;border:1px solid #e5e7eb}
+
+  .footer{padding:10px 16px;color:var(--muted);font-size:12px}
+  .small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>AI Models: Four Lenses for a Clear Taxonomy</h1>
+      <p>Distinguish the general idea of an <em>AI model</em> from a practical taxonomy by examining models through four complementary lenses: <strong>Training</strong>, <strong>Architecture</strong>, <strong>Family</strong>, and <strong>Lineage</strong>.</p>
+    </header>
+
+    <section class="grid">
+      <!-- Left: Diagram -->
+      <div class="card">
+        <h2>Interactive Diagram</h2>
+        <p class="sub">Toggle lenses, show relationships, and click nodes to focus the right panel.</p>
+        <div class="diagram-box">
+          <svg id="diagram" viewBox="0 0 800 360" aria-label="Model taxonomy diagram"></svg>
+        </div>
+        <div class="controls">
+          <label><input type="checkbox" id="show-edges" checked> Show relationships</label>
+          <div class="seg" id="lens-buttons"></div>
+        </div>
+      </div>
+
+      <!-- Right: Lens content -->
+      <div class="card" id="lens-card">
+        <h2 id="lens-title">Training Paradigm</h2>
+        <p class="sub" id="lens-desc">How does the model learn? Learning strategy used to fit parameters.</p>
+        <div class="panel">
+          <div class="search">
+            <input id="lens-search" placeholder="Filter terms…" aria-label="Filter terms"/>
+          </div>
+          <div id="lens-groups"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section class="card table-card">
+      <h2>Unified Table</h2>
+      <p class="sub">Browse across lenses; search and sort to compare how models differ.</p>
+      <div class="toolbar">
+        <input id="table-search" type="search" placeholder="Search all columns…" aria-label="Search table"/>
+        <div class="chk" id="lens-filters"></div>
+      </div>
+      <div style="overflow:auto; max-height: 460px;">
+        <table id="data-table">
+          <thead>
+            <tr>
+              <th data-key="lens">Lens</th>
+              <th data-key="category">Category</th>
+              <th data-key="term">Term</th>
+              <th data-key="examples">Examples</th>
+              <th data-key="explain">Layman explanation</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="footer">Tip: click column headers to sort. Shift-click to multi-sort.</div>
+    </section>
+
+    <p class="small">Everything here is client-side. You can edit the dataset in the JSON block inside this file (<code>DATA</code>) to customize for your class.</p>
+  </div>
+
+<script>
+/* ---------- DATA (edit me) ---------- */
+const DATA = {
+  lenses: {
+    Training: {
+      color:"#2563eb",
+      desc:"How does the model learn? Strategy used to fit parameters.",
+      groups:[
+        { name:"Supervised", color:"blue", terms:[
+          ["Logistic Regression","Learns from labeled examples to predict categories.","Email spam filters"],
+          ["Random Forest","Ensemble of decision trees voting to reduce overfitting.","Risk scoring on tabular data"],
+          ["Fine-tuning (pretrained backbone)","Start from a pretrained model and teach a labeled task.","BERT/GPT fine-tunes for classification"]
+        ]},
+        { name:"Unsupervised", color:"amber", terms:[
+          ["K-Means","Clusters similar items without labels.","Customer segments"],
+          ["PCA","Projects data into fewer directions preserving variance.","Compression/visualization"],
+          ["Autoencoder","Learns to compress and reconstruct to reveal structure.","Anomaly detection"]
+        ]},
+        { name:"Reinforcement", color:"green", terms:[
+          ["DQN","Learns actions via rewards.","Atari agents"],
+          ["AlphaZero-style","Self-play + tree search.","Chess/Go engines"],
+          ["RLHF phase","Human preference signals shape outputs after pretraining.","Chat alignment"]
+        ]},
+        { name:"Self-supervised", color:"blue", terms:[
+          ["Masked LM","Predict masked tokens to learn language structure.","BERT pretraining"],
+          ["Next-token prediction","Autoregressively predict the next token.","GPT/Gemma/Mistral pretraining"],
+          ["Contrastive learning","Pull same content together, push different apart.","CLIP, SimCLR for vision"]
+        ]}
+      ]
+    },
+
+    Architecture: {
+      color:"#16a34a",
+      desc:"What is the structural form of the model?",
+      groups:[
+        { name:"Classical", color:"amber", terms:[
+          ["Decision Tree","If-then splits like a flowchart.","Explainable baselines"],
+          ["Linear / Logistic Regression","Weighted sums; fast/strong baselines.","Tabular tasks"]
+        ]},
+        { name:"Neural Nets", color:"green", terms:[
+          ["CNN","Sliding filters capture spatial patterns.","Vision"],
+          ["RNN / LSTM","Token-by-token with memory state.","Time-series, early NLP"],
+          ["Transformer (Encoder/Decoder)","Attention relates all tokens at once.","Modern LMs & vision"],
+          ["State-Space Models (SSM) / Mamba","Sequence models with linear-time scaling.","Long-sequence efficiency"]
+        ]},
+        { name:"Generative", color:"blue", terms:[
+          ["Autoregressive Decoders","Generate one token/pixel at a time.","GPT-style LMs, PixelCNN"],
+          ["Autoencoder / VAE","Compress→reconstruct to learn latent space.","Denoising, representation learning"],
+          ["Diffusion (DDPM/Score-based)","Denoise noise step-by-step to sample data.","Stable Diffusion, Imagen, Sora (under the hood)"],
+          ["Latent Diffusion","Run diffusion in a learned latent space for speed.","Stable Diffusion SDXL/SD3"],
+          ["Flow-based Models","Invertible transforms with exact likelihoods.","RealNVP, Glow"]
+        ]}
+      ]
+    },
+
+    Family: {
+      color:"#f59e0b",
+      desc:"Which named family or ecosystem does a model belong to?",
+      groups:[
+        { name:"OpenAI", color:"amber", terms:[
+          ["GPT family","Autoregressive LLMs (e.g., GPT-3.5, GPT-4, o-series).","Chat, tools, code"],
+          ["DALL·E family","Text-to-image diffusion/AR hybrids.","DALL·E 2, DALL·E 3"],
+          ["Sora (video)","Text-to-video generative model (diffusion-like).","Video synthesis"]
+        ]},
+        { name:"Anthropic", color:"blue", terms:[
+          ["Claude family","Safety-aligned LLMs with long context.","Opus, Sonnet, Haiku"]
+        ]},
+        { name:"Google / DeepMind", color:"blue", terms:[
+          ["Gemini family","Multimodal LLMs succeeding PaLM.","Text-image-audio-tools"],
+          ["Imagen family","High-fidelity image diffusion.","Imagen / Imagen 2"],
+          ["Veo (video)","Text-to-video generation.","Video synthesis"]
+        ]},
+        { name:"Meta", color:"green", terms:[
+          ["LLaMA family","Open(-ish) LLM line with many community variants.","LLaMA-2/3"],
+          ["SAM family","Promptable segmentation models.","Segment Anything"]
+        ]},
+        { name:"Mistral AI (open-source)", color:"green", terms:[
+          ["Mistral family","Efficient small/medium LLMs.","Mistral 7B"],
+          ["Mixtral family","Mixture-of-Experts (MoE) LLMs.","Mixtral 8×7B, 8×22B"]
+        ]},
+        { name:"Alibaba", color:"green", terms:[
+          ["Qwen family","Open LLMs across sizes and modalities.","Qwen 2/2.5, Qwen-VL"]
+        ]},
+        { name:"Databricks", color:"green", terms:[
+          ["DBRX family","Mixture-of-Experts LLM.","DBRX Instruct"]
+        ]},
+        { name:"Microsoft", color:"green", terms:[
+          ["Phi family","Small, data-curated LLMs for efficiency.","Phi-2, Phi-3, Phi-4 mini"]
+        ]},
+        { name:"xAI", color:"green", terms:[
+          ["Grok family","LLMs with tool use emphasis.","Grok-1.x"]
+        ]},
+        { name:"01.AI", color:"green", terms:[
+          ["Yi family","High-quality open LLMs.","Yi-34B, Yi-1.5"]
+        ]},
+        { name:"Cohere", color:"green", terms:[
+          ["Command family","Enterprise-oriented LLMs.","Command-R / R+ (RAG-friendly)"]
+        ]},
+        { name:"Open-source Vision/Multimodal", color:"green", terms:[
+          ["Stable Diffusion family","Latent diffusion for images.","SD 1.5, SD 2.1, SDXL, SD3"],
+          ["CLIP / OpenCLIP","Text-image embedding models.","Retrieval, alignment"],
+          ["DINOv2","Self-supervised vision backbone.","Feature extraction"]
+        ]},
+        { name:"Independent Audio/Video (closed)", color:"amber", terms:[
+          ["Midjourney","Text-to-image (diffusion/AR stack, proprietary).","MJ v1–v6"],
+          ["Runway Gen family","Text-to-video & image tools.","Gen-1, Gen-2, Gen-3"],
+          ["Pika","Text-to-video/image.","Pika 1.0/1.5"],
+          ["Suno / Udio","Text-to-music audio models.","Song generation"]
+        ]}
+      ]
+    },
+
+    Lineage: {
+      color:"#dc2626",
+      desc:"How versions evolve: releases, forks, and inherited innovations.",
+      groups:[
+        { name:"OpenAI (LLM & media)", color:"red", terms:[
+          ["GPT-2 → GPT-3 → 3.5 → 4 → o-series","Scaling + instruction tuning + tool use.","Reasoning & safety improve"],
+          ["DALL·E 1 → 2 → 3","From discrete VQ models to higher-fidelity diffusion.","Image quality & text rendering"],
+          ["Sora (initial)","First public video model iteration.","Longer, coherent video clips"]
+        ]},
+        { name:"Meta", color:"green", terms:[
+          ["LLaMA 1 → 2 → 3","Open weights and community fine-tunes.","Ecosystem acceleration"]
+        ]},
+        { name:"Google / DeepMind", color:"blue", terms:[
+          ["PaLM → PaLM-2 → Gemini","Shift to multimodality + efficiency.","Tool use & long context"],
+          ["Imagen → Imagen 2 → Veo","Image fidelity → video generation.","Photorealism & motion"]
+        ]},
+        { name:"Mistral", color:"green", terms:[
+          ["Mistral 7B → Mixtral 8×7B → 8×22B","From dense to MoE scaling.","Latency/quality trade-offs"]
+        ]},
+        { name:"Alibaba", color:"green", terms:[
+          ["Qwen 1 → 2 → 2.5","Coverage, multilinguality, and tools.","VL/Audio variants"]
+        ]},
+        { name:"Databricks", color:"green", terms:[
+          ["DBRX base → DBRX instruct","Open MoE with strong RAG pairing.","Enterprise workflows"]
+        ]},
+        { name:"Microsoft", color:"green", terms:[
+          ["Phi-1 → 2 → 3 → 4-mini","Data-centric small LLMs.","Edge & low-cost use"]
+        ]},
+        { name:"01.AI", color:"green", terms:[
+          ["Yi 34B → Yi-1.5","Open large models tuned for quality.","Community adoption"]
+        ]},
+        { name:"Stable Diffusion (Stability/CompVis)", color:"blue", terms:[
+          ["SD 1.x → SD 2.x → SDXL → SD3","Latent diffusion, larger backbones, better text rendering.","Text-to-image"]
+        ]},
+        { name:"Midjourney (closed)", color:"amber", terms:[
+          ["v1 → v2 → v3 → v4 → v5 → v6","Proprietary stack, strong style control.","Artistic TTI"]
+        ]},
+        { name:"Video Gen (mixed)", color:"amber", terms:[
+          ["Runway Gen-1 → Gen-2 → Gen-3","Text-to-video quality & temporal coherence.","Short clips"],
+          ["Pika 1.0 → 1.5","Fast iteration on video.","Animated assets"]
+        ]},
+        { name:"Emerging Open LLMs", color:"green", terms:[
+          ["DeepSeek V2 → V2.5 → V3","Training efficiency & reasoning focus.","Benchmarks trend up"]
+        ]}
+      ]
+    }
+  },
+
+  // Pairs of lens names to connect in the diagram
+  relationships:[
+    ["Training","Architecture"],
+    ["Training","Family"],
+    ["Family","Lineage"],
+    ["Architecture","Lineage"]
+  ]
+};
+
+
+/* ---------- State ---------- */
+let ACTIVE_LENS = "Training";
+let showEdges = true;
+const sortState = []; // [{key,dir}]
+
+/* ---------- Utilities ---------- */
+const $ = sel=>document.querySelector(sel);
+const $$ = sel=>Array.from(document.querySelectorAll(sel));
+function el(tag, attrs={}, ...children){
+  const node = document.createElement(tag);
+  Object.entries(attrs).forEach(([k,v])=>{
+    if(k==="class") node.className=v;
+    else if(k==="html") node.innerHTML=v;
+    else node.setAttribute(k,v);
+  });
+  children.flat().forEach(c=>node.append(c));
+  return node;
+}
+function debounce(fn,ms=200){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms)}}
+
+/* ---------- Diagram ---------- */
+function renderDiagram(){
+  const svg = $("#diagram");
+  svg.innerHTML="";
+  const W = svg.viewBox.baseVal.width, H = svg.viewBox.baseVal.height;
+
+  const positions = {
+    Training:{x:W*0.22,y:H*0.30, r:58, color:DATA.lenses.Training.color},
+    Architecture:{x:W*0.62,y:H*0.30, r:58, color:DATA.lenses.Architecture.color},
+    Family:{x:W*0.28,y:H*0.75, r:58, color:DATA.lenses.Family.color},
+    Lineage:{x:W*0.68,y:H*0.75, r:58, color:DATA.lenses.Lineage.color}
+  };
+
+  // Edges
+  if(showEdges){
+    DATA.relationships.forEach(([a,b],i)=>{
+      const A=positions[a], B=positions[b];
+      const dashed = ( (a==="Architecture" && b==="Lineage") || (a==="Lineage" && b==="Architecture") );
+      const line = document.createElementNS("http://www.w3.org/2000/svg","line");
+      line.setAttribute("x1",A.x); line.setAttribute("y1",A.y);
+      line.setAttribute("x2",B.x); line.setAttribute("y2",B.y);
+      line.setAttribute("stroke","#9ca3af");
+      line.setAttribute("stroke-width","2");
+      if(dashed) line.setAttribute("stroke-dasharray","6 6");
+      svg.appendChild(line);
+    });
+  }
+
+  // Nodes
+  Object.entries(positions).forEach(([name,pos])=>{
+    const g = document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.style.cursor="pointer";
+    g.addEventListener("click",()=>setActiveLens(name));
+
+    const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
+    circle.setAttribute("cx",pos.x); circle.setAttribute("cy",pos.y);
+    circle.setAttribute("r",pos.r);
+    circle.setAttribute("fill", name===ACTIVE_LENS ? pos.color : "#ffffff");
+    circle.setAttribute("stroke",pos.color);
+    circle.setAttribute("stroke-width","4");
+    g.appendChild(circle);
+
+    const t1 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t1.setAttribute("x",pos.x); t1.setAttribute("y",pos.y-4);
+    t1.setAttribute("text-anchor","middle");
+    t1.setAttribute("font-size","15");
+    t1.setAttribute("fill", name===ACTIVE_LENS ? "#ffffff" : "#111827");
+    t1.textContent=name;
+    g.appendChild(t1);
+
+    const t2 = document.createElementNS("http://www.w3.org/2000/svg","text");
+    t2.setAttribute("x",pos.x); t2.setAttribute("y",pos.y+18);
+    t2.setAttribute("text-anchor","middle");
+    t2.setAttribute("font-size","11");
+    t2.setAttribute("fill", name===ACTIVE_LENS ? "#f9fafb" : "#6b7280");
+    t2.textContent=({Training:"Learning",Architecture:"Structure",Family:"Ecosystem",Lineage:"Releases"})[name];
+    g.appendChild(t2);
+
+    svg.appendChild(g);
+  });
+}
+
+/* ---------- Lens Buttons ---------- */
+function renderLensButtons(){
+  const box = $("#lens-buttons");
+  box.innerHTML="";
+  Object.keys(DATA.lenses).forEach(name=>{
+    const btn = el("button",{class: name===ACTIVE_LENS?"active":""}, name);
+    btn.addEventListener("click",()=>setActiveLens(name));
+    box.append(btn);
+  });
+}
+
+/* ---------- Lens Panel ---------- */
+function renderLensPanel(){
+  const meta = DATA.lenses[ACTIVE_LENS];
+  $("#lens-title").textContent = ACTIVE_LENS + (ACTIVE_LENS==="Family" ? " (Modality/Ecosystem)" :
+                                              ACTIVE_LENS==="Lineage" ? " (Releases/Evolution)" : "");
+  $("#lens-desc").textContent = meta.desc;
+  const groupsDiv = $("#lens-groups");
+  groupsDiv.innerHTML="";
+  const query = $("#lens-search").value.trim().toLowerCase();
+
+  meta.groups.forEach(g=>{
+    const group = el("div",{class:"group"});
+    group.append(el("h3",{}, el("span",{class:"dot "+g.color}), g.name));
+    const row = el("div",{class:"pills"});
+    g.terms.forEach(([term,explain,examples])=>{
+      if(query && ![term, explain, examples, g.name].join(" ").toLowerCase().includes(query)) return;
+      const pill = el("button",{class:"pill", "data-tip": explain, title: explain}, term);
+      pill.addEventListener("click",()=>highlightInTable(term));
+      row.append(pill);
+    });
+    group.append(row);
+    groupsDiv.append(group);
+  });
+}
+
+/* ---------- Table ---------- */
+function tableRows(){
+  const rows=[];
+  Object.entries(DATA.lenses).forEach(([lens,meta])=>{
+    meta.groups.forEach(g=>{
+      g.terms.forEach(([term,explain,examples])=>{
+        rows.push({lens,category:g.name,term,explain,examples});
+      });
+    });
+  });
+  return rows;
+}
+
+let TABLE_DATA = tableRows();
+
+function renderTable(){
+  const tb = $("#data-table tbody");
+  tb.innerHTML="";
+  const q = $("#table-search").value.trim().toLowerCase();
+  const enabledLenses = $$("#lens-filters input[type=checkbox]:checked").map(c=>c.value);
+
+  // filter
+  let view = TABLE_DATA.filter(r=>enabledLenses.includes(r.lens));
+  if(q){
+    view = view.filter(r=>Object.values(r).join(" ").toLowerCase().includes(q));
+  }
+
+  // sort
+  let sorted = [...view];
+  if(sortState.length){
+    sorted.sort((a,b)=>{
+      for(const {key,dir} of sortState){
+        const av = (a[key] ?? "").toString().toLowerCase();
+        const bv = (b[key] ?? "").toString().toLowerCase();
+        if(av < bv) return dir==="asc"? -1 : 1;
+        if(av > bv) return dir==="asc"? 1 : -1;
+      }
+      return 0;
+    });
+  }
+
+  // draw
+  sorted.forEach(r=>{
+    const tr = el("tr",{},
+      el("td",{}, r.lens),
+      el("td",{}, r.category),
+      el("td",{}, el("span",{class:"tag"}, r.term)),
+      el("td",{}, r.examples),
+      el("td",{}, r.explain)
+    );
+    tb.append(tr);
+  });
+}
+
+function initTable(){
+  // lens filter checkboxes
+  const box = $("#lens-filters");
+  box.innerHTML="";
+  Object.keys(DATA.lenses).forEach(name=>{
+    const id = "f_"+name;
+    const wrap = el("label",{}, el("input",{type:"checkbox",id,value:name,checked:true}), " "+name);
+    box.append(wrap);
+  });
+
+  // header sort
+  $$("#data-table thead th").forEach(th=>{
+    th.addEventListener("click",e=>{
+      const key = th.getAttribute("data-key");
+      const multi = e.shiftKey;
+      const i = sortState.findIndex(s=>s.key===key);
+      if(i>=0){
+        sortState[i].dir = sortState[i].dir==="asc"?"desc":"asc";
+      }else{
+        if(!multi) sortState.length=0;
+        sortState.push({key,dir:"asc"});
+      }
+      renderTable();
+    });
+  });
+
+  $("#table-search").addEventListener("input",debounce(renderTable,120));
+  $$("#lens-filters input[type=checkbox]").forEach(c=>c.addEventListener("change",renderTable));
+
+  renderTable();
+}
+
+function highlightInTable(term){
+  $("#table-search").value = term;
+  renderTable();
+  // scroll into view a bit later
+  setTimeout(()=>$("#data-table").scrollIntoView({behavior:"smooth",block:"center"}),80);
+}
+
+/* ---------- Wiring ---------- */
+function setActiveLens(name){
+  ACTIVE_LENS = name;
+  renderLensButtons();
+  renderDiagram();
+  renderLensPanel();
+}
+
+function init(){
+  // controls
+  $("#show-edges").addEventListener("change",(e)=>{showEdges = e.target.checked; renderDiagram();});
+  $("#lens-search").addEventListener("input",debounce(renderLensPanel,120));
+
+  renderLensButtons();
+  renderDiagram();
+  renderLensPanel();
+  initTable();
+}
+
+document.addEventListener("DOMContentLoaded",init);
+</script>
+</body>
+</html>

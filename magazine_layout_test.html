@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazine Layout</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background-color: #f5f5f0;
+            padding: 20px;
+        }
+
+        .magazine-canvas {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.1);
+        }
+
+        .magazine-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .panel {
+            background: #fff;
+            padding: 25px;
+            border: 1px solid #ddd;
+            position: relative;
+        }
+
+        .panel-header {
+            grid-column: 1 / -1;
+            text-align: center;
+            border: none;
+            border-bottom: 3px solid #000;
+            padding-bottom: 20px;
+        }
+
+        .panel-header h1 {
+            font-size: 3em;
+            font-weight: bold;
+            letter-spacing: -1px;
+            margin-bottom: 10px;
+        }
+
+        .panel-header .subtitle {
+            font-style: italic;
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .panel-feature {
+            grid-column: 1 / 8;
+            grid-row: span 2;
+        }
+
+        .panel-sidebar {
+            grid-column: 8 / -1;
+            background: #f9f9f9;
+        }
+
+        .panel-wide {
+            grid-column: 1 / -1;
+        }
+
+        .panel-half {
+            grid-column: span 6;
+        }
+
+        .panel-third {
+            grid-column: span 4;
+        }
+
+        .panel-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9em;
+            font-style: italic;
+        }
+
+        .panel-tall .panel-image {
+            height: 300px;
+        }
+
+        h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            border-left: 4px solid #000;
+            padding-left: 15px;
+        }
+
+        h3 {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        p {
+            line-height: 1.7;
+            margin-bottom: 15px;
+            text-align: justify;
+            color: #333;
+        }
+
+        .dropcap::first-letter {
+            font-size: 3.5em;
+            float: left;
+            line-height: 0.9;
+            margin: 5px 10px 0 0;
+            font-weight: bold;
+        }
+
+        .quote-box {
+            border-left: 4px solid #000;
+            padding-left: 20px;
+            margin: 20px 0;
+            font-style: italic;
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .byline {
+            font-size: 0.9em;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 15px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #000;
+            color: white;
+            padding: 5px 12px;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .panel-feature,
+            .panel-sidebar,
+            .panel-half,
+            .panel-third {
+                grid-column: 1 / -1;
+            }
+
+            .magazine-canvas {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="magazine-canvas">
+        <div class="magazine-grid">
+            <!-- Header Panel -->
+            <div class="panel panel-header">
+                <h1>THE MODERN DIGEST</h1>
+                <div class="subtitle">Volume XII • October 2025 • Premium Edition</div>
+            </div>
+
+            <!-- Feature Article -->
+            <div class="panel panel-feature panel-tall">
+                <span class="tag">Featured Story</span>
+                <h2>The Art of Digital Storytelling in the Modern Age</h2>
+                <div class="byline">By Alexandra Chen • Photography by Marcus Webb</div>
+                <div class="panel-image">Feature Image Placeholder</div>
+                <p class="dropcap">In an era where attention spans are measured in seconds and content floods our screens relentlessly, the art of storytelling has evolved into something simultaneously more challenging and more vital than ever before.</p>
+                <p>The digital landscape demands that we rethink traditional narrative structures. Where once we had the luxury of slowly building tension over pages, now we must capture imagination in the first sentence, hold it through the second, and deliver value before the scroll takes us away.</p>
+                <p>Yet this constraint breeds innovation. Modern storytellers have learned to weave complexity into brevity, to create depth in spaces once thought too small to contain it. The tools have changed, but the fundamental human need for connection through story remains unchanged.</p>
+            </div>
+
+            <!-- Sidebar Panel -->
+            <div class="panel panel-sidebar">
+                <h3>In This Issue</h3>
+                <p><strong>Page 12:</strong> The renaissance of analog photography in a digital world</p>
+                <p><strong>Page 24:</strong> Coffee culture's surprising impact on urban development</p>
+                <p><strong>Page 38:</strong> Interview with emerging architect Sofia Martinez</p>
+                <p><strong>Page 52:</strong> The science of morning routines that actually work</p>
+            </div>
+
+            <!-- Three Column Panels -->
+            <div class="panel panel-third">
+                <span class="tag">Design</span>
+                <div class="panel-image">Design Image</div>
+                <h3>Minimalism Returns</h3>
+                <p>The pendulum swings back as designers embrace simplicity. Clean lines and purposeful negative space dominate the latest trends in both digital and physical spaces.</p>
+            </div>
+
+            <div class="panel panel-third">
+                <span class="tag">Culture</span>
+                <div class="panel-image">Culture Image</div>
+                <h3>Underground Music Scene</h3>
+                <p>From basement venues to sold-out shows, independent artists are redefining what it means to make it in the music industry without major label backing.</p>
+            </div>
+
+            <div class="panel panel-third">
+                <span class="tag">Technology</span>
+                <div class="panel-image">Tech Image</div>
+                <h3>AI Creative Tools</h3>
+                <p>Artists and technologists collaborate on tools that augment human creativity rather than replace it, opening new frontiers in digital art.</p>
+            </div>
+
+            <!-- Quote Panel -->
+            <div class="panel panel-wide">
+                <div class="quote-box">
+                    "The future belongs to those who can tell compelling stories in any medium, on any platform, to any audience. Adaptability is the new currency of creativity."
+                    <div style="margin-top: 10px; text-align: right;">— Dr. James Patterson, Media Studies Professor</div>
+                </div>
+            </div>
+
+            <!-- Two Column Panels -->
+            <div class="panel panel-half">
+                <span class="tag">Lifestyle</span>
+                <h3>Sustainable Living Without Sacrifice</h3>
+                <p>Making environmentally conscious choices doesn't mean giving up comfort or convenience. We explore practical approaches to reducing your carbon footprint while maintaining the lifestyle you love.</p>
+                <p>From smart home technologies that optimize energy use to simple daily habits that compound over time, the path to sustainability is more accessible than ever.</p>
+            </div>
+
+            <div class="panel panel-half">
+                <span class="tag">Travel</span>
+                <h3>Hidden Gems of the Mediterranean</h3>
+                <p>Beyond the tourist hotspots lie villages and coastal towns that time seems to have forgotten. Our travel editor spent three months exploring lesser-known destinations.</p>
+                <p>These locations offer authentic cultural experiences, stunning natural beauty, and the kind of tranquility that's increasingly rare in our connected world.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

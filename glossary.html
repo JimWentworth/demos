@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GenAI Glossary</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      font-size: 16px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1c1c3c, #203a43, #2c5364);
+      color: #f4f5f7;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 3rem 1.5rem 2rem;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.25);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(6px);
+    }
+
+    header h1 {
+      margin: 0 0 1rem;
+      font-size: clamp(2rem, 4vw, 3rem);
+      letter-spacing: 0.05em;
+    }
+
+    header p {
+      margin: 0 auto;
+      max-width: 700px;
+      font-size: clamp(1rem, 2.5vw, 1.1rem);
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    main {
+      flex: 1;
+      padding: 2rem 1rem 4rem;
+      display: grid;
+      place-items: center;
+    }
+
+    .glossary {
+      width: min(900px, 100%);
+      background: rgba(12, 18, 30, 0.85);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+      overflow: hidden;
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .glossary-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .glossary-controls label {
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.75);
+    }
+
+    .search-field {
+      position: relative;
+      flex: 1 1 200px;
+    }
+
+    .search-field input {
+      width: 100%;
+      padding: 0.75rem 2.5rem 0.75rem 0.9rem;
+      border-radius: 999px;
+      border: none;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 1rem;
+      transition: background 0.2s ease;
+    }
+
+    .search-field input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+
+    .search-field span {
+      position: absolute;
+      right: 0.9rem;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.6;
+      font-size: 1.1rem;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-chip {
+      border: none;
+      border-radius: 999px;
+      padding: 0.55rem 0.95rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.9);
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .filter-chip.active,
+    .filter-chip:hover {
+      background: #66d9ef;
+      color: #041226;
+      transform: translateY(-1px);
+    }
+
+    .term-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .term {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    details {
+      position: relative;
+      padding: 1.25rem 1.75rem;
+      cursor: pointer;
+      transition: background 0.25s ease;
+    }
+
+    details[open] {
+      background: rgba(102, 217, 239, 0.08);
+    }
+
+    summary {
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .toggle-icon {
+      display: inline-flex;
+      width: 1.75rem;
+      height: 1.75rem;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.12);
+      transition: background 0.2s ease, transform 0.2s ease;
+      font-size: 1rem;
+    }
+
+    details[open] .toggle-icon {
+      background: #66d9ef;
+      color: #041226;
+      transform: rotate(180deg);
+    }
+
+    .term-title {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .term-category {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+      padding: 0.3rem 0.7rem;
+    }
+
+    .definition {
+      margin-top: 1rem;
+      line-height: 1.7;
+      color: rgba(255, 255, 255, 0.85);
+    }
+
+    .extras {
+      margin-top: 0.9rem;
+      display: grid;
+      gap: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(102, 217, 239, 0.15);
+      color: #66d9ef;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .examples ul {
+      margin: 0.35rem 0 0 1rem;
+      padding: 0;
+    }
+
+    .examples li {
+      margin: 0.2rem 0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1.5rem;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    @media (max-width: 600px) {
+      header {
+        padding: 2.5rem 1.2rem 1.5rem;
+      }
+
+      details {
+        padding: 1rem 1.2rem;
+      }
+
+      summary {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.4rem;
+      }
+
+      .term-title {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .term-category {
+        margin-left: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Generative AI Glossary</h1>
+    <p>
+      Explore the essential terms and concepts used when working with generative AI systems.
+      Use the search bar or filter chips to focus on specific categories and click on each
+      term to learn more about it.
+    </p>
+  </header>
+  <main>
+    <section class="glossary" aria-label="Generative AI glossary">
+      <div class="glossary-controls">
+        <div class="search-field">
+          <label class="visually-hidden" for="glossary-search">Search glossary</label>
+          <input id="glossary-search" type="search" placeholder="Search by term or keyword…" aria-label="Search terms" />
+          <span aria-hidden="true">🔍</span>
+        </div>
+        <div class="filter-group" role="group" aria-label="Filter glossary by category">
+          <button class="filter-chip active" data-category="all" type="button">All</button>
+          <button class="filter-chip" data-category="models" type="button">Models</button>
+          <button class="filter-chip" data-category="safety" type="button">Safety</button>
+          <button class="filter-chip" data-category="ops" type="button">Operations</button>
+        </div>
+      </div>
+      <ul class="term-list" id="term-list"></ul>
+    </section>
+  </main>
+  <footer>
+      Prototype created by the Center for Innovation in Teaching and Learning. Please contact us with questions or concerns: <a href="mailto:citl-info@illinois.edu">citl-info@illinois.edu</a>
+  </footer>
+  <script>
+    const terms = [
+      {
+        term: 'Generative AI',
+        category: 'models',
+        definition:
+          'A class of artificial intelligence techniques that can create new content such as text, images, audio, or code by learning patterns from existing data.',
+        tags: ['Foundational'],
+        examples: ['ChatGPT drafting an email', 'DALL·E creating artwork']
+      },
+      {
+        term: 'Large Language Model (LLM)',
+        category: 'models',
+        definition:
+          'A neural network trained on vast corpora of text to predict the next token in a sequence, enabling capabilities like conversation, translation, and summarization.',
+        tags: ['Text'],
+        examples: ['GPT-4', 'LLaMA']
+      },
+      {
+        term: 'Multimodal Model',
+        category: 'models',
+        definition:
+          'A model that can understand or generate multiple modalities—such as text, images, audio, or video—often by aligning their representations in a shared space.',
+        tags: ['Cross-Modal'],
+        examples: ['GPT-4o with vision', 'CLIP']
+      },
+      {
+        term: 'Prompt',
+        category: 'ops',
+        definition:
+          'The text or instructions a person provides to an AI model to describe the desired task, context, or response.',
+        tags: ['Input'],
+        examples: ['“Summarize this meeting in three bullet points.”']
+      },
+      {
+        term: 'Prompt Engineering',
+        category: 'ops',
+        definition:
+          'The craft of designing effective prompts—inputs or instructions—to coax the desired behavior from a generative model.',
+        tags: ['Prompt Design'],
+        examples: ['Specifying tone and format requirements in prompts']
+      },
+      {
+        term: 'System Prompt',
+        category: 'ops',
+        definition:
+          'A high-level instruction that sets the behavior, personality, or rules for an AI assistant before any user input is provided.',
+        tags: ['Instruction'],
+        examples: ['“You are a helpful legal assistant.”']
+      },
+      {
+        term: 'Hallucination',
+        category: 'safety',
+        definition:
+          'A confident but incorrect or fabricated response produced by a generative model due to limitations in its training data or inference process.',
+        tags: ['Quality'],
+        examples: ['Inventing non-existent citations']
+      },
+      {
+        term: 'Guardrails',
+        category: 'safety',
+        definition:
+          'Policies, filters, and moderation systems designed to prevent AI models from producing harmful or policy-violating content.',
+        tags: ['Moderation'],
+        examples: ['Blocking disallowed content categories']
+      },
+      {
+        term: 'Bias',
+        category: 'safety',
+        definition:
+          'Systematic tendencies in data or models that lead to unfair or unbalanced outputs affecting certain people, groups, or perspectives.',
+        tags: ['Fairness'],
+        examples: ['Model translating professions with gender stereotypes']
+      },
+      {
+        term: 'Red Teaming',
+        category: 'safety',
+        definition:
+          'Stress testing a model with adversarial prompts to discover safety, bias, or security weaknesses before deployment.',
+        tags: ['Evaluation'],
+        examples: ['Probing for policy bypasses']
+      },
+      {
+        term: 'Inference',
+        category: 'ops',
+        definition:
+          'The act of using a trained model to generate outputs for new inputs, often optimized for speed and cost in production environments.',
+        tags: ['Deployment'],
+        examples: ['Serving responses via an API endpoint']
+      },
+      {
+        term: 'Token',
+        category: 'models',
+        definition:
+          'A chunk of text (such as a word or subword) that language models process sequentially. Token counts affect context window usage and cost.',
+        tags: ['Text Units'],
+        examples: ['“Generative” might be split into multiple tokens']
+      },
+      {
+        term: 'Context Window',
+        category: 'models',
+        definition:
+          'The maximum number of tokens a model can consider at once when generating a response. Larger windows support longer conversations or documents.',
+        tags: ['Capacity'],
+        examples: ['128k-token context for extended transcripts']
+      },
+      {
+        term: 'Latency',
+        category: 'ops',
+        definition:
+          'The time it takes for a model to return a response after receiving an input. Lower latency improves user experience.',
+        tags: ['Performance'],
+        examples: ['Streaming responses to reduce perceived wait time']
+      },
+      {
+        term: 'Temperature',
+        category: 'ops',
+        definition:
+          'A sampling parameter that controls randomness in model outputs. Higher values lead to more varied responses, while lower values make responses more deterministic.',
+        tags: ['Sampling'],
+        examples: ['Setting temperature to 0 for deterministic answers']
+      },
+      {
+        term: 'Alignment',
+        category: 'safety',
+        definition:
+          'The process of ensuring AI behavior is aligned with human values, intentions, and policies through techniques like collecting human feedback and applying oversight.',
+        tags: ['Ethics'],
+        examples: ['Collecting human feedback on model outputs']
+      },
+      {
+        term: 'Zero-shot Prompting',
+        category: 'ops',
+        definition:
+          'Providing a model with a task instruction without examples. Success depends on how well the model understands the instruction.',
+        tags: ['Prompting'],
+        examples: ['“Summarize this article in three bullet points.”']
+      },
+      {
+        term: 'Few-shot Prompting',
+        category: 'ops',
+        definition:
+          'Including a few examples in the prompt to demonstrate the desired behavior or output format before asking the model to respond.',
+        tags: ['Prompting'],
+        examples: ['Providing question-answer pairs before a new question']
+      },
+      {
+        term: 'Data Governance',
+        category: 'safety',
+        definition:
+          'Policies and practices for managing how data is collected, stored, and used throughout the AI lifecycle, ensuring compliance and privacy.',
+        tags: ['Policy'],
+        examples: ['Restricting training data to approved sources']
+      },
+      {
+        term: 'Model Drift',
+        category: 'ops',
+        definition:
+          'A gradual degradation in model performance that occurs when real-world data diverges from the data the model was trained on.',
+        tags: ['Monitoring'],
+        examples: ['Support topics shifting after a product launch']
+      },
+      {
+        term: 'Prompt Injection',
+        category: 'safety',
+        definition:
+          'An adversarial technique where a user crafts inputs that override instructions or extract sensitive information from a model.',
+        tags: ['Attack'],
+        examples: ['Embedding “ignore previous instructions” in user content']
+      },
+      {
+        term: 'Content Filtering',
+        category: 'safety',
+        definition:
+          'Automated systems that detect and block disallowed outputs before they reach end users or downstream applications.',
+        tags: ['Moderation'],
+        examples: ['Filtering hate speech from generated text']
+      },
+      {
+        term: 'Explainability',
+        category: 'safety',
+        definition:
+          'Techniques and tools that help interpret why a model produced a certain output, supporting trust, auditing, and debugging.',
+        tags: ['Transparency'],
+        examples: ['Highlighting influential tokens in a response']
+      },
+      {
+        term: 'Chain-of-Thought Prompting',
+        category: 'ops',
+        definition:
+          'Prompting strategies that encourage models to articulate intermediate reasoning steps, often improving performance on complex tasks.',
+        tags: ['Reasoning'],
+        examples: ['“Let’s think step by step” in math problem prompts']
+      },
+      {
+        term: 'Function Calling',
+        category: 'ops',
+        definition:
+          'A capability where the model returns structured arguments that let applications invoke external functions or APIs reliably.',
+        tags: ['Integration'],
+        examples: ['LLM returning JSON arguments to query a database']
+      },
+      {
+        term: 'Knowledge Cutoff',
+        category: 'models',
+        definition:
+          'The most recent point in time covered by a model’s training data, beyond which it may lack information about events or updates.',
+        tags: ['Limitations'],
+        examples: ['Model unable to reference policies enacted after 2023']
+      },
+      {
+        term: 'Evaluation Harness',
+        category: 'ops',
+        definition:
+          'A standardized framework for running benchmark suites and regression tests to measure model performance over time.',
+        tags: ['Testing'],
+        examples: ['Automating weekly model comparisons on held-out tasks']
+      },
+      {
+        term: 'Safety Classifier',
+        category: 'safety',
+        definition:
+          'A specialized model trained to detect unsafe or policy-violating content, often used in tandem with generative systems.',
+        tags: ['Moderation'],
+        examples: ['Classifying violent content before release']
+      },
+      {
+        term: 'Usage Analytics',
+        category: 'ops',
+        definition:
+          'Telemetry and reporting that track how generative AI features are used, informing iteration, capacity planning, and governance.',
+        tags: ['Metrics'],
+        examples: ['Dashboard of daily active assistants and tokens used']
+      },
+      {
+        term: 'Cost per Token',
+        category: 'ops',
+        definition:
+          'A pricing metric that breaks down inference spend by the number of tokens processed, helping teams forecast and control expenses.',
+        tags: ['Finance'],
+        examples: ['Budgeting a chatbot rollout using per-token pricing']
+      },
+      {
+        term: 'API Rate Limit',
+        category: 'ops',
+        definition:
+          'The maximum number of requests or tokens an API allows within a given timeframe, used to ensure fair usage and system stability.',
+        tags: ['Quota'],
+        examples: ['Throttling requests after exceeding 10,000 tokens per minute']
+      },
+      {
+        term: 'Conversational Memory',
+        category: 'ops',
+        definition:
+          'Mechanisms that store and recall prior interactions so the assistant can maintain context across turns or sessions.',
+        tags: ['Context'],
+        examples: ['Persisting user preferences for future chats']
+      },
+      {
+        term: 'Diffusion Model',
+        category: 'models',
+        definition:
+          'A generative approach that iteratively denoises random noise into coherent samples, widely used for high-quality image synthesis.',
+        tags: ['Imaging'],
+        examples: ['Stable Diffusion creating photorealistic scenes']
+      },
+      {
+        term: 'ControlNet',
+        category: 'models',
+        definition:
+          'An extension for diffusion models that injects structural guidance, such as poses or edge maps, to better control generated outputs.',
+        tags: ['Guidance'],
+        examples: ['Applying pose controls to tailor character images']
+      },
+      {
+        term: 'Text-to-Speech (TTS)',
+        category: 'models',
+        definition:
+          'Models that convert written text into natural-sounding audio, enabling voice interfaces and accessibility features.',
+        tags: ['Audio'],
+        examples: ['Reading generated responses aloud in a virtual agent']
+      }
+    ];
+
+    const termList = document.getElementById('term-list');
+    const searchInput = document.getElementById('glossary-search');
+    const filterChips = document.querySelectorAll('.filter-chip');
+
+    function createTermItem({ term, category, definition, tags, examples }) {
+      const listItem = document.createElement('li');
+      listItem.className = 'term';
+      listItem.dataset.category = category;
+
+      listItem.innerHTML = `
+        <details>
+          <summary>
+            <span class="term-title">
+              <span>${term}</span>
+              <span class="term-category">${category}</span>
+            </span>
+            <span class="toggle-icon" aria-hidden="true">➕</span>
+          </summary>
+          <div class="definition">${definition}</div>
+          <div class="extras">
+            <div class="tags" aria-label="Related tags">
+              ${tags
+                .map((tag) => `<span class="tag">#${tag}</span>`)
+                .join('')}
+            </div>
+            <div class="examples" aria-label="Examples">
+              <strong>Examples</strong>
+              <ul>
+                ${examples.map((example) => `<li>${example}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        </details>
+      `;
+
+      const detailsEl = listItem.querySelector('details');
+      const toggleIcon = listItem.querySelector('.toggle-icon');
+
+      detailsEl.addEventListener('toggle', () => {
+        toggleIcon.textContent = detailsEl.open ? '➖' : '➕';
+      });
+
+      return listItem;
+    }
+
+    function renderTerms(termData) {
+      termList.innerHTML = '';
+      if (!termData.length) {
+        const empty = document.createElement('li');
+        empty.className = 'term';
+        empty.innerHTML = '<div style="padding: 1.5rem; text-align: center;">No terms found. Try another search or filter.</div>';
+        termList.appendChild(empty);
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      termData
+        .sort((a, b) => a.term.localeCompare(b.term))
+        .forEach((item) => fragment.appendChild(createTermItem(item)));
+      termList.appendChild(fragment);
+    }
+
+    function filterTerms() {
+      const query = searchInput.value.trim().toLowerCase();
+      const activeCategory = document.querySelector('.filter-chip.active').dataset.category;
+
+      const filtered = terms.filter((item) => {
+        const matchesCategory = activeCategory === 'all' || item.category === activeCategory;
+        const matchesQuery =
+          !query ||
+          item.term.toLowerCase().includes(query) ||
+          item.definition.toLowerCase().includes(query) ||
+          item.tags.some((tag) => tag.toLowerCase().includes(query));
+        return matchesCategory && matchesQuery;
+      });
+
+      renderTerms(filtered);
+    }
+
+    filterChips.forEach((chip) => {
+      chip.addEventListener('click', () => {
+        filterChips.forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        filterTerms();
+      });
+    });
+
+    searchInput.addEventListener('input', filterTerms);
+
+    renderTerms(terms);
+  </script>
+</body>
+</html>
