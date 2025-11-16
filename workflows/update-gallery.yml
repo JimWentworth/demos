@@ -1,0 +1,593 @@
+name: Update Gallery Index
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  update-gallery:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Extract demo data
+      run: |
+        python3 << 'PYTHON_SCRIPT'
+        import os
+        import re
+        from pathlib import Path
+        from html.parser import HTMLParser
+        import json
+
+        class TitleExtractor(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.title = None
+                self.in_title = False
+                
+            def handle_starttag(self, tag, attrs):
+                if tag == 'title':
+                    self.in_title = True
+                    
+            def handle_endtag(self, tag):
+                if tag == 'title':
+                    self.in_title = False
+                    
+            def handle_data(self, data):
+                if self.in_title and self.title is None:
+                    self.title = data.strip()
+
+        def extract_title(filepath):
+            try:
+                with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+                    parser = TitleExtractor()
+                    parser.feed(content)
+                    return parser.title if parser.title else None
+            except:
+                return None
+
+        def format_name(filename):
+            """Convert filename to readable name"""
+            name = Path(filename).stem
+            name = name.replace('_', ' ').replace('-', ' ')
+            name = re.sub(r'\d+\s*', '', name)  # Remove leading numbers
+            return name.title()
+
+        # Find all HTML files, excluding index.html
+        demos = []
+        for root, dirs, files in os.walk('.'):
+            # Skip .git and .github directories
+            dirs[:] = [d for d in dirs if d not in ['.git', '.github']]
+            
+            for file in files:
+                if file.endswith('.html') and file != 'index.html':
+                    filepath = os.path.join(root, file)
+                    rel_path = filepath[2:]  # Remove './'
+                    
+                    title = extract_title(filepath)
+                    if not title:
+                        title = format_name(file)
+                    
+                    # Categorize by directory
+                    parts = rel_path.split('/')
+                    category = 'Main' if len(parts) == 1 else parts[0].replace('_', ' ').title()
+                    
+                    demos.append({
+                        'path': rel_path,
+                        'title': title,
+                        'category': category,
+                        'filename': file
+                    })
+
+        # Sort by category then title
+        demos.sort(key=lambda x: (x['category'], x['title']))
+
+        with open('demos_data.json', 'w') as f:
+            json.dump(demos, f, indent=2)
+        
+        print(f"Found {len(demos)} HTML files")
+        PYTHON_SCRIPT
+    
+    - name: Generate index.html
+      run: |
+        cat > index.html << 'EOF'
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>AI Projects Gallery - CITL Demos</title>
+            <style>
+                * {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                }
+
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+                    background: linear-gradient(135deg, #13294B 0%, #1e3a5f 100%);
+                    min-height: 100vh;
+                    padding: 2rem 1rem;
+                }
+
+                .container {
+                    max-width: 1400px;
+                    margin: 0 auto;
+                }
+
+                header {
+                    text-align: center;
+                    margin-bottom: 3rem;
+                    padding: 2rem;
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 16px;
+                    backdrop-filter: blur(10px);
+                }
+
+                h1 {
+                    color: #E84A27;
+                    font-size: 2.5rem;
+                    margin-bottom: 0.5rem;
+                    font-weight: 700;
+                }
+
+                .subtitle {
+                    color: #fff;
+                    font-size: 1.2rem;
+                    margin-bottom: 1rem;
+                }
+
+                .description {
+                    color: rgba(255, 255, 255, 0.9);
+                    max-width: 800px;
+                    margin: 0 auto;
+                    line-height: 1.6;
+                }
+
+                .search-filter {
+                    margin-bottom: 2rem;
+                    display: flex;
+                    gap: 1rem;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+
+                .search-box {
+                    flex: 1;
+                    max-width: 500px;
+                    padding: 0.75rem 1rem;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    background: rgba(255, 255, 255, 0.95);
+                    transition: all 0.3s ease;
+                }
+
+                .search-box:focus {
+                    outline: none;
+                    border-color: #E84A27;
+                    box-shadow: 0 0 0 3px rgba(232, 74, 39, 0.2);
+                }
+
+                .filter-buttons {
+                    display: flex;
+                    gap: 0.5rem;
+                    flex-wrap: wrap;
+                    justify-content: center;
+                }
+
+                .filter-btn {
+                    padding: 0.5rem 1rem;
+                    border: 2px solid rgba(255, 255, 255, 0.5);
+                    border-radius: 20px;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: #fff;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    font-size: 0.9rem;
+                }
+
+                .filter-btn:hover,
+                .filter-btn.active {
+                    background: #E84A27;
+                    border-color: #E84A27;
+                    transform: translateY(-2px);
+                }
+
+                .category-section {
+                    margin-bottom: 3rem;
+                }
+
+                .category-header {
+                    color: #E84A27;
+                    font-size: 1.8rem;
+                    margin-bottom: 1.5rem;
+                    padding-bottom: 0.5rem;
+                    border-bottom: 3px solid #E84A27;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
+
+                .count-badge {
+                    background: #E84A27;
+                    color: white;
+                    font-size: 0.9rem;
+                    padding: 0.25rem 0.75rem;
+                    border-radius: 20px;
+                    font-weight: normal;
+                }
+
+                .grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+                    gap: 1.5rem;
+                }
+
+                .card {
+                    background: white;
+                    border-radius: 12px;
+                    overflow: hidden;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .card:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 8px 15px rgba(232, 74, 39, 0.3);
+                }
+
+                .card-image {
+                    width: 100%;
+                    height: 180px;
+                    background: linear-gradient(135deg, #13294B 0%, #E84A27 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 3rem;
+                    font-weight: bold;
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .card-image::before {
+                    content: '';
+                    position: absolute;
+                    width: 200%;
+                    height: 200%;
+                    background: repeating-linear-gradient(
+                        45deg,
+                        transparent,
+                        transparent 10px,
+                        rgba(255, 255, 255, 0.05) 10px,
+                        rgba(255, 255, 255, 0.05) 20px
+                    );
+                    animation: slide 20s linear infinite;
+                }
+
+                @keyframes slide {
+                    0% { transform: translate(-50%, -50%); }
+                    100% { transform: translate(0%, 0%); }
+                }
+
+                .card-icon {
+                    position: relative;
+                    z-index: 1;
+                    font-size: 4rem;
+                    opacity: 0.9;
+                }
+
+                .card-content {
+                    padding: 1.5rem;
+                    flex: 1;
+                    display: flex;
+                    flex-direction: column;
+                }
+
+                .card-title {
+                    color: #13294B;
+                    font-size: 1.1rem;
+                    font-weight: 600;
+                    margin-bottom: 0.5rem;
+                    line-height: 1.4;
+                }
+
+                .card-path {
+                    color: #666;
+                    font-size: 0.85rem;
+                    font-family: 'Courier New', monospace;
+                    margin-bottom: 1rem;
+                    opacity: 0.7;
+                }
+
+                .card-link {
+                    margin-top: auto;
+                    padding: 0.75rem;
+                    background: #13294B;
+                    color: white;
+                    text-align: center;
+                    text-decoration: none;
+                    border-radius: 6px;
+                    transition: all 0.3s ease;
+                    font-weight: 500;
+                }
+
+                .card-link:hover {
+                    background: #E84A27;
+                    transform: scale(1.02);
+                }
+
+                .stats {
+                    background: rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 2rem;
+                    display: flex;
+                    justify-content: center;
+                    gap: 3rem;
+                    flex-wrap: wrap;
+                    backdrop-filter: blur(10px);
+                }
+
+                .stat-item {
+                    text-align: center;
+                }
+
+                .stat-number {
+                    color: #E84A27;
+                    font-size: 2.5rem;
+                    font-weight: bold;
+                    display: block;
+                }
+
+                .stat-label {
+                    color: rgba(255, 255, 255, 0.9);
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                }
+
+                .hidden {
+                    display: none;
+                }
+
+                footer {
+                    margin-top: 4rem;
+                    padding: 2rem;
+                    text-align: center;
+                    color: rgba(255, 255, 255, 0.7);
+                    border-top: 1px solid rgba(255, 255, 255, 0.2);
+                }
+
+                footer a {
+                    color: #E84A27;
+                    text-decoration: none;
+                }
+
+                footer a:hover {
+                    text-decoration: underline;
+                }
+
+                @media (max-width: 768px) {
+                    h1 {
+                        font-size: 2rem;
+                    }
+
+                    .grid {
+                        grid-template-columns: 1fr;
+                    }
+
+                    .filter-buttons {
+                        width: 100%;
+                    }
+
+                    .filter-btn {
+                        flex: 1;
+                        min-width: 120px;
+                    }
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <header>
+                    <h1>🎓 AI Projects Gallery</h1>
+                    <div class="subtitle">Center for Innovation in Teaching & Learning</div>
+                    <p class="description">
+                        Interactive web applications and educational resources created with generative AI coding assistants. 
+                        These demonstrations showcase what's possible using AI tools for educational technology development.
+                    </p>
+                </header>
+
+                <div class="stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalProjects">0</span>
+                        <span class="stat-label">Projects</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalCategories">0</span>
+                        <span class="stat-label">Categories</span>
+                    </div>
+                </div>
+
+                <div class="search-filter">
+                    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search projects...">
+                </div>
+
+                <div class="filter-buttons" id="filterButtons"></div>
+
+                <div id="gallery"></div>
+
+                <footer>
+                    <p>Created with AI • University of Illinois • <a href="mailto:jwentwor@illinois.edu">jwentwor@illinois.edu</a></p>
+                    <p style="margin-top: 0.5rem; font-size: 0.9rem;">
+                        <a href="https://github.com/JimWentworth/demos" target="_blank">View on GitHub</a>
+                    </p>
+                </footer>
+            </div>
+
+            <script>
+                const demos = 
+        EOF
+        
+        # Append the JSON data
+        cat demos_data.json >> index.html
+        
+        # Append the JavaScript
+        cat >> index.html << 'EOFJS'
+        ;
+
+                // Icon mapping for different project types
+                const iconMap = {
+                    'Main': '🏠',
+                    'Ai Frameworks': '🤖',
+                    'Canvas Course': '📚',
+                    'Chatgpt': '💬',
+                    'Course Design': '✏️',
+                    'Gpt Tester': '🧪',
+                    'Interactions': '🎮',
+                    'Llms': '🧠',
+                    'Manus': '📖',
+                    'Mind Map': '🗺️',
+                    'Study Master': '📝',
+                    'Verb Sorter': '📊',
+                    'Viscom Concepts': '🎨',
+                    'Visual Literacy': '👁️',
+                    'Workload Calculator': '⏱️'
+                };
+
+                let currentFilter = 'All';
+
+                function getIcon(category) {
+                    return iconMap[category] || '📄';
+                }
+
+                function createCard(demo) {
+                    const icon = getIcon(demo.category);
+                    return `
+                        <div class="card" data-category="${demo.category}" data-title="${demo.title.toLowerCase()}" data-path="${demo.path.toLowerCase()}">
+                            <div class="card-image">
+                                <div class="card-icon">${icon}</div>
+                            </div>
+                            <div class="card-content">
+                                <h3 class="card-title">${demo.title}</h3>
+                                <div class="card-path">${demo.path}</div>
+                                <a href="${demo.path}" class="card-link" target="_blank">Open Demo →</a>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                function groupByCategory(demos) {
+                    const groups = {};
+                    demos.forEach(demo => {
+                        if (!groups[demo.category]) {
+                            groups[demo.category] = [];
+                        }
+                        groups[demo.category].push(demo);
+                    });
+                    return groups;
+                }
+
+                function renderGallery(filter = 'All', searchTerm = '') {
+                    const gallery = document.getElementById('gallery');
+                    const groups = groupByCategory(demos);
+                    
+                    let html = '';
+                    let visibleCount = 0;
+
+                    Object.keys(groups).sort().forEach(category => {
+                        if (filter !== 'All' && filter !== category) return;
+
+                        const categoryDemos = groups[category].filter(demo => {
+                            if (!searchTerm) return true;
+                            const search = searchTerm.toLowerCase();
+                            return demo.title.toLowerCase().includes(search) || 
+                                   demo.path.toLowerCase().includes(search);
+                        });
+
+                        if (categoryDemos.length === 0) return;
+
+                        visibleCount += categoryDemos.length;
+
+                        html += `
+                            <div class="category-section">
+                                <h2 class="category-header">
+                                    ${getIcon(category)} ${category}
+                                    <span class="count-badge">${categoryDemos.length}</span>
+                                </h2>
+                                <div class="grid">
+                                    ${categoryDemos.map(demo => createCard(demo)).join('')}
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    gallery.innerHTML = html || '<p style="color: white; text-align: center; padding: 3rem;">No projects found matching your search.</p>';
+                    
+                    // Update stats
+                    document.getElementById('totalProjects').textContent = visibleCount;
+                }
+
+                function createFilterButtons() {
+                    const categories = ['All', ...new Set(demos.map(d => d.category))].sort();
+                    const filterButtons = document.getElementById('filterButtons');
+                    
+                    filterButtons.innerHTML = categories.map(cat => 
+                        `<button class="filter-btn ${cat === 'All' ? 'active' : ''}" data-filter="${cat}">
+                            ${cat === 'All' ? '🌟 ' : getIcon(cat) + ' '}${cat}
+                        </button>`
+                    ).join('');
+
+                    document.getElementById('totalCategories').textContent = categories.length - 1;
+
+                    // Add click handlers
+                    filterButtons.querySelectorAll('.filter-btn').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            currentFilter = btn.dataset.filter;
+                            filterButtons.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+                            renderGallery(currentFilter, document.getElementById('searchBox').value);
+                        });
+                    });
+                }
+
+                // Search functionality
+                document.getElementById('searchBox').addEventListener('input', (e) => {
+                    renderGallery(currentFilter, e.target.value);
+                });
+
+                // Initialize
+                createFilterButtons();
+                renderGallery();
+            </script>
+        </body>
+        </html>
+        EOFJS
+    
+    - name: Check for changes
+      id: check_changes
+      run: |
+        git diff --quiet index.html || echo "changed=true" >> $GITHUB_OUTPUT
+    
+    - name: Commit and push if changed
+      if: steps.check_changes.outputs.changed == 'true'
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add index.html
+        git commit -m "Auto-update gallery index [skip ci]"
+        git push
