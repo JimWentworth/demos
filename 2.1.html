@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Moving from Input/Output to Inquiry</title>
+<style>
+    body {
+        margin: 0;
+        font-family: "Inter", "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background-color: #f7f7f9;
+        color: #1e1e1e;
+        line-height: 1.6;
+    }
+
+    header {
+        background-color: #13294B; /* Illinois Navy */
+        padding: 2rem 1.5rem;
+        color: white;
+        text-align: center;
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+
+    h2 {
+        color: #13294B;
+        margin-top: 2rem;
+        font-size: 1.5rem;
+        border-left: 6px solid #E84A27; /* Illinois Orange */
+        padding-left: 0.5rem;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 1.5rem;
+    }
+
+    .callout {
+        background: #ffffff;
+        border-left: 6px solid #E84A27;
+        padding: 1rem 1.2rem;
+        margin: 1.5rem 0;
+        border-radius: 6px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .icon {
+        vertical-align: middle;
+        margin-right: 8px;
+    }
+
+    details {
+        margin-top: 1rem;
+        background: white;
+        border-radius: 6px;
+        border: 1px solid #d6d6d8;
+        padding: 0.8rem 1rem;
+    }
+
+    summary {
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #13294B;
+    }
+
+    pre {
+        background: #f0f0f2;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+        border-left: 4px solid #13294B;
+        font-size: 0.9rem;
+    }
+
+    .nav {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #ddd;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    a {
+        color: #E84A27;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>Moving from Input/Output to Inquiry</h1>
+</header>
+
+<div class="container">
+
+    <h2>Why Inquiry Matters</h2>
+
+    <p>
+        Most people begin their AI journey by treating the model like a search box: 
+        <em>ask question → receive answer.</em>  
+        This mindset caps the quality of what AI can do. Generative AI becomes most powerful when treated not as an
+        answer machine, but as an <strong>inquiry partner</strong> that helps you explore assumptions, surface 
+        alternatives, and map conceptual space.
+    </p>
+
+    <div class="callout">
+        <svg class="icon" width="22" height="22" viewBox="0 0 24 24" fill="#E84A27">
+            <path d="M12 2L2 7l10 5 10-5-10-5zm0 13.09L5 10.18v6.72L12 22l7-5.1v-6.72l-7 4.91z"/>
+        </svg>
+        <strong>Key Shift:</strong> Stop asking AI for “the answer.”  
+        Start asking it to help you think better.
+    </div>
+
+
+    <h2>What Inquiry-Based AI Use Looks Like</h2>
+
+    <p>
+        Instead of focusing on one-off responses, inquiry uses back-and-forth questioning, expanding, critiquing, 
+        and refining. This mirrors real research, design thinking, and academic exploration.
+    </p>
+
+    <details>
+        <summary>Example: Inquiry vs. Input/Output</summary>
+        <p><strong>Input/Output mindset:</strong></p>
+        <pre>What are ideas for improving student engagement?</pre>
+
+        <p><strong>Inquiry mindset:</strong></p>
+        <pre>
+Generate 10 different lenses for understanding student engagement.
+For each lens, propose a strategy and identify what assumptions it relies on.  
+Then challenge each assumption with alternatives.
+        </pre>
+    </details>
+
+
+    <h2>Guiding Principles of Inquiry-Based AI Collaboration</h2>
+
+    <details>
+        <summary>1. Treat AI as a thinking partner, not a shortcut</summary>
+        <p>
+            Inquiry prompts ask the model to slow down, question its own output, surface alternatives, or reveal 
+            what is missing. You’re shaping a conversation, not farming out the work.
+        </p>
+    </details>
+
+    <details>
+        <summary>2. Ask for structure, reasoning, and alternatives</summary>
+        <p>
+            Inquiry grows through contrast. Multiple interpretations reveal gaps and help you avoid premature 
+            certainty.  
+        </p>
+        <pre>
+Give me three different interpretations of this problem.
+Identify what each interpretation highlights and what it obscures.
+        </pre>
+    </details>
+
+    <details>
+        <summary>3. Use AI to map conceptual territory before narrowing</summary>
+        <p>
+            AI excels at breadth. Inquiry uses that strength deliberately before moving to judgment and selection.
+        </p>
+    </details>
+
+
+    <h2>Prompt Templates for Inquiry</h2>
+
+    <details>
+        <summary>Expand the Space</summary>
+        <pre>
+Generate multiple framings of this issue.
+Identify surprising angles that most people overlook.
+Map the conceptual space and identify areas that seem underexplored.
+        </pre>
+    </details>
+
+    <details>
+        <summary>Interrogate Assumptions</summary>
+        <pre>
+What assumptions am I making?
+Which of these are unnecessary, outdated, or untested?
+Offer counterexamples that break these assumptions.
+        </pre>
+    </details>
+
+    <details>
+        <summary>Challenge and Critique</summary>
+        <pre>
+Critique the reasoning you just provided.
+Identify weaknesses, oversights, or areas of overconfidence.
+Suggest how the argument could be strengthened or reframed.
+        </pre>
+    </details>
+
+    <details>
+        <summary>Refine and Synthesize</summary>
+        <pre>
+Synthesize the strongest insights from the exploration so far.
+Propose 2–3 coherent paths forward.
+Highlight which path seems most promising and why.
+        </pre>
+    </details>
+
+
+    <div class="nav">
+        <div></div>
+        <div><a href="page2.html">Next →</a></div>
+    </div>
+
+</div>
+</body>
+</html>

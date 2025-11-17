@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Faculty Action Toolkit</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Custom Tailwind Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // Sophisticated Light Palette
+                        'primary': '#4F46E5', // Indigo 600 - Accent
+                        'secondary': '#1F2937', // Grey 800 - Dark text
+                        'light-bg': '#F9FAFB', // Lightest background
+                        'card-bg': '#FFFFFF', // Pure white card background
+                        'border-color': '#E5E7EB', // Grey 200 - Subtle borders
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.light-bg');
+            color: theme('colors.secondary');
+        }
+        /* Custom scrollbar for aesthetics */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.light-bg');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.primary');
+            border-radius: 4px;
+        }
+        .concern-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: default;
+        }
+        .concern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(79, 70, 229, 0.1), 0 2px 4px rgba(79, 70, 229, 0.06);
+        }
+        /* Style for the select element's dropdown arrow on light background */
+        #filter-time {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath fill='%234F46E5' d='M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.5em 1.5em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto">
+        <!-- Header: Smaller Fonts -->
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-secondary mb-2">AI Faculty Action Toolkit</h1>
+            <p class="text-lg text-gray-500">Practical strategies for integrating AI while maintaining educational integrity.</p>
+        </header>
+
+        <!-- Tool Sections Container (Now full width) -->
+        <div class="grid grid-cols-1 gap-8">
+
+            <!-- Main Toolkit Column -->
+            <div>
+                <h2 class="text-2xl font-bold mb-6 text-secondary">The Faculty Action Database</h2>
+                
+                <!-- Filters and Search -->
+                <div class="mb-8 p-4 bg-card-bg rounded-xl shadow-md border border-border-color flex flex-col md:flex-row gap-4">
+                    <div class="w-full md:w-2/3">
+                        <label for="search-toolkit" class="sr-only">Search</label>
+                        <input type="text" id="search-toolkit" placeholder="Search by keyword (e.g., 'privacy', 'oral', 'bias')" class="w-full p-3 bg-gray-50 text-secondary rounded-lg border border-border-color focus:ring-primary focus:border-primary transition duration-150 text-sm">
+                    </div>
+                    <div class="w-full md:w-1/3">
+                        <label for="filter-time" class="sr-only">Filter by Time</label>
+                        <select id="filter-time" class="w-full p-3 bg-gray-50 text-secondary rounded-lg border border-border-color focus:ring-primary focus:border-primary transition duration-150 appearance-none text-sm">
+                            <option value="">Filter by Time-to-Implement</option>
+                            <option value="Quick">Quick</option>
+                            <option value="Moderate">Moderate</option>
+                            <option value="Structural">Structural</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Toolkit Display -->
+                <div id="toolkit-display" class="space-y-8">
+                    <!-- Cards will be injected here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Data Structure for the Toolkit (Icons removed) ---
+        const concernsData = [
+            {
+                concern: "1. Plagiarism and Academic Integrity",
+                ideas: [
+                    { text: "Integrate Oral/Process Defense: Require students to verbally explain and defend their work or the process they used to create it.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "Design AI-Resistant Assessments: Create assignments that require personal reflection, original local data/events, or synthesis of specific in-class discussions.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "Mandate AI Transparency and Citation: Establish a clear policy requiring students to cite the AI tool, the prompt used, and the extent of its contribution.", type: "Policy & Ethics", time: "Quick" },
+                ]
+            },
+            {
+                concern: "2. Loss of Critical Thinking",
+                ideas: [
+                    { text: "\"Fact-Checking\" AI Assignments: Give students an AI-generated output and task them with critically analyzing its accuracy, bias, and logic, using evidence to correct flaws.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "Focus on Synthesis and Argumentation: Design assignments requiring students to synthesize information from multiple disparate sources (AI, peer-reviewed, primary texts) to build a complex argument.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "AI as a \"Discussion Partner\": Encourage students to use AI to brainstorm or generate counter-arguments, then require them to reflect on the AI's suggestions, justifying choices.", type: "Assessment & Design", time: "Moderate" },
+                ]
+            },
+            {
+                concern: "3. Bias and Hallucinations",
+                ideas: [
+                    { text: "Curriculum on AI Literacy: Explicitly teach students about the limitations of AI, including training data bias, algorithmic bias, and hallucinations, encouraging skepticism.", type: "Professional Development", time: "Quick" },
+                    { text: "Prompt Engineering for Verification: Train students to use advanced prompting techniques (e.g., \"chain-of-thought\") and make the verification of AI-cited sources mandatory.", type: "Professional Development", time: "Quick" },
+                    { text: "Regular Tool Audits and Vetting: Institutions should establish a process to regularly vet AI tools for potential biases and inaccuracy before official adoption.", type: "Policy & Ethics", time: "Structural" },
+                ]
+            },
+            {
+                concern: "4. Reduced Human Interaction",
+                ideas: [
+                    { text: "Shift Focus to Experiential Learning: Use AI to automate basic tasks, freeing up class time for high-value human interactions like debates, collaborative projects, and complex problem-solving.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "AI-Supported Small Group Coaching: Use AI data to quickly identify specific learning gaps, enabling the teacher to spend focused one-on-one time with students who need targeted, human intervention.", type: "Professional Development", time: "Quick" },
+                    { text: "Mandatory \"AI-Free\" Conference Time: Schedule dedicated instructor-student check-ins where the student must discuss their work without relying on an AI script.", type: "Assessment & Design", time: "Moderate" },
+                ]
+            },
+            {
+                concern: "5. Data Privacy and Security",
+                ideas: [
+                    { text: "Standardized Vetting of EdTech Tools: Only use AI tools formally vetted by the institution's IT/legal department to ensure compliance with student privacy regulations.", type: "Policy & Ethics", time: "Structural" },
+                    { text: "Student Data Minimization: Adopt a policy to collect only the minimum amount of student data necessary for the AI tool to function, using pseudonymization where possible.", type: "Policy & Ethics", time: "Structural" },
+                    { text: "\"Sandbox\" or Non-Sensitive Use: Encourage students to use AI tools without logging in or using personally identifiable information for low-stakes tasks.", type: "Policy & Ethics", time: "Quick" },
+                ]
+            },
+            {
+                concern: "6. Over-reliance on AI for Teaching Tasks",
+                ideas: [
+                    { text: "AI as a Lesson *Drafting* Partner: Promote AI use primarily for generating initial drafts (plans, quizzes, rubrics), requiring the faculty member to significantly edit, localize, and personalize the material.", type: "Professional Development", time: "Quick" },
+                    { text: "Professional Development on AI Limits: Offer training that emphasizes what AI *cannot* do effectively (e.g., emotional support, understanding non-verbal cues), reinforcing the indispensable human role.", type: "Professional Development", time: "Quick" },
+                    { text: "Teacher-Student Co-Creation: Use AI-generated materials as a starting point for collaborative critique with students, turning the AI output into a lesson on content validity.", type: "Assessment & Design", time: "Moderate" },
+                ]
+            },
+            {
+                concern: "7. Lack of Training and Support",
+                ideas: [
+                    { text: "Peer-Led AI Learning Communities: Establish internal Faculty Learning Communities (FLCs) where experienced instructors mentor small groups of colleagues on discipline-specific AI integration.", type: "Professional Development", time: "Structural" },
+                    { text: "\"Just-in-Time\" Micro-Training Modules: Develop short, accessible, on-demand resources focused on one specific AI application (e.g., 5-min video on differentiation).", type: "Professional Development", time: "Structural" },
+                    { text: "Dedicated AI \"Office Hours\" and Sandbox: Provide scheduled technical and pedagogical support hours with an AI specialist, along with a 'sandbox' environment for safe experimentation.", type: "Professional Development", time: "Structural" },
+                ]
+            },
+            {
+                concern: "8. AI Impact on Student Mental Health",
+                ideas: [
+                    { text: "Promote \"AI Detox\" and Breaks: Integrate learning activities that explicitly require time away from digital tools, such as hands-on projects, field work, or in-person creative tasks.", type: "Student Wellness & Equity", time: "Moderate" },
+                    { text: "Educate on Dependency and Ethics: Incorporate classroom discussions on the psychological risks of relying on AI (reduced self-efficacy, emotional dependence) and the importance of seeking human help.", type: "Student Wellness & Equity", time: "Quick" },
+                    { text: "Focus on Self-Efficacy and Agency: Design assignments that force students to realize they are the final, most important editor and critic of the AI's work, building confidence in their own abilities.", type: "Assessment & Design", time: "Moderate" },
+                ]
+            },
+            {
+                concern: "9. Equity and Access Issues",
+                ideas: [
+                    { text: "Subsidize or Centralize AI Tool Access: Institutions should provide free, equitable access to high-quality AI tools for all students or establish centralized, well-equipped computing labs.", type: "Student Wellness & Equity", time: "Structural" },
+                    { text: "Universal AI Literacy Curriculum: Introduce a mandatory, foundational AI literacy module for all students to ensure basic skills, regardless of prior technology exposure.", type: "Student Wellness & Equity", time: "Structural" },
+                    { text: "\"Low-Tech\" AI Integration Options: Provide alternative assignments that allow students to engage with AI concepts without requiring personal access to high-end devices or stable home internet.", type: "Student Wellness & Equity", time: "Moderate" },
+                ]
+            },
+            {
+                concern: "10. Misuse of AI by Students",
+                ideas: [
+                    { text: "Transform AI Use into a Learning Objective: Make the responsible and critical use of AI a graded learning objective, turning an attempt to misuse the tool into a teachable moment.", type: "Policy & Ethics", time: "Quick" },
+                    { text: "Emphasize Work-in-Progress and Drafting: Require the submission of multiple, timestamped drafts, outlines, or metacognitive reflections at various stages of an assignment.", type: "Assessment & Design", time: "Moderate" },
+                    { text: "Discuss the \"Why\" of Academic Integrity: Hold open, honest class discussions about why academic integrity matters for their long-term professional success and the value of genuine learning.", type: "Policy & Ethics", time: "Quick" },
+                ]
+            },
+        ];
+
+        // --- Utility Functions ---
+
+        /**
+         * Converts the time string into a visually distinct badge for a light theme, with NO ICONS.
+         * @param {string} time - The time commitment string ('Quick', 'Moderate', 'Structural').
+         * @returns {string} HTML for the styled badge.
+         */
+        function getTimeBadge(time) {
+            let color;
+            switch (time) {
+                case 'Quick':
+                    color = 'bg-green-100 text-green-700 border border-green-200';
+                    break;
+                case 'Moderate':
+                    color = 'bg-yellow-100 text-yellow-700 border border-yellow-200';
+                    break;
+                case 'Structural':
+                    color = 'bg-red-100 text-red-700 border border-red-200';
+                    break;
+                default:
+                    color = 'bg-gray-100 text-gray-700 border border-gray-200';
+            }
+            // Text size reduced for smaller font preference
+            return `<span class="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full ${color}">${time}</span>`;
+        }
+
+        /**
+         * Renders the entire toolkit based on current filters.
+         * @param {string} searchTerm - Text to filter by.
+         * @param {string} timeFilter - Time commitment to filter by.
+         */
+        function renderToolkit(searchTerm = '', timeFilter = '') {
+            const display = document.getElementById('toolkit-display');
+            display.innerHTML = '';
+            const lowerSearchTerm = searchTerm.toLowerCase();
+
+            concernsData.forEach(concernGroup => {
+                const filteredIdeas = concernGroup.ideas.filter(idea => {
+                    const matchesSearch = lowerSearchTerm === '' || idea.text.toLowerCase().includes(lowerSearchTerm) || concernGroup.concern.toLowerCase().includes(lowerSearchTerm) || idea.type.toLowerCase().includes(lowerSearchTerm);
+                    const matchesTime = timeFilter === '' || idea.time === timeFilter;
+                    return matchesSearch && matchesTime;
+                });
+
+                if (filteredIdeas.length > 0) {
+                    const concernCard = document.createElement('div');
+                    concernCard.className = 'concern-card bg-card-bg p-5 rounded-xl shadow-lg border border-border-color';
+                    concernCard.innerHTML = `
+                        <!-- Title font size reduced -->
+                        <h3 class="text-xl font-bold mb-3 text-secondary">
+                            ${concernGroup.concern}
+                        </h3>
+                        <ul class="space-y-3">
+                            ${filteredIdeas.map(idea => `
+                                <li class="p-3 bg-gray-50 rounded-lg border-l-4 border-primary/50 shadow-sm">
+                                    <div class="flex flex-col md:flex-row md:justify-between md:items-start mb-1">
+                                        <!-- Idea Type font size reduced -->
+                                        <span class="text-xs font-semibold text-primary/80 mb-1 md:mb-0">${idea.type}</span>
+                                        ${getTimeBadge(idea.time)}
+                                    </div>
+                                    <!-- Idea Text font size reduced -->
+                                    <p class="text-gray-700 text-sm leading-relaxed">${idea.text}</p>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
+                    display.appendChild(concernCard);
+                }
+            });
+
+            if (display.innerHTML === '') {
+                display.innerHTML = `<div class="text-center p-8 bg-card-bg rounded-xl shadow-md text-gray-500 border border-border-color text-sm">No strategies found matching your search and filter criteria. Try broadening your search!</div>`;
+            }
+        }
+
+        // --- Event Listeners and Initial Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('search-toolkit');
+            const timeFilter = document.getElementById('filter-time');
+
+            // Initial render
+            renderToolkit();
+
+            // Setup search and filter listeners
+            searchInput.addEventListener('input', () => renderToolkit(searchInput.value, timeFilter.value));
+            timeFilter.addEventListener('change', () => renderToolkit(searchInput.value, timeFilter.value));
+            
+            // Note: AI Strategy Generator logic has been removed as requested.
+        });
+
+    </script>
+</body>
+</html>

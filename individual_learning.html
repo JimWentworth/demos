@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI + Individualized Learning Pathways | Illinois</title>
+
+<style>
+    :root {
+        --illinois-navy: #13294B;
+        --illinois-orange: #E84A27;
+        --bg-light: #f5f7fa;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--bg-light);
+        color: #222;
+        line-height: 1.6;
+    }
+
+    /* Top bar with logo */
+    .top-bar {
+        background: #ffffff;
+        border-bottom: 3px solid var(--illinois-navy);
+        display: flex;
+        align-items: center;
+        padding: 10px 20px;
+        gap: 15px;
+    }
+    .top-bar img {
+        height: 40px;
+    }
+    .top-bar-title {
+        font-size: 18px;
+        font-weight: bold;
+        color: var(--illinois-navy);
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+    }
+
+    header {
+        background: var(--illinois-navy);
+        color: white;
+        padding: 30px 20px;
+        text-align: center;
+    }
+    header h1 {
+        margin: 0 0 5px 0;
+        font-size: 28px;
+    }
+    header p {
+        margin: 0;
+        font-size: 16px;
+        color: #f5f7fa;
+    }
+
+    .container {
+        max-width: 960px;
+        margin: 25px auto;
+        padding: 20px;
+        background: white;
+        box-shadow: 0px 4px 14px rgba(0,0,0,0.08);
+        border-radius: 8px;
+    }
+    h2 {
+        margin-top: 0;
+        color: var(--illinois-navy);
+    }
+
+    /* Accordion */
+    .accordion {
+        background: #E8EFF5;
+        cursor: pointer;
+        padding: 15px;
+        width: 100%;
+        border: none;
+        text-align: left;
+        outline: none;
+        font-size: 17px;
+        transition: 0.3s;
+        margin-bottom: 5px;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .accordion span.label {
+        flex: 1;
+    }
+    .accordion span.chevron {
+        font-size: 14px;
+        color: var(--illinois-navy);
+        margin-left: 10px;
+    }
+    .active, .accordion:hover {
+        background-color: #D6E2ED;
+    }
+    .panel {
+        padding: 0 15px;
+        background-color: #fff;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.25s ease-out;
+        border-left: 3px solid var(--illinois-navy);
+        margin-bottom: 8px;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+    .tab-btn {
+        padding: 10px 15px;
+        background: #eee;
+        border-radius: 5px;
+        cursor: pointer;
+        border: 1px solid #ddd;
+        font-size: 14px;
+    }
+    .tab-btn.active {
+        background: var(--illinois-orange);
+        border-color: var(--illinois-orange);
+        color: white;
+    }
+    .tab-content {
+        display: none;
+        margin-top: 15px;
+        padding: 15px;
+        background: #F1F4F8;
+        border-radius: 6px;
+    }
+    .tab-content.active {
+        display: block;
+    }
+
+    #aiDemoBox {
+        margin-top: 15px;
+        padding: 12px;
+        border: 1px solid #CCC;
+        border-radius: 5px;
+        background: #fafafa;
+    }
+
+    textarea {
+        width: 100%;
+        height: 80px;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 5px;
+        border: 1px solid #CCC;
+        font-family: inherit;
+        font-size: 14px;
+    }
+
+    button.primary {
+        background: var(--illinois-navy);
+        color: #fff;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 8px;
+    }
+    button.primary:hover {
+        background: #0f203b;
+    }
+    button.secondary {
+        background: #ffffff;
+        color: var(--illinois-navy);
+        border: 1px solid var(--illinois-navy);
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 13px;
+        margin-top: 8px;
+        margin-left: 6px;
+    }
+    button.secondary:hover {
+        background: #f0f3f8;
+    }
+
+    .voice-status {
+        font-size: 12px;
+        color: #555;
+        margin-top: 4px;
+    }
+
+    hr {
+        border: none;
+        border-top: 1px solid #ddd;
+        margin: 30px 0;
+    }
+
+    @media (max-width: 600px) {
+        .top-bar-title {
+            font-size: 15px;
+        }
+        header h1 {
+            font-size: 22px;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<!-- TOP BRANDING BAR -->
+<div class="top-bar">
+    <!-- Replace the src below with your actual Illinois/CITL logo URL -->
+    <img src="https://dummyimage.com/80x40/E84A27/ffffff&text=I"
+         alt="Illinois logo placeholder">
+    <div class="top-bar-title">University of Illinois · Teaching & Learning</div>
+</div>
+
+<header>
+    <h1>AI + Individualized Learning Pathways</h1>
+    <p>Accessibility, Multimodal Design, and Support for Neurodiverse Learners</p>
+</header>
+
+<div class="container">
+
+    <h2>What You'll Explore</h2>
+    <p>
+        This interactive guide introduces how AI tools can support individualized learning pathways,
+        enhance accessibility, and better serve neurodiverse learners. Use the accordions, tabs, and
+        built-in voice features to explore key ideas.
+    </p>
+
+    <!-- ACCORDION SECTION -->
+    <button class="accordion">
+        <span class="label">1. Personalized vs. Individualized Learning</span>
+        <span class="chevron">▼</span>
+    </button>
+    <div class="panel">
+        <p><strong>Personalized Learning:</strong> chooses from a preset menu of options (e.g., select a topic, pick difficulty).</p>
+        <p><strong>Individualized Pathways:</strong> dynamically generated sequences of supports, tasks, and modalities adapted to one learner’s needs.</p>
+        <p><em>Critical question:</em> When might highly individualized pathways actually confuse or overwhelm learners instead of helping them?</p>
+    </div>
+
+    <button class="accordion">
+        <span class="label">2. How AI Creates Multimodal Pathways</span>
+        <span class="chevron">▼</span>
+    </button>
+    <div class="panel">
+        <ul>
+            <li>Transform content across modes: text → audio → visuals → step-by-step breakdowns</li>
+            <li>Adjust pacing, chunk size, and complexity based on learner responses</li>
+            <li>Generate examples that connect to different backgrounds or interests</li>
+            <li>Support executive function by sequencing tasks and tracking progress</li>
+        </ul>
+    </div>
+
+    <button class="accordion">
+        <span class="label">3. Why This Supports Neurodiverse Learners</span>
+        <span class="chevron">▼</span>
+    </button>
+    <div class="panel">
+        <ul>
+            <li>Reduces planning and organization load (executive function support)</li>
+            <li>Allows learners to select or shift modalities when sensory load is high</li>
+            <li>Adapts to daily variability in focus, energy, and attention</li>
+            <li>Offers private, stigma-free scaffolding before or alongside instructor support</li>
+        </ul>
+    </div>
+
+    <button class="accordion">
+        <span class="label">4. Benefits + Light Critique</span>
+        <span class="chevron">▼</span>
+    </button>
+    <div class="panel">
+        <p><strong>Benefits:</strong> more access points, dynamic adjustments, stronger learner autonomy, and better fit for diverse learners.</p>
+        <p><strong>Challenges:</strong> over-scaffolding, inaccurate explanations, equity and bias concerns, and privacy risks around sensitive learner data.</p>
+        <p><em>Prompt:</em> Which of these challenges would you monitor first if you were designing an AI-supported intervention?</p>
+    </div>
+
+    <hr>
+
+    <!-- TABS + FAKE AI DEMO WITH VOICE -->
+    <h2>Interactive Demo: Multimodal + Voice Support</h2>
+
+    <div class="tabs">
+        <button class="tab-btn active" data-target="explainTab">Explain It Simply</button>
+        <button class="tab-btn" data-target="visualTab">Create a Visual</button>
+        <button class="tab-btn" data-target="audioTab">Audio & Voice Concept</button>
+    </div>
+
+    <!-- Explain tab -->
+    <div id="explainTab" class="tab-content active">
+        <p>Enter any concept and generate a simpler explanation. Then, use the voice buttons to hear it read aloud.</p>
+        <textarea id="explainInput" placeholder="e.g., working memory, reinforcement learning, color constancy..."></textarea>
+        <br>
+        <button class="primary" onclick="fakeAIExplain()">Generate Simple Explanation</button>
+        <button class="secondary" onclick="speakExplanation()">Read This Aloud</button>
+        <button class="secondary" onclick="stopSpeaking()">Stop</button>
+        <div class="voice-status" id="voiceStatus"></div>
+
+        <div id="aiDemoBox" aria-live="polite"></div>
+    </div>
+
+    <!-- Visual tab -->
+    <div id="visualTab" class="tab-content">
+        <p>
+            In a real AI workflow, this could generate a custom diagram or concept map.
+            Below is a placeholder schematic to represent transforming a concept into a visual explanation.
+        </p>
+        <img src="https://dummyimage.com/800x220/13294b/ffffff&text=Concept+%E2%86%92+Visual+Pathway+Diagram+Placeholder"
+             style="width:100%; border-radius:6px;"
+             alt="Placeholder diagram connecting a central concept to several visual nodes representing multiple learning pathways.">
+    </div>
+
+    <!-- Audio/voice concept tab -->
+    <div id="audioTab" class="tab-content">
+        <p>
+            Audio is one modality within an individualized pathway. For some learners,
+            especially those who are neurodiverse or have specific access needs, listening
+            while viewing text can reduce cognitive load.
+        </p>
+        <p>
+            Use the buttons in the first tab to generate a simple explanation and have it read aloud.
+            On a full platform, learners could:
+        </p>
+        <ul>
+            <li>Slow down or speed up narration</li>
+            <li>Replay specific segments</li>
+            <li>Switch languages or accents</li>
+            <li>Combine audio with highlighting and note-taking</li>
+        </ul>
+        <p><em>Reflection:</em> In what situations might audio be helpful, and in what situations might it be distracting?</p>
+    </div>
+
+    <hr>
+
+    <!-- FINAL PROJECT GUIDANCE -->
+    <h2>Design Guidance for Your Final Project</h2>
+    <p>Your AI-enhanced intervention should clearly address:</p>
+    <ul>
+        <li><strong>Learner profile:</strong> Who are you designing for? How might neurodiversity show up in this context?</li>
+        <li><strong>Barrier:</strong> What makes learning hard in this situation (beyond “the content is challenging”)?</li>
+        <li><strong>AI capability:</strong> How will AI create or support an individualized multimodal pathway?</li>
+        <li><strong>Accessibility:</strong> How do you account for access, usability, and inclusive design?</li>
+        <li><strong>Benefits + challenges:</strong> What are the likely gains, and what concerns should be monitored?</li>
+        <li><strong>Iteration:</strong> How would you gather feedback and refine your design over time?</li>
+    </ul>
+
+</div>
+
+<script>
+// Accordion behavior
+var acc = document.getElementsByClassName("accordion");
+for (let i = 0; i < acc.length; i++) {
+    acc[i].addEventListener("click", function () {
+        this.classList.toggle("active");
+        const chevron = this.querySelector(".chevron");
+        if (chevron) {
+            chevron.textContent = this.classList.contains("active") ? "▲" : "▼";
+        }
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) panel.style.maxHeight = null;
+        else panel.style.maxHeight = panel.scrollHeight + "px";
+    });
+}
+
+// Tabs logic
+const tabBtns = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+        tabBtns.forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+
+        const target = btn.dataset.target;
+        tabContents.forEach(tc => {
+            tc.classList.remove("active");
+            if (tc.id === target) tc.classList.add("active");
+        });
+    });
+});
+
+// Fake “AI” simple explanation generator
+function fakeAIExplain() {
+    const input = document.getElementById("explainInput").value.trim();
+    const out = document.getElementById("aiDemoBox");
+    if (!input) {
+        out.innerHTML = "<em>Please enter a concept to generate a simple explanation.</em>";
+        return;
+    }
+
+    out.innerHTML = `
+        <strong>Simple explanation of "${input}":</strong><br><br>
+        ${input} can feel complicated, so let’s imagine you are explaining it to a friend.
+        In basic terms, it is the idea of focusing on the core pattern or process without all of the extra details.
+        An AI system could adapt this explanation to your needs by changing the language level,
+        adding a diagram, or turning it into audio, depending on what helps you learn best.
+    `;
+}
+
+// Voice: speech synthesis
+let currentUtterance = null;
+
+function speakExplanation() {
+    const out = document.getElementById("aiDemoBox");
+    const status = document.getElementById("voiceStatus");
+
+    if (!("speechSynthesis" in window)) {
+        status.textContent = "Speech synthesis is not supported in this browser.";
+        return;
+    }
+
+    const textContent = out.textContent || out.innerText;
+    if (!textContent.trim()) {
+        status.textContent = "Generate an explanation first, then I can read it aloud.";
+        return;
+    }
+
+    // Stop any existing speech
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(textContent);
+    utterance.onstart = () => {
+        status.textContent = "Reading explanation aloud…";
+    };
+    utterance.onend = () => {
+        status.textContent = "Finished reading.";
+    };
+    utterance.onerror = () => {
+        status.textContent = "There was an error using speech synthesis.";
+    };
+
+    currentUtterance = utterance;
+    window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+    if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+        const status = document.getElementById("voiceStatus");
+        status.textContent = "Stopped reading.";
+    }
+}
+</script>
+
+</body>
+</html>

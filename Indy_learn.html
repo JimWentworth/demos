@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI-Supported Individualized Pathways for Neurodiverse Learners | Illinois</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+  :root {
+    --illinois-navy: #13294B;
+    --illinois-orange: #E84A27;
+    --bg-light: #f5f7fa;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-light);
+    color: #222;
+    line-height: 1.6;
+  }
+
+  /* Top bar with logo */
+  .top-bar {
+    background: #ffffff;
+    border-bottom: 3px solid var(--illinois-navy);
+    display: flex;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 15px;
+  }
+  .top-bar img {
+    height: 40px;
+  }
+  .top-bar-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--illinois-navy);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  header {
+    background: var(--illinois-navy);
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+  }
+
+  header h1 {
+    margin: 0 0 5px 0;
+    font-size: 1.9rem;
+  }
+
+  header p {
+    margin: 0;
+    font-size: 0.98rem;
+    color: #f5f7fa;
+  }
+
+  .page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 2rem;
+  }
+
+  h2 {
+    margin-top: 0.5rem;
+    color: var(--illinois-navy);
+  }
+
+  h3 {
+    margin-top: 1rem;
+    color: var(--illinois-navy);
+  }
+
+  h4 {
+    margin-top: 0.8rem;
+    margin-bottom: 0.4rem;
+    color: #333;
+  }
+
+  ul {
+    padding-left: 1.2rem;
+  }
+
+  li {
+    margin-bottom: 0.3rem;
+  }
+
+  .meta {
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  .callout {
+    background: #E8EFF5;
+    border-left: 4px solid var(--illinois-navy);
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+  }
+
+  .activity-meta {
+    font-size: 0.9rem;
+    color: #555;
+    margin-bottom: 0.4rem;
+  }
+
+  /* Accordion */
+  .accordion {
+    background: #E8EFF5;
+    cursor: pointer;
+    padding: 14px 12px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 1rem;
+    transition: 0.3s;
+    margin-bottom: 6px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .accordion span.label {
+    flex: 1;
+  }
+  .accordion span.chevron {
+    font-size: 0.85rem;
+    color: var(--illinois-navy);
+    margin-left: 10px;
+  }
+  .accordion.active,
+  .accordion:hover {
+    background-color: #D6E2ED;
+  }
+
+  .panel {
+    padding: 0 14px 0 14px;
+    background-color: #ffffff;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease-out;
+    border-left: 3px solid var(--illinois-navy);
+    margin-bottom: 10px;
+    border-radius: 0 0 6px 6px;
+  }
+
+  .panel-inner {
+    padding: 12px 4px 12px 4px;
+  }
+
+  /* Prompt blocks */
+  .prompt-block {
+    background: #ffffff;
+    border: 1px solid #d4d8e0;
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin: 0.5rem 0 0.9rem;
+    font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #d4d8e0;
+    margin: 1.75rem 0;
+  }
+
+  a {
+    color: var(--illinois-navy);
+  }
+
+  /* Tabs and interactive demo */
+  .tabs {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 8px 12px;
+    background: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid #ddd;
+    font-size: 0.85rem;
+  }
+  .tab-btn.active {
+    background: var(--illinois-orange);
+    border-color: var(--illinois-orange);
+    color: white;
+  }
+  .tab-content {
+    display: none;
+    margin-top: 10px;
+    padding: 10px;
+    background: #F1F4F8;
+    border-radius: 6px;
+  }
+  .tab-content.active {
+    display: block;
+  }
+
+  #aiDemoBox {
+    margin-top: 10px;
+    padding: 10px;
+    border: 1px solid #CCC;
+    border-radius: 5px;
+    background: #fafafa;
+    font-size: 0.9rem;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 70px;
+    padding: 8px;
+    margin-top: 8px;
+    border-radius: 5px;
+    border: 1px solid #CCC;
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+
+  button.primary {
+    background: var(--illinois-navy);
+    color: #fff;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+  button.primary:hover {
+    background: #0f203b;
+  }
+
+  button.secondary {
+    background: #ffffff;
+    color: var(--illinois-navy);
+    border: 1px solid var(--illinois-navy);
+    padding: 6px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    margin-top: 6px;
+    margin-left: 4px;
+  }
+  button.secondary:hover {
+    background: #f0f3f8;
+  }
+
+  .voice-status {
+    font-size: 0.75rem;
+    color: #555;
+    margin-top: 4px;
+  }
+
+  @media (max-width: 640px) {
+    .top-bar-title {
+      font-size: 0.85rem;
+    }
+    header h1 {
+      font-size: 1.5rem;
+    }
+    .page-wrapper {
+      padding: 1.25rem 0.9rem 1.75rem;
+    }
+  }
+</style>
+</head>
+
+<body>
+
+<!-- TOP BRANDING BAR -->
+<div class="top-bar">
+  <!-- Replace this src with your real Illinois/CITL logo if desired -->
+  <img src="https://dummyimage.com/80x40/E84A27/ffffff&text=I" alt="Illinois logo placeholder">
+  <div class="top-bar-title">University of Illinois · Teaching &amp; Learning</div>
+</div>
+
+<header>
+  <h1>AI-Supported Individualized Pathways for Neurodiverse Learners</h1>
+  <p>Accessibility · Multimodal Design · Human-Centered Use of Generative AI</p>
+</header>
+
+<div class="page-wrapper">
+
+  <!-- WELCOME / CONTEXT ACCORDION -->
+  <button class="accordion" id="welcome">
+    <span class="label">Welcome &amp; Context</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <p class="meta">
+        Center for Innovation in Teaching &amp; Learning · 20–30 minutes · Undergraduates &amp; Graduates
+      </p>
+
+      <p>
+        This mini-session explores how generative AI can help create individualized learning pathways,
+        with a special focus on accessibility and support for neurodiverse learners. You’ll experiment
+        with prompts, examine benefits and limitations, and connect what you learn to an educational
+        intervention you might design for your final project.
+      </p>
+
+      <h3>What You’ll Need</h3>
+      <ul>
+        <li>Access to at least one AI tool (ChatGPT, Claude, Gemini, Copilot, etc.).</li>
+        <li>A real or hypothetical learning context you care about (course, tutoring, informal learning space, etc.).</li>
+      </ul>
+
+      <h3>Learning Objectives</h3>
+      <ul>
+        <li>Describe how AI can support individualized, multimodal learning pathways.</li>
+        <li>Identify ways these pathways can benefit neurodiverse learners.</li>
+        <li>Practice prompts that generate supports without asking AI to diagnose or label anyone.</li>
+        <li>Articulate at least one benefit and one challenge of using AI in this way.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Important:</strong> Do not share sensitive personal or health information with AI tools.
+        When in doubt, frame situations as hypothetical: <em>“Imagine a student who…”</em> rather than
+        providing real names or diagnoses.
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 1 -->
+  <button class="accordion" id="activity1">
+    <span class="label">Activity 1: Mapping Learner Variability</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="activity-meta">Time: ~5 minutes</div>
+
+      <h3>Quick Concept: Neurodiversity and Learning Barriers</h3>
+      <p>
+        Neurodiversity is the idea that there is natural variation in how human brains process information,
+        focus, plan, and experience the world. In learning environments, this shows up as different needs
+        around executive function, working memory, sensory load, social interaction, and communication styles.
+      </p>
+
+      <h3>Your Task: Describe a Learning Challenge</h3>
+      <p>
+        Think of a learner (real or hypothetical) who struggles in a current educational context.
+        You don’t need to name a diagnosis. Instead, describe what makes learning hard.
+      </p>
+
+      <h4>Prompt to Try</h4>
+      <div class="prompt-block">
+You are an educational psychologist who specializes in learner variability and neurodiversity.
+I will describe a student and a learning context. Your job is NOT to diagnose anything,
+but to identify possible learning barriers and cognitive demands in plain language.
+
+Here is the situation:
+[Describe a student and context in 3–5 sentences – e.g., large lectures, heavy reading, group work, online modules, etc.]
+
+Identify three likely barriers this student might face and explain how each barrier could affect their learning experience.
+      </div>
+
+      <h3>Discussion Questions</h3>
+      <ul>
+        <li>Did the AI identify barriers you hadn’t considered?</li>
+        <li>Which parts of the response felt grounded vs. speculative?</li>
+        <li>How might these barriers show up in your own context?</li>
+      </ul>
+
+      <p><strong>Key Takeaway:</strong> Before designing AI-supported pathways, you need a clear picture of the barriers, not just the content.</p>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 2 -->
+  <button class="accordion" id="activity2">
+    <span class="label">Activity 2: Using AI to Reshape Modality &amp; Scaffolding</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="activity-meta">Time: ~8–10 minutes</div>
+
+      <h3>Quick Concept: Multimodal Support as Pathway</h3>
+      <p>
+        Individualized pathways are not just “different speeds” through the same content. They can involve
+        changing modalities (text, audio, visual, interactive), chunking information differently, and adding
+        scaffolds that reduce cognitive load. AI tools can often transform the same concept into multiple forms.
+      </p>
+
+      <h3>Try This: One Concept, Multiple Modalities</h3>
+      <p>
+        Pick a concept from your own discipline (e.g., “working memory”, “photosynthesis”, “opportunity cost”,
+        “color contrast ratio”). Use AI to generate several versions aimed at a hypothetical learner who has
+        specific support needs.
+      </p>
+
+      <h4>Prompt 1 – Plain Language + Structure</h4>
+      <div class="prompt-block">
+You are a supportive learning coach. Explain the concept of “[YOUR CONCEPT]”
+to a college student who finds dense text and long paragraphs overwhelming.
+
+Constraints:
+- Use short paragraphs and clear headings.
+- Avoid jargon or define it briefly.
+- End with 3 bullet points that summarize the main idea.
+      </div>
+
+      <h4>Prompt 2 – Visual &amp; Spatial Metaphor</h4>
+      <div class="prompt-block">
+Act as an educator designing supports for a neurodiverse learner who thinks best with visuals.
+Explain “[YOUR CONCEPT]” using a visual metaphor or diagram description.
+Describe what the diagram would look like so that someone could sketch it,
+and explain how each part of the diagram maps to the concept.
+      </div>
+
+      <h4>Prompt 3 – Step-by-Step Scaffolding</h4>
+      <div class="prompt-block">
+Imagine a student who gets overwhelmed when too many steps are presented at once.
+Create a step-by-step pathway to understand “[YOUR CONCEPT]” in 5–7 small steps.
+
+For each step, include:
+1) What the student should focus on,
+2) A simple example,
+3) A quick self-check question to see if they understood that step before moving on.
+      </div>
+
+      <h3>Optional Interactive Demo (Text → Simple Explanation + Audio)</h3>
+      <p>Use this space to simulate how an AI tool might turn a concept into a simpler explanation and read it aloud.</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-target="explainTab">Explain It Simply</button>
+        <button class="tab-btn" data-target="notesTab">Note to Instructor</button>
+      </div>
+
+      <div id="explainTab" class="tab-content active">
+        <p>Type a concept here and click “Generate Simple Explanation,” then try “Read This Aloud.”</p>
+        <textarea id="explainInput" placeholder="e.g., working memory, reinforcement learning, color constancy..."></textarea>
+        <br>
+        <button class="primary" onclick="fakeAIExplain()">Generate Simple Explanation</button>
+        <button class="secondary" onclick="speakExplanation()">Read This Aloud</button>
+        <button class="secondary" onclick="stopSpeaking()">Stop</button>
+        <div class="voice-status" id="voiceStatus"></div>
+        <div id="aiDemoBox" aria-live="polite"></div>
+      </div>
+
+      <div id="notesTab" class="tab-content">
+        <p><strong>Facilitator note:</strong> In a live setting, you might ask students:</p>
+        <ul>
+          <li>Does this “simple” explanation still preserve the important ideas?</li>
+          <li>Would a visual, audio, or text version work best for your own learning?</li>
+          <li>Where might this kind of auto-simplification introduce problems?</li>
+        </ul>
+      </div>
+
+      <h3>Discussion Questions</h3>
+      <ul>
+        <li>Which version would help a learner who struggles with reading? With working memory? With anxiety?</li>
+        <li>Where did the AI’s scaffolding feel helpful, and where did it risk oversimplifying?</li>
+      </ul>
+
+      <p><strong>Key Takeaway:</strong> AI can help you remix the same idea into different forms, but you still have to decide which form aligns with a specific learner’s needs and goals.</p>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 3 -->
+  <button class="accordion" id="activity3">
+    <span class="label">Activity 3: Designing a Tiny Individualized Pathway</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="activity-meta">Time: ~8 minutes</div>
+
+      <h3>Quick Concept: Pathways as Sequences, Not One-Off Prompts</h3>
+      <p>
+        An individualized pathway is more than a single “good prompt.” It’s a sequence of interactions that
+        adapt as the learner progresses: checking understanding, switching modalities, offering choices,
+        and revisiting sticking points.
+      </p>
+
+      <h3>Your Task: Co-Design a Micro-Pathway</h3>
+      <p>
+        Choose a short learning goal (something a student could achieve in 15–30 minutes), such as
+        “understand how to use the color contrast checker in web design” or “practice retrieving key terms
+        for an exam.” Then use AI to outline a pathway for a hypothetical neurodiverse learner.
+      </p>
+
+      <h4>Prompt: Micro-Pathway Design</h4>
+      <div class="prompt-block">
+You are an instructional designer creating a short, individualized learning pathway
+for a neurodiverse college student.
+
+Goal:
+[Describe a small, concrete learning goal in 1–2 sentences.]
+
+Learner profile (hypothetical, no diagnosis labels needed):
+[Describe 3–4 characteristics – e.g., struggles with long reading, easily overwhelmed by cluttered interfaces,
+benefits from repetition and concrete examples, prefers written text + simple diagrams, etc.]
+
+Design a step-by-step pathway that:
+- Uses at least two different modalities (e.g., text + visual, text + audio, interactive practice).
+- Includes quick checks for understanding after major steps.
+- Offers at least two “choice points” where the learner can pick how to continue.
+- Stays realistic for 15–30 minutes of focused work.
+
+Present your answer as a numbered list of steps with brief explanations.
+      </div>
+
+      <h3>Discussion Questions</h3>
+      <ul>
+        <li>Where does the AI’s pathway feel human-centered and realistic?</li>
+        <li>Where does it make assumptions you’d want to challenge or refine?</li>
+        <li>What would you keep, modify, or remove if you implemented this pathway with real learners?</li>
+      </ul>
+
+      <p><strong>Key Takeaway:</strong> AI can sketch plausible pathways quickly, but human designers must refine them, add guardrails, and align them with real constraints.</p>
+    </div>
+  </div>
+
+  <!-- ACTIVITY 4 -->
+  <button class="accordion" id="activity4">
+    <span class="label">Activity 4: Benefits, Risks, and Guardrails</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <div class="activity-meta">Time: ~7 minutes</div>
+
+      <h3>Quick Concept: Promise and Peril</h3>
+      <p>
+        AI-supported individualized pathways can expand access and reduce barriers, especially for neurodiverse learners.
+        But they also introduce risks: incorrect guidance, over-dependence, unexamined bias, and privacy concerns around
+        sensitive learner information.
+      </p>
+
+      <h3>Try This: Surface Benefits and Challenges</h3>
+
+      <h4>Prompt 1 – Benefits &amp; Failure Modes</h4>
+      <div class="prompt-block">
+You are a critical friend to an instructor who wants to use AI to support neurodiverse learners
+with individualized pathways.
+
+In a balanced way, list:
+1) 5 potential benefits of using AI in this way, focusing on access, flexibility, and learner agency.
+2) 5 potential risks or failure modes, including equity, privacy, over-scaffolding, and misalignment with goals.
+
+For each risk, briefly suggest one concrete guardrail or mitigation strategy.
+      </div>
+
+      <h4>Prompt 2 – Drafting Guardrails</h4>
+      <div class="prompt-block">
+Based on the benefits and risks above, help me draft a short set of “AI guardrails”
+for designing individualized learning pathways for neurodiverse learners in higher education.
+
+Keep it to 6–8 bullet points.
+Each bullet should:
+- Start with “I will…” or “We will…”
+- Describe a specific design or evaluation practice (not a vague principle).
+      </div>
+
+      <h3>Discussion Questions</h3>
+      <ul>
+        <li>Which guardrails feel essential for your context?</li>
+        <li>What’s missing from the AI’s list of risks?</li>
+        <li>Where might institutional policies or disability services need to be consulted?</li>
+      </ul>
+
+      <p><strong>Key Takeaway:</strong> Individualized pathways are powerful but not neutral. You need explicit guardrails to keep them ethical, accessible, and aligned with real learners’ needs.</p>
+    </div>
+  </div>
+
+  <!-- WRAP-UP -->
+  <button class="accordion" id="wrapup">
+    <span class="label">Wrap-Up &amp; Connection to Final Projects</span>
+    <span class="chevron">▼</span>
+  </button>
+  <div class="panel">
+    <div class="panel-inner">
+      <h3>Looking Back</h3>
+      <p>Across these activities, you:</p>
+      <ul>
+        <li>Described learner variability and barriers without asking AI to diagnose.</li>
+        <li>Used AI to transform a single concept into multiple modalities and scaffolded forms.</li>
+        <li>Co-designed a micro-pathway for a hypothetical neurodiverse learner.</li>
+        <li>Identified benefits, risks, and guardrails for AI-supported pathways.</li>
+      </ul>
+
+      <h3>Connecting to Your Final Project</h3>
+      <p>As you choose and refine your AI- or edtech-enhanced intervention, be prepared to answer:</p>
+      <ul>
+        <li>Who are you designing for, and what specific barriers do they face?</li>
+        <li>How might AI help create individualized, multimodal pathways that reduce those barriers?</li>
+        <li>What benefits do you expect for neurodiverse learners—and what risks will you actively watch for?</li>
+        <li>What guardrails (design choices, policies, checks) will you put in place?</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Next Step:</strong> Choose one idea from today’s prompts and adapt it into a concrete design element
+        for your final project (e.g., a scripted AI interaction, a multimodal lesson flow, or a learner support pathway).
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// Accordion behavior
+var acc = document.getElementsByClassName("accordion");
+for (let i = 0; i < acc.length; i++) {
+  acc[i].addEventListener("click", function () {
+    this.classList.toggle("active");
+    const chevron = this.querySelector(".chevron");
+    if (chevron) {
+      chevron.textContent = this.classList.contains("active") ? "▲" : "▼";
+    }
+    var panel = this.nextElementSibling;
+    if (panel.style.maxHeight) panel.style.maxHeight = null;
+    else panel.style.maxHeight = panel.scrollHeight + "px";
+  });
+}
+
+// Tabs logic for Activity 2 demo
+const tabBtns = document.querySelectorAll(".tab-btn");
+const tabContents = document.querySelectorAll(".tab-content");
+
+tabBtns.forEach(btn => {
+  btn.addEventListener("click", () => {
+    tabBtns.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+
+    const target = btn.dataset.target;
+    tabContents.forEach(tc => {
+      tc.classList.remove("active");
+      if (tc.id === target) tc.classList.add("active");
+    });
+  });
+});
+
+// Fake “AI” simple explanation generator
+function fakeAIExplain() {
+  const input = document.getElementById("explainInput").value.trim();
+  const out = document.getElementById("aiDemoBox");
+  if (!input) {
+    out.innerHTML = "<em>Please enter a concept to generate a simple explanation.</em>";
+    return;
+  }
+
+  out.innerHTML = `
+    <strong>Simple explanation of "${input}":</strong><br><br>
+    ${input} can feel complicated, so let’s imagine you are explaining it to a friend.
+    In basic terms, it is the idea of focusing on the core pattern or process without all of the extra details.
+    An AI system could adapt this explanation to your needs by changing the language level,
+    adding a diagram, or turning it into audio, depending on what helps you learn best.
+  `;
+}
+
+// Speech synthesis
+function speakExplanation() {
+  const out = document.getElementById("aiDemoBox");
+  const status = document.getElementById("voiceStatus");
+
+  if (!("speechSynthesis" in window)) {
+    status.textContent = "Speech synthesis is not supported in this browser.";
+    return;
+  }
+
+  const textContent = out.textContent || out.innerText;
+  if (!textContent.trim()) {
+    status.textContent = "Generate an explanation first, then I can read it aloud.";
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(textContent);
+
+  utterance.onstart = () => {
+    status.textContent = "Reading explanation aloud…";
+  };
+  utterance.onend = () => {
+    status.textContent = "Finished reading.";
+  };
+  utterance.onerror = () => {
+    status.textContent = "There was an error using speech synthesis.";
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function stopSpeaking() {
+  if ("speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+    const status = document.getElementById("voiceStatus");
+    status.textContent = "Stopped reading.";
+  }
+}
+</script>
+
+</body>
+</html>
