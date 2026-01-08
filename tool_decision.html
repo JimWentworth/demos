@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Illinois AI Tool Picker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --illini-blue: #13294b;
+      --illini-orange: #e84a27;
+      --bg: #f5f5f7;
+      --surface: #ffffff;
+      --border-subtle: #d4d7dd;
+      --text-main: #111827;
+      --text-muted: #4b5563;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    header {
+      background: var(--illini-blue);
+      color: #ffffff;
+      padding: 1rem 1.5rem;
+      border-bottom: 4px solid var(--illini-orange);
+    }
+
+    header .title {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.4rem;
+    }
+
+    header p {
+      margin: 0.15rem 0 0;
+      font-size: 0.95rem;
+      opacity: 0.9;
+    }
+
+    main {
+      max-width: 960px;
+      margin: 1.5rem auto;
+      padding: 0 1rem 2rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 0.9rem;
+      border: 1px solid var(--border-subtle);
+      padding: 1.2rem 1.3rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+    }
+
+    .intro p {
+      margin: 0.3rem 0;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #e5edf7;
+      color: #0b1f3b;
+    }
+
+    fieldset {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    legend {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .help-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .option-group {
+      display: grid;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 0.6rem;
+      border: 1px solid var(--border-subtle);
+      background: #f9fafb;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .option-label:hover,
+    .option-label:focus-within {
+      border-color: var(--illini-orange);
+      background: #ffffff;
+    }
+
+    .option-label input {
+      margin-top: 0.25rem;
+      flex-shrink: 0;
+    }
+
+    .option-main {
+      font-weight: 500;
+      display: block;
+    }
+
+    .option-sub {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+    }
+
+    .button-row {
+      margin-top: 0.75rem;
+    }
+
+    button#recommendBtn {
+      background: var(--illini-orange);
+      border: none;
+      border-radius: 999px;
+      color: #ffffff;
+      padding: 0.6rem 1.4rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button#recommendBtn:hover,
+    button#recommendBtn:focus-visible {
+      background: #cf3f1f;
+      outline: 2px solid #111827;
+      outline-offset: 2px;
+    }
+
+    .result {
+      margin-top: 0.5rem;
+      padding: 0.85rem 0.9rem;
+      border-radius: 0.8rem;
+      border: 1px solid var(--border-subtle);
+      background: #f9fafb;
+    }
+
+    .result-heading {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .tool-chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      font-size: 0.8rem;
+      margin: 0.1rem 0.2rem 0.1rem 0;
+      background: #ffffff;
+    }
+
+    .tool-chip.safe {
+      border-color: #15803d;
+      background: #ecfdf3;
+      color: #166534;
+    }
+
+    .tool-chip.preferred {
+      border-color: var(--illini-orange);
+      background: #fff3ed;
+      color: #9a3412;
+    }
+
+    .result-body {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: 0.3rem;
+    }
+
+    .result-body ul {
+      padding-left: 1.2rem;
+      margin: 0.2rem 0 0;
+    }
+
+    .result-body li {
+      margin: 0.1rem 0;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e5e7eb;
+      margin: 1.2rem 0 0.8rem;
+    }
+
+    .footer-note {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .footer-note strong {
+      color: #111827;
+    }
+
+    @media (max-width: 600px) {
+      main {
+        padding: 0 0.75rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="title" role="banner">
+      <h1>Illinois AI Tool Picker</h1>
+      <p>Help for choosing between Copilot, ChatGPT, Gemini, Illinois Chat, or other tools.</p>
+    </div>
+  </header>
+
+  <main>
+    <section class="card intro">
+      <div class="badge">Guided Choice</div>
+      <p>
+        Use this quick tool to decide which AI platform to use for a task. It assumes
+        that commercial tools (Copilot, ChatGPT Edu, Gemini) are used under the campus
+        data protection agreement, and that <strong>Illinois Chat</strong> is the
+        safest choice for internal or sensitive data.
+      </p>
+      <p>
+        You only need to answer two questions: <strong>what you’re doing</strong> and
+        <strong>how sensitive the data is</strong>.
+      </p>
+    </section>
+
+    <section class="card" aria-labelledby="task-heading">
+      <h2 id="task-heading">Step 1: What are you trying to do?</h2>
+      <p class="help-text">
+        Choose the option that best matches your immediate task.
+      </p>
+
+      <form id="toolForm">
+        <fieldset>
+          <legend class="sr-only">Task type</legend>
+          <div class="option-group">
+            <label class="option-label">
+              <input type="radio" name="task" value="explore" />
+              <div>
+                <span class="option-main">Explore ideas, draft, brainstorm, summarize</span>
+                <span class="option-sub">
+                  You’re generating or reshaping text: outlines, drafts, summaries, alternative framings.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="task" value="microsoft" />
+              <div>
+                <span class="option-main">Work inside Microsoft tools (Outlook, Word, Excel, Teams)</span>
+                <span class="option-sub">
+                  You want help directly in email, documents, slides, or spreadsheets.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="task" value="multimodal" />
+              <div>
+                <span class="option-main">Create or edit images, diagrams, audio, or video</span>
+                <span class="option-sub">
+                  You’re generating visuals, multimedia content, or experimenting with multimodal features.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="task" value="longdocs" />
+              <div>
+                <span class="option-main">Analyze long or complex documents</span>
+                <span class="option-sub">
+                  You’re working with long PDFs, multiple sources, or complex reasoning tasks.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="task" value="sensitive" />
+              <div>
+                <span class="option-main">Work with sensitive or internal content</span>
+                <span class="option-sub">
+                  Student scenarios, internal policy drafts, HR-related materials, or unpublished research ideas.
+                </span>
+              </div>
+            </label>
+          </div>
+        </fieldset>
+
+        <hr class="divider" />
+
+        <fieldset aria-labelledby="sensitivity-heading">
+          <legend id="sensitivity-heading">Step 2: How sensitive is the data?</legend>
+          <p class="help-text">
+            Think: <em>If this leaked, would it matter or cause harm?</em>
+          </p>
+
+          <div class="option-group">
+            <label class="option-label">
+              <input type="radio" name="sensitivity" value="public" />
+              <div>
+                <span class="option-main">Public or low-risk</span>
+                <span class="option-sub">
+                  No student data, no internal plans, nothing confidential or HR-related.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="sensitivity" value="internal" />
+              <div>
+                <span class="option-main">Internal but not highly sensitive</span>
+                <span class="option-sub">
+                  Draft communications, internal planning, course materials without identifiable student data.
+                </span>
+              </div>
+            </label>
+
+            <label class="option-label">
+              <input type="radio" name="sensitivity" value="high" />
+              <div>
+                <span class="option-main">Sensitive or protected</span>
+                <span class="option-sub">
+                  FERPA-adjacent student information, HR topics, identifiable data, or confidential research.
+                </span>
+              </div>
+            </label>
+          </div>
+        </fieldset>
+
+        <div class="button-row">
+          <button type="button" id="recommendBtn">Get Recommendation</button>
+        </div>
+      </form>
+
+      <div
+        id="result"
+        class="result"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        style="margin-top: 0.9rem; display: none;"
+      >
+        <div class="result-heading">Recommended tools</div>
+        <div id="resultTools" style="margin-bottom: 0.3rem;"></div>
+        <div class="result-body" id="resultText"></div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Rule of Thumb</h2>
+      <p class="footer-note">
+        <strong>For exploration and low-risk drafting:</strong>
+        ChatGPT, Gemini, and Copilot are all appropriate under the campus agreement.
+      </p>
+      <p class="footer-note">
+        <strong>For internal, consequential, or sensitive work:</strong>
+        start with Illinois Chat. Use commercial tools only when you are sure the data
+        is permitted and the risk is low.
+      </p>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      const btn = document.getElementById("recommendBtn");
+      const resultBox = document.getElementById("result");
+      const resultTools = document.getElementById("resultTools");
+      const resultText = document.getElementById("resultText");
+
+      function getValue(name) {
+        const checked = document.querySelector(`input[name="${name}"]:checked`);
+        return checked ? checked.value : null;
+      }
+
+      function chip(label, style) {
+        const span = document.createElement("span");
+        span.className = "tool-chip" + (style ? " " + style : "");
+        span.textContent = label;
+        return span;
+      }
+
+      btn.addEventListener("click", function () {
+        const task = getValue("task");
+        const sensitivity = getValue("sensitivity");
+
+        if (!task || !sensitivity) {
+          resultBox.style.display = "block";
+          resultTools.innerHTML = "";
+          resultText.innerHTML =
+            "Please select both a task and a data sensitivity level to see a recommendation.";
+          return;
+        }
+
+        // High-sensitivity override: Illinois Chat only
+        if (sensitivity === "high" || task === "sensitive") {
+          resultBox.style.display = "block";
+          resultTools.innerHTML = "";
+          resultTools.appendChild(chip("Illinois Chat", "safe"));
+          resultText.innerHTML =
+            "<p>Because this involves sensitive or protected information, " +
+            "<strong>Illinois Chat is the safest and preferred option</strong>. " +
+            "It is hosted on campus and is designed for institutional and student-related data.</p>" +
+            "<ul><li>Avoid using public or personal accounts for this task.</li>" +
+            "<li>Keep identifiable details out of commercial tools, even when they are under a data protection agreement.</li></ul>";
+          return;
+        }
+
+        // Non-high sensitivity logic
+        let tools = [];
+        let explanation = "";
+
+        if (task === "microsoft") {
+          tools = [chip("Copilot", "preferred")];
+          explanation =
+            "<p><strong>Copilot</strong> is the best fit because you are working directly in Microsoft tools " +
+            "(Outlook, Word, Excel, Teams). It can use the local context of your documents and messages.</p>";
+        } else if (task === "multimodal") {
+          tools = [chip("ChatGPT"), chip("Gemini")];
+          explanation =
+            "<p><strong>ChatGPT</strong> and <strong>Gemini</strong> are strong choices for images, diagrams, and other multimodal tasks.</p>";
+        } else if (task === "longdocs") {
+          tools = [chip("ChatGPT Edu"), chip("Gemini")];
+          explanation =
+            "<p><strong>ChatGPT Edu</strong> and <strong>Gemini</strong> handle longer documents and complex reasoning well, " +
+            "making them good options for this task.</p>";
+        } else if (task === "explore") {
+          tools = [chip("ChatGPT"), chip("Gemini"), chip("Copilot")];
+          explanation =
+            "<p>For brainstorming, drafting, and summarizing, <strong>ChatGPT</strong>, <strong>Gemini</strong>, and " +
+            "<strong>Copilot</strong> all work well. Choose the one that best fits your workflow.</p>";
+        } else {
+          tools = [chip("ChatGPT"), chip("Gemini"), chip("Copilot"), chip("Illinois Chat", "safe")];
+          explanation =
+            "<p>Based on your selections, several tools could work. When in doubt, use <strong>Illinois Chat</strong> " +
+            "for internal topics and a commercial tool for low-risk exploration.</p>";
+        }
+
+        // Adjust explanation for internal sensitivity
+        if (sensitivity === "internal") {
+          tools.push(chip("Illinois Chat", "safe"));
+          explanation +=
+            "<p>Because this content is internal (but not highly sensitive), " +
+            "<strong>Illinois Chat</strong> is a good default. " +
+            "Commercial tools covered by the campus agreement can also be used when the risk is clearly low.</p>";
+        }
+
+        resultBox.style.display = "block";
+        resultTools.innerHTML = "";
+        tools.forEach((t) => resultTools.appendChild(t));
+        resultText.innerHTML = explanation;
+      });
+    })();
+  </script>
+</body>
+</html>

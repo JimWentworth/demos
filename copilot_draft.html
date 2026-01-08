@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Module 2: Collaborative Iteration – Copilot Multi-Stakeholder Refiner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --illini-navy: #13294b;
+      --illini-orange: #e84a27;
+      --illini-light: #f5f5f7;
+      --border-light: #d0d4dd;
+      --text-main: #1f2430;
+      --text-muted: #505665;
+      --card-bg: #ffffff;
+      --focus-ring: #ffbf47;
+      --danger: #8b1a1a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        Roboto, Arial, sans-serif;
+      background-color: var(--illini-light);
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem 3rem;
+    }
+
+    header {
+      background: var(--illini-navy);
+      color: #fff;
+      padding: 1.5rem 1rem;
+      margin: 0 -1rem 1.5rem;
+      border-bottom: 6px solid var(--illini-orange);
+    }
+
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0 0 0.25rem;
+      font-size: 1.6rem;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #e1e5f0;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      margin-bottom: 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .badge-dot {
+      width: 0.55rem;
+      height: 0.55rem;
+      border-radius: 50%;
+      background: var(--illini-orange);
+    }
+
+    main {
+      margin-top: 1rem;
+    }
+
+    .intro-card {
+      background: var(--card-bg);
+      border-radius: 0.75rem;
+      padding: 1.25rem 1.25rem 1rem;
+      border: 1px solid var(--border-light);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.03);
+      margin-bottom: 1.25rem;
+    }
+
+    .intro-card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
+      color: var(--illini-navy);
+    }
+
+    .intro-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.5fr);
+      gap: 1rem;
+    }
+
+    .tag-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.4rem 0 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tag {
+      font-size: 0.78rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-light);
+      background: #fafbff;
+    }
+
+    .callout {
+      border-radius: 0.6rem;
+      padding: 0.7rem 0.8rem;
+      font-size: 0.86rem;
+      background: #fef7f2;
+      border: 1px solid #f0c19f;
+      color: #5f3b1e;
+    }
+
+    .callout strong {
+      color: var(--danger);
+    }
+
+    /* Accordion */
+
+    .accordion {
+      margin-top: 1.25rem;
+    }
+
+    .accordion-item {
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-light);
+      background: var(--card-bg);
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+    }
+
+    .accordion-header {
+      margin: 0;
+    }
+
+    .accordion-button {
+      width: 100%;
+      text-align: left;
+      padding: 0.8rem 1rem;
+      border: none;
+      background: #f2f3f7;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-size: 0.98rem;
+      font-weight: 600;
+      color: var(--illini-navy);
+    }
+
+    .accordion-button:hover {
+      background: #e5e7f1;
+    }
+
+    .accordion-button:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .accordion-title {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .step-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.4rem;
+      height: 1.4rem;
+      border-radius: 999px;
+      background: var(--illini-orange);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .accordion-icon {
+      margin-left: 0.75rem;
+      font-size: 1.1rem;
+    }
+
+    .accordion-panel {
+      padding: 0.9rem 1rem 1rem;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .accordion-panel[hidden] {
+      display: none;
+    }
+
+    .panel-subtitle {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-top: -0.2rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .helper-text {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 0.35rem;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 0.6rem;
+      border-radius: 0.6rem;
+      border: 1px solid #c5cad6;
+      font-family: inherit;
+      font-size: 0.9rem;
+      resize: vertical;
+    }
+
+    textarea:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 1px;
+      border-color: var(--illini-navy);
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      display: inline-block;
+      margin-bottom: 0.2rem;
+    }
+
+    /* Stakeholder cards */
+
+    .stakeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin: 0.75rem 0 0.3rem;
+    }
+
+    .stakeholder-card {
+      background: #fafbff;
+      border-radius: 0.75rem;
+      border: 1px solid var(--border-light);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .stakeholder-toggle {
+      border: none;
+      background: transparent;
+      padding: 0.7rem 0.8rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.1rem;
+      font-size: 0.9rem;
+    }
+
+    .stakeholder-role {
+      font-weight: 600;
+      color: var(--illini-navy);
+    }
+
+    .stakeholder-note {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .stakeholder-toggle:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .stakeholder-card[aria-expanded="true"] {
+      border-color: var(--illini-orange);
+      box-shadow: 0 0 0 2px rgba(232, 74, 39, 0.16);
+      background: #fff8f5;
+    }
+
+    .stakeholder-panel {
+      border-top: 1px solid var(--border-light);
+      padding: 0.7rem 0.8rem 0.8rem;
+      background: #ffffff;
+      font-size: 0.86rem;
+    }
+
+    .stakeholder-panel[hidden] {
+      display: none;
+    }
+
+    .prompt-box {
+      border-radius: 0.5rem;
+      border: 1px dashed #c0c6d4;
+      padding: 0.55rem 0.6rem;
+      background: #f7f7fc;
+      font-size: 0.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .prompt-label {
+      font-weight: 600;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      margin-bottom: 0.2rem;
+    }
+
+    .prompt-text {
+      font-family: inherit;
+      white-space: pre-wrap;
+    }
+
+    .prompt-actions {
+      margin-top: 0.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .copy-prompt-button {
+      align-self: flex-start;
+      border-radius: 999px;
+      border: 1px solid var(--illini-navy);
+      background: #ffffff;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .copy-prompt-button:hover {
+      background: #f1f3fb;
+    }
+
+    .copy-prompt-button:focus-visible {
+      outline: 2px solid var(--focus-ring);
+      outline-offset: 2px;
+    }
+
+    .small-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr);
+      gap: 0.7rem;
+      margin-top: 0.5rem;
+    }
+
+    .reflection-list {
+      margin: 0.5rem 0 0;
+      padding-left: 1.1rem;
+      font-size: 0.88rem;
+    }
+
+    .reflection-list li {
+      margin-bottom: 0.25rem;
+    }
+
+    .example-block {
+      padding: 0.55rem 0.7rem;
+      background: #f7f7fc;
+      border-radius: 0.5rem;
+      border: 1px solid #d8dde8;
+      font-size: 0.84rem;
+      margin-top: 0.5rem;
+    }
+
+    .example-block strong {
+      color: var(--illini-navy);
+    }
+
+    .example-block ul {
+      margin: 0.2rem 0 0.2rem 1.1rem;
+      padding: 0;
+    }
+
+    .next-step-callout {
+      margin-top: 1rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 0.6rem;
+      border: 1px solid #c5cad6;
+      background: #f2f3ff;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    .next-step-callout a {
+      font-weight: 600;
+    }
+
+    @media (max-width: 720px) {
+      header {
+        padding-inline: 0.75rem;
+      }
+
+      .page {
+        padding-inline: 0.75rem;
+      }
+
+      .intro-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .small-columns {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner" role="banner">
+      <div class="badge" aria-label="Module 2 activity">
+        <span class="badge-dot" aria-hidden="true"></span>
+        <span>Module 2 &middot; Collaborative Iteration</span>
+      </div>
+      <h1>Using Copilot for Multi-Stakeholder Reasoning</h1>
+      <p>Use the campus version of Microsoft Copilot to explore a decision from multiple perspectives &mdash; then consider what <em>YOU</em> think.</p>
+    </div>
+  </header>
+
+  <div class="page">
+    <main>
+      <section class="intro-card" aria-labelledby="intro-heading">
+        <div class="intro-grid">
+          <div>
+            <h2 id="intro-heading">Overview</h2>
+            <p>
+              In this activity, you will:
+            </p>
+            <ul>
+              <li>Describe your initial hypothesis or preferred solution for a campus-related decision.</li>
+              <li>Use the campus-licensed version of <strong>Microsoft Copilot</strong> to explore different stakeholder perspectives.</li>
+              <li>Refine your idea based on what you learn.</li>
+              <li>Reflect on how Copilot supported your thinking &mdash; and where your own judgment led.</li>
+            </ul>
+
+            <p class="callout">
+              <strong>Important:</strong> Do <em>not</em> include confidential, sensitive, or personally identifiable information in Copilot prompts.
+              Use generic, fictional, or anonymized details.
+            </p>
+
+            <p style="font-size:0.9rem; margin-top:0.8rem;">
+              Before you start, open the campus-licensed version of
+              <strong>Microsoft Copilot</strong> in a separate browser tab so you can
+              copy and paste prompts as you go:
+              <a href="http://copilot.microsoft.com" target="_blank" rel="noopener">Open Copilot</a>
+              <span style="font-size:0.82rem; color:var(--text-muted);">
+              </span>
+            </p>
+          </div>
+          <div>
+            <p><strong>How this connects to assessment</strong></p>
+            <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.1rem;">
+              In the graded activity for this module, you will be asked to repeat this process with a new scenario
+            and share your Copilot conversation fr review.&nbsp; &nbsp; </p>
+            
+          </div>
+        </div>
+      </section>
+
+      <!-- Accordion container -->
+      <section class="accordion" aria-label="Activity steps">
+        <!-- STEP 1 -->
+        <article class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="step1-panel"
+              id="step1-button"
+            >
+              <span class="accordion-title">
+                <span class="step-pill" aria-hidden="true">1</span>
+                <span>Draft the initial question, problem or decision you are exploring.</span>
+              </span>
+              <span class="accordion-icon" aria-hidden="true">▾</span>
+            </button>
+          </h2>
+          <div
+            id="step1-panel"
+            class="accordion-panel"
+            role="region"
+            aria-labelledby="step1-button"
+            hidden
+          >
+            <p class="panel-subtitle">
+              Choose a realistic campus-related decision that matters in your context. This does <strong>not</strong> need to be a major initiative &mdash; choose any decision that involves multiple stakeholders and some tradeoffs.
+            </p>
+
+            <div class="example-block" aria-label="Example decision ideas">
+              <strong>If you are primarily a student, you might choose:</strong>
+              <ul>
+                <li>How to engage with student representation (e.g., student government, advisory boards) to initiate campus improvements.</li>
+                <li>How to connect with peers outside of the classroom to build community or mutual academic support.</li>
+                <li>How to use Copilot in your own learning while maintaining academic integrity.</li>
+              </ul>
+              <strong>If you are primarily staff or faculty, you might choose:</strong>
+              <ul>
+                <li>How to redesign a recurring meeting to make it more efficient and inclusive.</li>
+                <li>How to introduce Copilot into a workflow (e.g., email drafts, documentation, advising prep).</li>
+                <li>How to clarify expectations for student use of AI tools in a course or program.</li>
+              </ul>
+         
+            </div>
+
+            <p style="font-size:0.9rem; margin-top:0.7rem;">
+              In 2–4 sentences, describe:
+            </p>
+            <ul style="font-size:0.88rem; margin-top:0.4rem;">
+              <li>What decision you are exploring, and</li>
+              <li>What outcome you hope it would achieve.</li>
+            </ul>
+
+            <label for="initial-hypothesis">Your initial hypothesis or decision idea</label>
+            <textarea
+              id="initial-hypothesis"
+              name="initial-hypothesis"
+              placeholder="Example: I propose that our unit adopt a common structure for large courses where each week includes one interactive Copilot-supported activity (such as summarizing readings or generating practice questions), paired with in-person discussion focused on critical evaluation and application..."
+            ></textarea>
+
+            <p class="helper-text">
+              This text will automatically appear in the Copilot prompts in the next step. You can always return here to edit it, and the prompts will update.
+            </p>
+          </div>
+        </article>
+
+        <!-- STEP 2 -->
+        <article class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="step2-panel"
+              id="step2-button"
+            >
+              <span class="accordion-title">
+                <span class="step-pill" aria-hidden="true">2</span>
+                <span>Explore stakeholder perspectives with Copilot</span>
+              </span>
+              <span class="accordion-icon" aria-hidden="true">▾</span>
+            </button>
+          </h2>
+          <div
+            id="step2-panel"
+            class="accordion-panel"
+            role="region"
+            aria-labelledby="step2-button"
+            hidden
+          >
+            <p class="panel-subtitle">
+              Use the campus version of <strong>Copilot</strong> as a <strong>perspective engine</strong> to surface benefits, concerns, and blind spots.
+            </p>
+
+            <p style="font-size:0.9rem;">
+              For each stakeholder you select:
+            </p>
+            <ol style="font-size:0.88rem; margin-top:0.4rem;">
+              <li>Check that the prompt already includes your decision text from Step 1.</li>
+              <li>Click <strong>&ldquo;Copy prompt&rdquo;</strong> to copy it to your clipboard.</li>
+              <li>Paste the prompt into Copilot and review what it surfaces about benefits, risks, and tradeoffs for that group.</li>
+            </ol>
+
+            <p class="helper-text">
+              Aim for at least <strong>three different stakeholders</strong>. You can jot insights separately
+              (for example, in a document or directly in your quiz answers). If you closed it, you can
+              <a href="#" target="_blank" rel="noopener">reopen Copilot in a new tab</a>.
+            </p>
+
+            <div class="stakeholder-grid">
+              <!-- Undergraduate students -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-ug"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-ug"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">Undergraduate students 🎓</span>
+                  <span class="stakeholder-note">Experience, workload, access, fairness</span>
+                </button>
+                <div
+                  id="panel-ug"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="Undergraduate students perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box" aria-label="Suggested Copilot prompt">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-ug"
+                      data-template="I am considering the following decision on our campus:
+
+{{DECISION}}
+
+From the perspective of undergraduate students, what potential benefits, concerns, or tradeoffs might this create?
+
+Please:
+- Highlight likely positive impacts.
+- Flag possible drawbacks or unintended consequences.
+- Identify whose needs or circumstances might be overlooked.
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-ug"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Graduate students -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-grad"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-grad"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">Graduate students 🎓</span>
+                  <span class="stakeholder-note">Teaching roles, research time, support</span>
+                </button>
+                <div
+                  id="panel-grad"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="Graduate students perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-grad"
+                      data-template="Here is the decision I am considering:
+
+{{DECISION}}
+
+Imagine you are a graduate student on this campus (with teaching, research, and service responsibilities).
+
+From that perspective:
+- What parts of this idea seem most promising?
+- What pressures or risks might it introduce?
+- What supports or safeguards would you want to see added?
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-grad"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Faculty -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-fac"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-fac"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">Faculty 👩‍🏫</span>
+                  <span class="stakeholder-note">Autonomy, workload, quality, ethics</span>
+                </button>
+                <div
+                  id="panel-fac"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="Faculty perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-fac"
+                      data-template="Consider this proposed decision on our campus:
+
+{{DECISION}}
+
+From the perspective of faculty:
+- What educational benefits could this support?
+- What concerns might arise around workload, academic freedom, or academic integrity?
+- What kinds of evidence or consultation would faculty likely ask for?
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-fac"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Administrators -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-admin"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-admin"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">Administrators 👨‍💼</span>
+                  <span class="stakeholder-note">Policy, implementation, optics, risk</span>
+                </button>
+                <div
+                  id="panel-admin"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="Administrators perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-admin"
+                      data-template="Here is the decision I am exploring:
+
+{{DECISION}}
+
+From the perspective of campus or unit-level administrators:
+- What operational and policy challenges might they see?
+- What risks, compliance issues, or reputational concerns might matter?
+- What metrics or outcomes would they want to track to evaluate success?
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-admin"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Accessibility & DEI -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-dei"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-dei"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">Accessibility &amp; DEI advocates 🧑‍🦽</span>
+                  <span class="stakeholder-note">Equity, inclusion, barriers, voice</span>
+                </button>
+                <div
+                  id="panel-dei"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="Accessibility and DEI advocates perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-dei"
+                      data-template="Here is the change I am considering:
+
+{{DECISION}}
+
+From the perspective of accessibility and DEI advocates:
+- Who might benefit most from this decision? Who might be unintentionally excluded?
+- What accessibility, disability, or inclusion barriers might appear?
+- What changes would make this more equitable and accessible across groups?
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-dei"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- IT & data/privacy -->
+              <div
+                class="stakeholder-card"
+                aria-expanded="false"
+                data-panel-id="panel-it"
+              >
+                <button
+                  class="stakeholder-toggle"
+                  type="button"
+                  aria-controls="panel-it"
+                  aria-expanded="false"
+                >
+                  <span class="stakeholder-role">IT &amp; data/privacy teams 🛡️</span>
+                  <span class="stakeholder-note">Security, privacy, technical feasibility</span>
+                </button>
+                <div
+                  id="panel-it"
+                  class="stakeholder-panel"
+                  role="region"
+                  aria-label="IT and data/privacy teams perspective prompt"
+                  hidden
+                >
+                  <div class="prompt-box">
+                    <div class="prompt-label">Copilot prompt</div>
+                    <div
+                      class="prompt-text"
+                      id="prompt-it"
+                      data-template="Here is the decision or tool use I am exploring:
+
+{{DECISION}}
+
+From the perspective of IT and data/privacy teams:
+- What security, privacy, or compliance risks might this introduce?
+- What technical dependencies or failure points should be considered?
+- What guardrails, documentation, or training would you recommend?
+- Recommend refinements to my plan based on this stakeholder perspective."
+                    ></div>
+                  </div>
+                  <div class="prompt-actions">
+                    <button
+                      type="button"
+                      class="copy-prompt-button"
+                      data-prompt-id="prompt-it"
+                    >
+                      Copy prompt
+                    </button>
+                    <p class="helper-text">
+                      After copying, paste this prompt into Copilot.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </article>
+
+        <!-- STEP 3 -->
+        <article class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="step3-panel"
+              id="step3-button"
+            >
+              <span class="accordion-title">
+                <span class="step-pill" aria-hidden="true">3</span>
+                <span>Refine your original question</span>
+              </span>
+              <span class="accordion-icon" aria-hidden="true">▾</span>
+            </button>
+          </h2>
+          <div
+            id="step3-panel"
+            class="accordion-panel"
+            role="region"
+            aria-labelledby="step3-button"
+            hidden
+          >
+            <p class="panel-subtitle">
+              Now update your idea in light of what Copilot surfaced &mdash; without treating its suggestions as automatically correct.
+            </p>
+
+            <div class="small-columns">
+              <div>
+                <p style="font-size:0.9rem; margin-top:0;">
+                  Before revising, quickly summarize for yourself:
+                </p>
+                <ul style="font-size:0.86rem; margin-top:0.35rem;">
+                  <li>Which stakeholder perspectives changed your thinking the most?</li>
+                  <li>What new risks or tradeoffs are now on your radar?</li>
+                  <li>Where are the biggest tensions between groups?</li>
+                </ul>
+              </div>
+              <div>
+                <p style="font-size:0.9rem; margin-top:0;">
+                  When you revise, you might:
+                </p>
+                <ul style="font-size:0.86rem; margin-top:0.35rem;">
+                  <li>Adjust the design of your idea.</li>
+                  <li>Add safeguards, supports, or pilots.</li>
+                  <li>Clarify what evidence you would want before committing.</li>
+                </ul>
+              </div>
+
+            <label for="refined-hypothesis" style="margin-top:0.6rem; display:block;">Your refined problem statement or idea.</label>
+            <textarea
+              id="refined-hypothesis"
+              name="refined-hypothesis"
+              placeholder="Rewrite your idea in light of the stakeholder perspectives you explored. Name the major changes or safeguards you added, and any tradeoffs you are intentionally accepting."
+            ></textarea>
+            
+				        <div class="next-step-callout">
+              Next, copy your refined version and paste it into Copilot. Ask:
+              &ldquo;What might still be missing from this revision, and what data or human expertise should I gather next?&rdquo;
+              You can open Copilot here:
+              <a href="http://copilot.microsoft.com" target="_blank" rel="noopener">Open Copilot</a>.
+            </div>
+      
+            </div>
+          </div>
+        </article>
+
+        <!-- STEP 4 -->
+        <article class="accordion-item">
+          <h2 class="accordion-header">
+            <button
+              class="accordion-button"
+              type="button"
+              aria-expanded="false"
+              aria-controls="step4-panel"
+              id="step4-button"
+            >
+              <span class="accordion-title">
+                <span class="step-pill" aria-hidden="true">4</span>
+                <span>Reflect on human judgment vs. Copilot input</span>
+              </span>
+              <span class="accordion-icon" aria-hidden="true">▾</span>
+            </button>
+          </h2>
+          <div
+            id="step4-panel"
+            class="accordion-panel"
+            role="region"
+            aria-labelledby="step4-button"
+            hidden
+          >
+            <p class="panel-subtitle">
+              This is where you separate <strong>expanded perspective</strong> from <strong>final judgment</strong>.
+            </p>
+
+            <p style="font-size:0.9rem;">
+              For your own notes or a graded prompt (e.g., quiz or discussion), respond to at least two of these:
+            </p>
+            <ul class="reflection-list">
+              <li>Where did you <strong>accept</strong> Copilot&rsquo;s suggestions, and why?</li>
+              <li>Where did you deliberately <strong>override</strong> or ignore Copilot&rsquo;s suggestions?</li>
+              <li>Which stakeholder perspective felt most underrepresented in your original idea?</li>
+              <li>What additional human expertise or real-world data would you want before implementing your decision?</li>
+              <li>How did this process change &mdash; if at all &mdash; your comfort with using Copilot in campus decision-making?</li>
+            </ul>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Accordion behavior
+    (function () {
+      const accordionButtons = document.querySelectorAll(".accordion-button");
+
+      accordionButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const expanded = button.getAttribute("aria-expanded") === "true";
+          const panelId = button.getAttribute("aria-controls");
+          const panel = document.getElementById(panelId);
+
+          button.setAttribute("aria-expanded", String(!expanded));
+          if (panel) {
+            panel.hidden = expanded;
+          }
+        });
+      });
+    })();
+
+    // Stakeholder card toggle
+    (function () {
+      const cards = document.querySelectorAll(".stakeholder-card");
+
+      cards.forEach((card) => {
+        const toggle = card.querySelector(".stakeholder-toggle");
+        const panelId = card.getAttribute("data-panel-id");
+        const panel = document.getElementById(panelId);
+
+        if (!toggle || !panel) return;
+
+        toggle.addEventListener("click", () => {
+          const expanded = toggle.getAttribute("aria-expanded") === "true";
+          const newState = !expanded;
+
+          toggle.setAttribute("aria-expanded", String(newState));
+          card.setAttribute("aria-expanded", String(newState));
+          panel.hidden = !newState;
+        });
+      });
+    })();
+
+    // Auto-insert decision text into prompts and sync Step 3 textarea
+    (function () {
+      const decisionField = document.getElementById("initial-hypothesis");
+      const promptEls = document.querySelectorAll(".prompt-text[data-template]");
+      const refinedField = document.getElementById("refined-hypothesis");
+
+      let userHasEditedRefined = false;
+
+      if (refinedField) {
+        refinedField.addEventListener("input", () => {
+          // Once the learner starts editing Step 3,
+          // stop auto-syncing from Step 1.
+          userHasEditedRefined = true;
+        });
+      }
+
+      function updateFromDecision() {
+        if (!decisionField) return;
+        const rawDecision = decisionField.value;          // full text, no trim for Step 3
+        const trimmedDecision = rawDecision.trim();
+
+        // Prompts get either the real decision or a generic placeholder
+        const decisionForPrompts =
+          trimmedDecision ||
+          "[Briefly describe the decision or hypothesis you are considering here.]";
+
+        promptEls.forEach((el) => {
+          const template = el.getAttribute("data-template") || "";
+          const filled = template.replace("{{DECISION}}", decisionForPrompts);
+          el.textContent = filled;
+        });
+
+        // Step 3 textarea mirrors Step 1 UNTIL the user edits Step 3
+        if (refinedField && !userHasEditedRefined) {
+          refinedField.value = rawDecision;
+        }
+      }
+
+      if (decisionField) {
+        decisionField.addEventListener("input", updateFromDecision);
+        // Initialize on load
+        updateFromDecision();
+      }
+    })();
+
+    // Copy prompt to clipboard
+    (function () {
+      const copyButtons = document.querySelectorAll(".copy-prompt-button");
+
+      copyButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const promptId = btn.getAttribute("data-prompt-id");
+          const promptEl = document.getElementById(promptId);
+          if (!promptEl) return;
+
+          const text = promptEl.textContent || "";
+
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(
+              () => {
+                alert("Prompt copied. Paste it into Copilot.");
+              },
+              () => {
+                alert("Unable to copy automatically. Please select and copy the text manually.");
+              }
+            );
+          } else {
+            alert("Automatic copy is not supported in this browser. Please select and copy the prompt text manually.");
+          }
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

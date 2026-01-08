@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Online Course (Re)Design Proposal — Scoring Sheet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #d0d7e2;
+      --accent: #1f4e79;
+      --accent-soft: #e1edf7;
+      --text: #111827;
+      --muted: #4b5563;
+      --danger: #b91c1c;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 1.5rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 1.5rem 1.75rem 2rem;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.05);
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-top: 0;
+      margin-bottom: 0.25rem;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 1.25rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.25rem;
+      color: var(--accent);
+    }
+
+    .section-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-card {
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      padding: 0.75rem 0.75rem 0.5rem;
+      margin-bottom: 0.75rem;
+      background: #ffffff;
+    }
+
+    .checklist-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      padding: 0.4rem 0.25rem;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-label {
+      flex: 1 1 260px;
+      font-size: 0.9rem;
+    }
+
+    .item-label span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.1rem;
+    }
+
+    .item-select {
+      flex: 0 0 110px;
+      text-align: right;
+    }
+
+    select,
+    input[type="number"],
+    input[type="text"] {
+      font: inherit;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      border: 1px solid var(--border);
+      min-width: 80px;
+    }
+
+    select:focus,
+    input[type="number"]:focus,
+    input[type="text"]:focus {
+      outline: 2px solid var(--accent-soft);
+      outline-offset: 1px;
+      border-color: var(--accent);
+    }
+
+    .score-display {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .flex-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .qual-row {
+      padding: 0.5rem 0.25rem;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .qual-row:last-child {
+      border-bottom: none;
+    }
+
+    .qual-label {
+      flex: 1 1 260px;
+      font-size: 0.9rem;
+    }
+
+    .notes-input {
+      width: 100%;
+      margin-top: 0.25rem;
+      font-size: 0.8rem;
+      padding: 0.25rem 0.35rem;
+      border-radius: 4px;
+      border: 1px dashed #d1d5db;
+      min-height: 2.2rem;
+      resize: vertical;
+    }
+
+    .totals {
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border);
+      display: grid;
+      gap: 0.35rem;
+      font-size: 0.95rem;
+    }
+
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-label {
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .total-value {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .final-total {
+      margin-top: 0.5rem;
+      padding: 0.6rem 0.75rem;
+      border-radius: 6px;
+      background: var(--accent-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 0.75rem;
+    }
+
+    .final-total strong {
+      font-size: 1rem;
+    }
+
+    .final-score {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .helper-text {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 0.2rem;
+    }
+
+    .reset-btn,
+    .download-btn {
+      margin-top: 0.75rem;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #f9fafb;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover,
+    .download-btn:hover {
+      background: #eef2f7;
+    }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.75rem;
+      margin-top: 0.15rem;
+    }
+
+    .title-row {
+      margin-bottom: 1rem;
+      padding: 0.75rem 0.75rem 0.9rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+    }
+
+    .title-row label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .title-row input[type="text"] {
+      width: 100%;
+    }
+
+    .footer-actions {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 0.75rem;
+      }
+      .container {
+        padding: 1rem 1.1rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Online Course (Re)Design Proposal — Scoring Sheet</h1>
+    <p class="subtitle">
+      Checklist + qualitative ratings for proposals submitted to the Online Course Design and Development (QM-aligned) call.
+    </p>
+
+    <!-- PROPOSAL TITLE -->
+    <div class="title-row">
+      <label for="proposalTitle">Proposal title or course name</label>
+      <input
+        type="text"
+        id="proposalTitle"
+        placeholder="e.g., EPSY 4xx: Online Assessment and Feedback"
+      />
+    </div>
+
+    <!-- LAYER 1 -->
+    <h2>Layer 1 — Requirements Checklist (60 points)</h2>
+    <p class="section-meta">
+      Score each item 0, 3, or 5. &nbsp;5 = clear &amp; complete · 3 = present but incomplete/unclear · 0 = missing.
+    </p>
+
+    <div class="section-card" id="checklist-section">
+      <div class="checklist-item">
+        <label for="req1" class="item-label">
+          1. Design Type Identified
+          <span>New course design vs. redesign of existing course is clearly indicated.</span>
+        </label>
+        <div class="item-select">
+          <select id="req1" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req2" class="item-label">
+          2. Course Number &amp; Title
+        </label>
+        <div class="item-select">
+          <select id="req2" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req3" class="item-label">
+          3. Course Description &amp; Context
+          <span>Includes role in curriculum (required/elective, Gen Ed, foundation, methods, etc.) and programs it serves.</span>
+        </label>
+        <div class="item-select">
+          <select id="req3" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req4" class="item-label">
+          4. Course Audience Stated
+          <span>Undergraduate or Graduate level is clearly identified.</span>
+        </label>
+        <div class="item-select">
+          <select id="req4" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req5" class="item-label">
+          5. Course Schedule Described
+          <span>Includes how often course is (or will be) offered and in which semesters.</span>
+        </label>
+        <div class="item-select">
+          <select id="req5" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req6" class="item-label">
+          6. Typical or Expected Enrollment
+          <span>Provides enrollment numbers for existing course, or projected enrollment for a new course.</span>
+        </label>
+        <div class="item-select">
+          <select id="req6" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req7" class="item-label">
+          7. Rationale Provided
+          <span>Explains why the course needs QM-aligned (re)design.</span>
+        </label>
+        <div class="item-select">
+          <select id="req7" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req8" class="item-label">
+          8. Impact Statement Included
+          <span>Addresses impact on students, program, college, and/or instructor’s teaching.</span>
+        </label>
+        <div class="item-select">
+          <select id="req8" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req9" class="item-label">
+          9. Project Plan &amp; Timeline Included
+          <span>Identifies development and launch semesters and a rough schedule.</span>
+        </label>
+        <div class="item-select">
+          <select id="req9" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req10" class="item-label">
+          10. Required Support Needs Identified
+          <span>Lists needed support (design, accessibility, media production, etc.).</span>
+        </label>
+        <div class="item-select">
+          <select id="req10" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req11" class="item-label">
+          11. Instructor Experience with Online Design
+          <span>Describes prior experience and/or formal training in online course design.</span>
+        </label>
+        <div class="item-select">
+          <select id="req11" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <label for="req12" class="item-label">
+          12. Department Head Support Statement
+        </label>
+        <div class="item-select">
+          <select id="req12" data-type="checklist">
+            <option value="5">5</option>
+            <option value="3">3</option>
+            <option value="0">0</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="score-display">
+      Layer 1 subtotal: <strong id="checklistTotal">60</strong> / 60
+    </div>
+
+    <!-- LAYER 2 -->
+    <h2>Layer 2 — Qualitative Evaluation (30 points)</h2>
+    <p class="section-meta">
+      Rate each area from 1–10. &nbsp;10 = exceptional &nbsp;·&nbsp; 7–9 = strong &nbsp;·&nbsp; 4–6 = adequate &nbsp;·&nbsp; 1–3 = weak.
+    </p>
+
+    <div class="section-card">
+      <div class="qual-row">
+        <div class="flex-row">
+          <label for="ratRationale" class="qual-label">
+            1. Rationale Quality (1–10)
+            <span class="helper-text">
+              How strong, clear, and evidence-informed is the case for (re)design?
+            </span>
+          </label>
+          <div>
+            <input
+              id="ratRationale"
+              type="number"
+              min="1"
+              max="10"
+              step="1"
+              value="10"
+              data-type="qualitative"
+            />
+          </div>
+        </div>
+        <textarea class="notes-input" placeholder="Notes (optional)" id="notesRationale"></textarea>
+        <div class="error" id="errRationale" aria-live="polite"></div>
+      </div>
+
+      <div class="qual-row">
+        <div class="flex-row">
+          <label for="ratImpact" class="qual-label">
+            2. Impact Quality (1–10)
+            <span class="helper-text">
+              How meaningful is the proposed impact on students, the program, and the college?
+            </span>
+          </label>
+          <div>
+            <input
+              id="ratImpact"
+              type="number"
+              min="1"
+              max="10"
+              step="1"
+              value="10"
+              data-type="qualitative"
+            />
+          </div>
+        </div>
+        <textarea class="notes-input" placeholder="Notes (optional)" id="notesImpact"></textarea>
+        <div class="error" id="errImpact" aria-live="polite"></div>
+      </div>
+
+      <div class="qual-row">
+        <div class="flex-row">
+          <label for="ratPlan" class="qual-label">
+            3. Feasibility of Project Plan (1–10)
+            <span class="helper-text">
+              Is the timeline realistic, scope appropriate, and requested support reasonable?
+            </span>
+          </label>
+          <div>
+            <input
+              id="ratPlan"
+              type="number"
+              min="1"
+              max="10"
+              step="1"
+              value="10"
+              data-type="qualitative"
+            />
+          </div>
+        </div>
+        <textarea class="notes-input" placeholder="Notes (optional)" id="notesPlan"></textarea>
+        <div class="error" id="errPlan" aria-live="polite"></div>
+      </div>
+    </div>
+
+    <div class="score-display">
+      Layer 2 subtotal: <strong id="qualTotal">30</strong> / 30
+    </div>
+
+    <!-- LAYER 3 -->
+    <h2>Layer 3 — Overall Proposal Quality (10 points)</h2>
+    <p class="section-meta">
+      Holistic rating of overall quality, coherence, and professionalism.
+    </p>
+
+    <div class="section-card">
+      <div class="flex-row">
+        <label for="overallScore" class="qual-label">
+          Overall Proposal Quality (1–10)
+          <span class="helper-text">
+            Consider overall strength, clarity, and how compelling this proposal is compared to others.
+          </span>
+        </label>
+        <div>
+          <input
+            id="overallScore"
+            type="number"
+            min="1"
+            max="10"
+            step="1"
+            value="10"
+          />
+        </div>
+      </div>
+      <textarea class="notes-input" placeholder="Overall notes (optional)" id="notesOverall"></textarea>
+      <div class="error" id="errOverall" aria-live="polite"></div>
+    </div>
+
+    <!-- TOTALS + ACTIONS -->
+    <div class="totals" aria-live="polite">
+      <div class="totals-row">
+        <span class="total-label">Layer 1 — Requirements Checklist</span>
+        <span class="total-value" id="tCheck">60 / 60</span>
+      </div>
+      <div class="totals-row">
+        <span class="total-label">Layer 2 — Qualitative Evaluation</span>
+        <span class="total-value" id="tQual">30 / 30</span>
+      </div>
+      <div class="totals-row">
+        <span class="total-label">Layer 3 — Overall Quality</span>
+        <span class="total-value" id="tOverall">10 / 10</span>
+      </div>
+      <div class="final-total">
+        <span><strong>Final Score</strong> (out of 100)</span>
+        <span class="final-score" id="finalScore">100</span>
+      </div>
+
+      <div class="footer-actions">
+        <button type="button" class="reset-btn" id="resetBtn">
+          Reset scores to default
+        </button>
+        <button type="button" class="download-btn" id="downloadBtn">
+          Download results (.txt)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function clamp(value, min, max) {
+      if (isNaN(value)) return null;
+      return Math.min(Math.max(value, min), max);
+    }
+
+    function updateScores() {
+      // Checklist
+      const checklistSelects = document.querySelectorAll('select[data-type="checklist"]');
+      let checklistTotal = 0;
+      checklistSelects.forEach(sel => {
+        checklistTotal += Number(sel.value) || 0;
+      });
+
+      // Qualitative
+      const qualInputs = document.querySelectorAll('input[data-type="qualitative"]');
+      let qualTotal = 0;
+
+      qualInputs.forEach(input => {
+        const id = input.id;
+        const errEl = document.getElementById(
+          id === "ratRationale" ? "errRationale" :
+          id === "ratImpact" ? "errImpact" :
+          id === "ratPlan" ? "errPlan" : null
+        );
+
+        let val = clamp(parseInt(input.value, 10), 1, 10);
+        if (val === null) {
+          if (errEl) errEl.textContent = "Enter a number between 1 and 10.";
+          input.classList.add("invalid");
+          val = 1; // default for calc
+        } else {
+          if (errEl) errEl.textContent = "";
+          input.classList.remove("invalid");
+          input.value = val; // normalize
+        }
+        qualTotal += val;
+      });
+
+      // Overall
+      const overallInput = document.getElementById("overallScore");
+      const overallErr = document.getElementById("errOverall");
+      let overallVal = clamp(parseInt(overallInput.value, 10), 1, 10);
+      if (overallVal === null) {
+        overallErr.textContent = "Enter a number between 1 and 10.";
+        overallVal = 1;
+      } else {
+        overallErr.textContent = "";
+        overallInput.value = overallVal;
+      }
+
+      // Update display
+      document.getElementById("checklistTotal").textContent = checklistTotal;
+      document.getElementById("qualTotal").textContent = qualTotal;
+      document.getElementById("tCheck").textContent = checklistTotal + " / 60";
+      document.getElementById("tQual").textContent = qualTotal + " / 30";
+      document.getElementById("tOverall").textContent = overallVal + " / 10";
+
+      const final = checklistTotal + qualTotal + overallVal;
+      document.getElementById("finalScore").textContent = final;
+    }
+
+    function downloadResults() {
+      const title = document.getElementById("proposalTitle").value.trim() || "Untitled proposal";
+
+      // Checklist labels + values
+      const checklistItems = [
+        { id: "req1", label: "Design Type Identified" },
+        { id: "req2", label: "Course Number & Title" },
+        { id: "req3", label: "Course Description & Context" },
+        { id: "req4", label: "Course Audience Stated" },
+        { id: "req5", label: "Course Schedule Described" },
+        { id: "req6", label: "Typical or Expected Enrollment" },
+        { id: "req7", label: "Rationale Provided" },
+        { id: "req8", label: "Impact Statement Included" },
+        { id: "req9", label: "Project Plan & Timeline Included" },
+        { id: "req10", label: "Required Support Needs Identified" },
+        { id: "req11", label: "Instructor Experience with Online Design" },
+        { id: "req12", label: "Department Head Support Statement" }
+      ];
+
+      let checklistTotal = 0;
+      let text = "";
+      text += "Online Course (Re)Design Proposal — Scoring Summary\n";
+      text += "===================================================\n\n";
+      text += "Proposal title: " + title + "\n\n";
+
+      text += "Layer 1 — Requirements Checklist (0/3/5 each)\n";
+      checklistItems.forEach(item => {
+        const sel = document.getElementById(item.id);
+        const val = Number(sel.value) || 0;
+        checklistTotal += val;
+        text += `- ${item.label}: ${val} / 5\n`;
+      });
+      text += `Layer 1 subtotal: ${checklistTotal} / 60\n\n`;
+
+      // Qualitative
+      const ratRationale = Number(document.getElementById("ratRationale").value) || 0;
+      const ratImpact = Number(document.getElementById("ratImpact").value) || 0;
+      const ratPlan = Number(document.getElementById("ratPlan").value) || 0;
+      const qualTotal = ratRationale + ratImpact + ratPlan;
+
+      const notesRationale = document.getElementById("notesRationale").value.trim();
+      const notesImpact = document.getElementById("notesImpact").value.trim();
+      const notesPlan = document.getElementById("notesPlan").value.trim();
+
+      text += "Layer 2 — Qualitative Evaluation (1–10 each)\n";
+      text += `- Rationale Quality: ${ratRationale} / 10\n`;
+      if (notesRationale) text += `  Notes: ${notesRationale}\n`;
+      text += `- Impact Quality: ${ratImpact} / 10\n`;
+      if (notesImpact) text += `  Notes: ${notesImpact}\n`;
+      text += `- Feasibility of Project Plan: ${ratPlan} / 10\n`;
+      if (notesPlan) text += `  Notes: ${notesPlan}\n`;
+      text += `Layer 2 subtotal: ${qualTotal} / 30\n\n`;
+
+      // Overall
+      const overallVal = Number(document.getElementById("overallScore").value) || 0;
+      const notesOverall = document.getElementById("notesOverall").value.trim();
+      text += "Layer 3 — Overall Proposal Quality (1–10)\n";
+      text += `- Overall Proposal Quality: ${overallVal} / 10\n`;
+      if (notesOverall) text += `  Notes: ${notesOverall}\n\n`;
+
+      const final = checklistTotal + qualTotal + overallVal;
+      text += "-------------------------------------------\n";
+      text += `Final Total: ${final} / 100\n`;
+
+      // Timestamp
+      const now = new Date();
+      text += `Recorded on: ${now.toLocaleString()}\n`;
+
+      // Download as .txt
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+
+      // Sanitize title for filename
+      const safeTitle = title.replace(/[^a-z0-9\-]+/gi, "_").slice(0, 50) || "proposal";
+      const filename = `proposal_scoring_${safeTitle}.txt`;
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function attachListeners() {
+      document.querySelectorAll('select[data-type="checklist"]').forEach(sel => {
+        sel.addEventListener("change", updateScores);
+      });
+
+      document.querySelectorAll('input[data-type="qualitative"]').forEach(inp => {
+        inp.addEventListener("input", updateScores);
+      });
+
+      document.getElementById("overallScore").addEventListener("input", updateScores);
+
+      document.getElementById("resetBtn").addEventListener("click", () => {
+        // Reset checklist to 5s
+        document.querySelectorAll('select[data-type="checklist"]').forEach(sel => {
+          sel.value = "5";
+        });
+        // Reset qualitative to 10s
+        document.querySelectorAll('input[data-type="qualitative"]').forEach(inp => {
+          inp.value = 10;
+        });
+        // Reset overall
+        document.getElementById("overallScore").value = 10;
+
+        // Clear errors (leave notes alone so reviewers don't lose comments)
+        document.querySelectorAll(".error").forEach(err => (err.textContent = ""));
+        updateScores();
+      });
+
+      document.getElementById("downloadBtn").addEventListener("click", () => {
+        updateScores();
+        downloadResults();
+      });
+    }
+
+    attachListeners();
+    updateScores();
+  </script>
+</body>
+</html>

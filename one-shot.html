@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>One-Shot Prompting Interactive</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #fafafa;
+        margin: 0;
+        padding: 2rem;
+        color: #13294B; /* Illinois Navy */
+        line-height: 1.6;
+    }
+
+    h2 {
+        color: #13294B;
+        margin-bottom: 0.5rem;
+    }
+
+    .card {
+        background: white;
+        border: 2px solid #13294B;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        max-width: 800px;
+    }
+
+    .toggle {
+        margin-top: 1rem;
+        padding: 0.6rem 1rem;
+        background: #E84A27; /* Illinois Orange */
+        border: none;
+        border-radius: 6px;
+        color: white;
+        font-size: 1rem;
+        cursor: pointer;
+    }
+
+    .toggle:hover {
+        background: #cc3f21;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    pre {
+        background: #f1f1f1;
+        padding: 1rem;
+        border-radius: 6px;
+        overflow-x: auto;
+        white-space: pre-wrap;
+    }
+</style>
+</head>
+<body>
+
+<h2>Interactive: One-Shot Prompting</h2>
+<p>
+One-shot prompting uses a <strong>single example</strong> to show the model the style, tone, or structure you want. 
+Explore how one example can shape the output by revealing each section below.
+</p>
+
+<div class="card">
+    <h3>1. The Prompt</h3>
+    <pre>
+“Rewrite the following explanation using the same style as the example. 
+Match the clarity, structure, and level of detail.”
+
+Example (style to imitate):
+"Photosynthesis is the process plants use to convert sunlight into energy. 
+They absorb light through pigments in their leaves, transform it into chemical 
+energy, and store that energy in sugars that fuel growth."
+
+Target text:
+"Plants use light to make energy through a bunch of chemical steps.”
+    </pre>
+</div>
+
+<div class="card">
+    <h3>2. See the Output</h3>
+    <button class="toggle" onclick="document.getElementById('output').classList.toggle('hidden')">
+        Show / Hide AI Output
+    </button>
+
+    <pre id="output" class="hidden">
+"Photosynthesis is the series of chemical reactions plants use to turn sunlight into usable energy. 
+Pigments in the leaves capture light, which is then converted and stored in sugars that support the plant’s growth."
+    </pre>
+</div>
+
+<div class="card">
+    <h3>How This Demonstrates One-Shot Prompting</h3>
+    <button class="toggle" onclick="document.getElementById('explain').classList.toggle('hidden')">
+        Show / Hide Explanation
+    </button>
+
+    <pre id="explain" class="hidden">
+The model uses the single example to infer:
+• The level of detail expected  
+• The explanatory tone  
+• The structure of the explanation  
+• The scientific vocabulary appropriate to the topic  
+
+One example is enough to nudge the model toward a more refined and aligned output.
+    </pre>
+</div>
+
+</body>
+</html>

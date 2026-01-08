@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Uncertainty Prompt Builder</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+    color: #222;
+  }
+  h2 { color: #13294b; }
+  h3 { color: #13294b; margin-top: 20px; }
+  .box {
+    background: #ffffff;
+    border-radius: 8px;
+    border: 2px solid #ccc;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  label {
+    font-weight: bold;
+    display: block;
+    margin-top: 8px;
+  }
+  textarea, select, input[type="text"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-top: 4px;
+    font-family: Arial, sans-serif;
+    font-size: 14px;
+  }
+  textarea {
+    min-height: 80px;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .chip {
+    padding: 6px 10px;
+    border-radius: 16px;
+    background: #e8eef7;
+    border: 1px solid #c5d3e7;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .chip.selected {
+    background: #13294b;
+    color: #fff;
+    border-color: #13294b;
+  }
+  .small {
+    font-size: 13px;
+    color: #555;
+    margin-top: 4px;
+  }
+  #generateBtn {
+    padding: 10px 16px;
+    margin-top: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    background: #13294b;
+  }
+  #promptOutput {
+    background: #f9fbff;
+    border-left: 4px solid #13294b;
+    padding: 10px;
+    font-size: 14px;
+    white-space: pre-wrap;
+  }
+  #hint {
+    margin-top: 10px;
+    padding: 8px;
+    background: #fff8e5;
+    border-left: 4px solid #f0ad4e;
+    font-size: 13px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h2>Uncertainty Prompt Builder</h2>
+<p>
+Use this builder when you’re <strong>not fully sure</strong> what’s missing from your plan, assignment, or idea. Instead of pretending you’re certain, you can turn that uncertainty into a powerful AI prompt.
+</p>
+
+<div class="box">
+  <h3>1. Describe your context</h3>
+  <label for="contextInput">What are you working on?</label>
+  <textarea id="contextInput" placeholder="Example: I'm drafting an assignment where students use AI to brainstorm ideas for their final project, but I'm not sure if I'm clear enough about boundaries and expectations."></textarea>
+
+  <label for="goalInput">What’s your main goal?</label>
+  <input id="goalInput" type="text" placeholder="Example: I want students to use AI productively without replacing their own thinking.">
+</div>
+
+<div class="box">
+  <h3>2. What are you uncertain about?</h3>
+  <p>Select all that apply. Click again to deselect.</p>
+  <div class="chips" id="uncertaintyChips">
+    <div class="chip" data-text="what I might be overlooking or assuming.">Blind spots / assumptions</div>
+    <div class="chip" data-text="where students might misinterpret my instructions or expectations.">Student misunderstanding</div>
+    <div class="chip" data-text="unintended consequences or risks I haven’t considered.">Risks / unintended consequences</div>
+    <div class="chip" data-text="how this will land for different student groups or perspectives.">Inclusivity / different perspectives</div>
+    <div class="chip" data-text="whether my criteria for success are clear and realistic.">Clarity of criteria</div>
+    <div class="chip" data-text="alignment between this activity and my broader learning outcomes.">Alignment with outcomes</div>
+  </div>
+  <div class="small">You don’t need to select everything—just what feels genuinely uncertain.</div>
+</div>
+
+<div class="box">
+  <h3>3. Choose how you want AI to respond</h3>
+  <label for="styleSelect">Response style</label>
+  <select id="styleSelect">
+    <option value="list">List possible gaps or issues.</option>
+    <option value="questions">Ask me clarifying questions before suggesting gaps.</option>
+    <option value="prioritized">List gaps and rank them by likely impact.</option>
+  </select>
+
+  <label for="toneSelect">Tone</label>
+  <select id="toneSelect">
+    <option value="neutral">Neutral and analytic</option>
+    <option value="supportive">Supportive and coaching-oriented</option>
+    <option value="critical">Direct and critical, don’t sugarcoat</option>
+  </select>
+</div>
+
+<div class="box">
+  <h3>4. Generated Uncertainty-Aware Prompt</h3>
+  <button id="generateBtn">Build My Prompt</button>
+  <div id="hint" style="display:none;"></div>
+  <div id="promptOutput" style="margin-top:10px;"></div>
+  <div class="small" style="margin-top:6px;">
+    You can copy and paste this prompt into your AI tool. Feel free to tweak the wording to sound more like you.
+  </div>
+</div>
+
+<script>
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      chip.classList.toggle('selected');
+    });
+  });
+
+  function buildPrompt() {
+    const context = document.getElementById('contextInput').value.trim();
+    const goal = document.getElementById('goalInput').value.trim();
+    const style = document.getElementById('styleSelect').value;
+    const tone = document.getElementById('toneSelect').value;
+    const hint = document.getElementById('hint');
+    const output = document.getElementById('promptOutput');
+
+    const selectedChips = Array.from(chips).filter(c => c.classList.contains('selected'));
+    const uncertainties = selectedChips.map(c => c.getAttribute('data-text'));
+
+    if (!context) {
+      hint.style.display = "block";
+      hint.textContent = "Add at least a little context about what you’re working on so the AI has something real to respond to.";
+      output.textContent = "";
+      return;
+    }
+
+    hint.style.display = "none";
+
+    let toneLine = "";
+    if (tone === "neutral") {
+      toneLine = "Use a neutral, analytic tone.";
+    } else if (tone === "supportive") {
+      toneLine = "Use a supportive, coaching tone that assumes I’m acting in good faith.";
+    } else if (tone === "critical") {
+      toneLine = "Be direct and critical; don’t sugarcoat potential problems.";
+    }
+
+    let uncertaintySentence = "";
+    if (uncertainties.length > 0) {
+      uncertaintySentence = "I’m especially unsure about " + uncertainties.join(" ");
+    } else {
+      uncertaintySentence = "I’m not entirely sure what I’m missing, so surface any gaps you notice.";
+    }
+
+    let styleSentence = "";
+    if (style === "list") {
+      styleSentence = "First, list the most important gaps or issues you see.";
+    } else if (style === "questions") {
+      styleSentence = "Before you list gaps or issues, ask me 3–5 clarifying questions to better understand my context.";
+    } else if (style === "prioritized") {
+      styleSentence = "List possible gaps or issues, then rank them by likely impact on students and explain your rankings.";
+    }
+
+    let goalSentence = goal 
+      ? "My main goal is: " + goal 
+      : "My main goal is not perfectly defined yet, and you can help me clarify it.";
+
+    const promptText = 
+`Here is the situation I’m working on:
+${context}
+
+${goalSentence}
+
+${uncertaintySentence}
+
+${styleSentence}
+${toneLine}`;
+
+    output.textContent = promptText;
+  }
+
+  document.getElementById('generateBtn').addEventListener('click', buildPrompt);
+</script>
+
+</body>
+</html>
