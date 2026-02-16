@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Hands-On Introduction to Generative AI — UIUC</title>
+  <meta name="description" content="Hands-On Introduction to Generative AI workshop site for University of Illinois faculty, staff, and students." />
+
+  <style>
+    :root{
+      --illini-blue:#13294B;
+      --illini-orange:#FF552E;
+      --illini-orange-2:#E84A27;
+
+      --bg0:#060b14;
+      --bg1:#03050a;
+
+      --panel: rgba(19,41,75,.80);
+      --panel2: rgba(7,16,34,.40);
+
+      --text:#F4F7FF;
+      --muted: rgba(244,247,255,.86);
+      --muted2: rgba(244,247,255,.72);
+
+      --border: rgba(255,255,255,.16);
+      --shadow: 0 14px 36px rgba(0,0,0,.42);
+
+      --radius: 18px;
+      --radius-sm: 14px;
+
+      --max: 1120px;
+      --pad: clamp(14px, 2vw, 20px);
+      --gap: clamp(12px, 2vw, 18px);
+
+      --font: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+      --focus: 0 0 0 3px rgba(255,255,255,.28), 0 0 0 6px rgba(255,85,46,.60);
+    }
+
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family:var(--font);
+      color:var(--text);
+      background:
+        radial-gradient(1200px 720px at 12% 10%, rgba(255,85,46,.18), transparent 55%),
+        radial-gradient(1100px 700px at 88% 25%, rgba(19,41,75,.60), transparent 58%),
+        radial-gradient(900px 650px at 50% 100%, rgba(255,85,46,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      line-height:1.55;
+    }
+
+    a{ color: rgba(184,208,255,.95); }
+    a:hover{ color:#fff; }
+    :focus-visible{ outline:none; box-shadow: var(--focus); border-radius: 12px; }
+
+    .skip-link{
+      position:absolute;
+      left:12px; top:12px;
+      transform: translateY(-160%);
+      background: rgba(255,255,255,.96);
+      color:#0b1220;
+      padding:10px 12px;
+      border-radius: 12px;
+      text-decoration:none;
+      z-index:9999;
+      font-weight:800;
+    }
+    .skip-link:focus{ transform: translateY(0); box-shadow: 0 12px 28px rgba(0,0,0,.25); }
+
+    header{
+      position: sticky;
+      top:0;
+      z-index:1000;
+      backdrop-filter: blur(10px);
+      background: rgba(6,11,20,.78);
+      border-bottom:1px solid var(--border);
+    }
+
+    .wrap{
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--pad);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 14px;
+      padding: 12px 0;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      min-width: 260px;
+    }
+
+    .mark{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+
+    /* Text-based Illinois-style mark (not an official logo) */
+    .i-block{
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,85,46,.92), rgba(232,74,39,.92));
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 10px 22px rgba(0,0,0,.25);
+      position:relative;
+      flex: 0 0 auto;
+    }
+    .i-block::after{
+      content:"I";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      color:#fff;
+      font-size: 20px;
+      text-shadow: 0 6px 14px rgba(0,0,0,.22);
+    }
+
+    .brand strong{ font-size: 14px; letter-spacing:.2px; line-height: 1.1; }
+    .brand span{ font-size: 12.5px; color: var(--muted2); line-height: 1.2; }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(19,41,75,.35);
+      color: var(--muted);
+      font-size: 12.5px;
+      width: fit-content;
+    }
+    .pill .dot{
+      width: 8px; height: 8px;
+      border-radius: 999px;
+      background: var(--illini-orange);
+      box-shadow: 0 0 0 3px rgba(255,85,46,.18);
+    }
+
+    /* Tabs */
+    .tabs{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      max-width: 760px;
+      padding-top: 2px;
+    }
+
+    .tab{
+      appearance:none;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(19,41,75,.30);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 999px;
+      cursor:pointer;
+      font-size: 13px;
+      line-height: 1;
+      user-select:none;
+      white-space: nowrap;
+      transition: transform .06s ease, background .2s ease, border-color .2s ease;
+    }
+    .tab:hover{
+      background: rgba(19,41,75,.45);
+      border-color: rgba(255,255,255,.22);
+    }
+    .tab:active{ transform: translateY(1px); }
+    .tab[aria-selected="true"]{
+      background: rgba(255,85,46,.20);
+      border-color: rgba(255,85,46,.55);
+    }
+
+    main{ padding: 26px 0 52px; }
+
+    .panel{
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(16px, 2.4vw, 26px);
+    }
+
+    .hero{
+      min-height: calc(100vh - 124px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+    }
+    .hero h1{
+      margin: 0 0 10px;
+      font-size: clamp(34px, 4.4vw, 58px);
+      line-height: 1.06;
+      letter-spacing: .2px;
+    }
+    .hero .sub{
+      margin:0;
+      font-size: clamp(16px, 1.55vw, 20px);
+      color: var(--muted);
+    }
+    .hero .sub .line{ display:block; }
+    .hero .date{
+      margin-top: 14px;
+      font-size: 14px;
+      color: var(--muted2);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: var(--gap);
+      margin-top: 16px;
+    }
+
+    .card{
+      grid-column: span 12;
+      background: var(--panel2);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: var(--radius-sm);
+      padding: 16px 16px;
+    }
+    @media (min-width: 900px){
+      .card.half{ grid-column: span 6; }
+      .card.third{ grid-column: span 4; }
+    }
+
+    .kicker{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing:.2px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--muted);
+      margin-bottom: 10px;
+      width: fit-content;
+    }
+    .kicker::before{
+      content:"";
+      width:8px; height:8px;
+      border-radius:999px;
+      background: var(--illini-orange);
+      box-shadow: 0 0 0 3px rgba(255,85,46,.18);
+    }
+
+    h2{ margin:0 0 10px; font-size:22px; line-height:1.25; }
+    .card h3{ margin:0 0 8px; font-size:16.5px; line-height:1.25; }
+    p{ margin:0 0 10px; color: rgba(244,247,255,.94); }
+    p:last-child{ margin-bottom:0; }
+
+    details{
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    summary{
+      cursor:pointer;
+      font-weight: 800;
+      list-style:none;
+    }
+    summary::-webkit-details-marker{ display:none; }
+    details[open]{ background: rgba(255,255,255,.06); }
+    .inside{ margin-top:10px; color: rgba(244,247,255,.92); }
+
+    .note{
+      border-left: 3px solid rgba(255,85,46,.85);
+      padding: 10px 12px;
+      background: rgba(255,85,46,.10);
+      border-radius: 12px;
+      margin-top: 10px;
+      color: rgba(244,247,255,.94);
+    }
+
+    .prompt{
+      margin-top: 10px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 14px;
+      overflow:hidden;
+    }
+    .prompt .bar{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.06);
+      border-bottom: 1px solid rgba(255,255,255,.12);
+    }
+    .prompt .bar strong{ font-size: 13px; letter-spacing: .2px; }
+    .copy-btn{
+      border: 1px solid rgba(255,255,255,.18);
+      background: rgba(19,41,75,.55);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor:pointer;
+      font-size: 12.5px;
+      white-space: nowrap;
+    }
+    .copy-btn:hover{ background: rgba(19,41,75,.75); }
+
+    pre{
+      margin: 0;
+      padding: 12px;
+      overflow:auto;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.5;
+      color: rgba(244,247,255,.96);
+    }
+
+    .iframe-wrap{
+      margin-top: 12px;
+      border-radius: 16px;
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.20);
+    }
+    .iframe-wrap iframe{
+      width: 100%;
+      height: min(70vh, 520px);
+      border: 0;
+    }
+
+    .fallback-links{
+      margin-top: 10px;
+      color: var(--muted2);
+      font-size: 12.5px;
+    }
+
+    footer{ margin-top: 18px; color: var(--muted2); font-size: 12.5px; }
+
+    @media (prefers-reduced-motion: reduce){
+      *{ transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header>
+    <div class="wrap">
+      <div class="topbar">
+        <div class="brand" aria-label="Site identity">
+          <div class="mark">
+            <div class="i-block" aria-hidden="true"></div>
+            <div>
+              <strong>Hands-On Introduction to Generative AI</strong><br>
+              <span>University of Illinois • Center for Innovation in Teaching &amp; Learning</span>
+            </div>
+          </div>
+          <div class="pill">
+            <span class="dot" aria-hidden="true"></span>
+            <span>Accessible workshop site (Title II–minded patterns)</span>
+          </div>
+        </div>
+
+        <nav class="tabs" role="tablist" aria-label="Workshop sections">
+          <button class="tab" role="tab" id="tab-home"  aria-selected="true"  aria-controls="panel-home">Home</button>
+          <button class="tab" role="tab" id="tab-video" aria-selected="false" aria-controls="panel-video" tabindex="-1">Welcome Video</button>
+          <button class="tab" role="tab" id="tab-neural" aria-selected="false" aria-controls="panel-neural" tabindex="-1">Neural Networks</button>
+          <button class="tab" role="tab" id="tab-rag"   aria-selected="false" aria-controls="panel-rag" tabindex="-1">Where Info Comes From</button>
+          <button class="tab" role="tab" id="tab-spec"  aria-selected="false" aria-controls="panel-spec" tabindex="-1">Guardrails &amp; Specs</button>
+          <button class="tab" role="tab" id="tab-bits"  aria-selected="false" aria-controls="panel-bits" tabindex="-1">Bits Are Bits</button>
+          <button class="tab" role="tab" id="tab-tools" aria-selected="false" aria-controls="panel-tools" tabindex="-1">Campus Tools</button>
+          <button class="tab" role="tab" id="tab-more"  aria-selected="false" aria-controls="panel-more" tabindex="-1">Learn More</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <!-- HOME -->
+    <section class="panel hero" role="tabpanel" id="panel-home" aria-labelledby="tab-home">
+      <div>
+        <h1>Hands-On Introduction to Generative AI</h1>
+        <p class="sub">
+          <span class="line">Jim Wentworth</span>
+          <span class="line">Associate Director, AI Strategies</span>
+          <span class="line">The Center for Innovation in Teaching &amp; Learning</span>
+        </p>
+        <p class="date" id="today">February 16, 2026</p>
+
+        <div class="grid" aria-label="Overview cards">
+          <article class="card half">
+            <span class="kicker">Purpose</span>
+            <h3>Build practical intuition (and safer habits)</h3>
+            <p>
+              Treat generative AI as a system that produces plausible outputs from patterns and context—not as an authority.
+              We’ll focus on asking better questions, verifying key claims, and choosing tools that match your data sensitivity.
+            </p>
+            <details>
+              <summary>One sentence that keeps you out of trouble</summary>
+              <div class="inside">
+                Before you trust an output, ask: <strong>“What evidence would convince me this is correct?”</strong>
+              </div>
+            </details>
+          </article>
+
+          <article class="card half">
+            <span class="kicker">What you’ll practice</span>
+            <h3>Context, grounding, and specification</h3>
+            <p>
+              You’ll see how prompts steer outcomes, why “where info comes from” changes reliability, and how detailed specs can dramatically tighten results.
+            </p>
+            <details>
+              <summary>Accessibility note</summary>
+              <div class="inside">
+                This site supports keyboard navigation, screen readers, clear headings, and native accordions.
+              </div>
+            </details>
+          </article>
+
+          <article class="card">
+            <span class="kicker">Navigation</span>
+            <h3>Tabs across the top</h3>
+            <p>
+              Use the tab buttons in the header. For keyboard: focus the tab row, then use <strong>Left/Right Arrow</strong> (Home/End also work) and press <strong>Tab</strong> into content.
+            </p>
+            <div class="note" role="note">
+              If you ever open this with JavaScript disabled, the content won’t switch (this version is JS-based). If you need a no-JS version later, I’ll produce a clean CSS-only build.
+            </div>
+          </article>
+        </div>
+
+        <footer>
+          <p>Illinois framing: we’re often the <strong>context interpreters</strong> and <strong>trust anchors</strong>—AI should support that work, not replace it.</p>
+        </footer>
+      </div>
+    </section>
+
+    <!-- WELCOME VIDEO -->
+    <section class="panel" role="tabpanel" id="panel-video" aria-labelledby="tab-video" hidden>
+      <h2>Welcome Video</h2>
+      <p>
+        This kickoff video sets the tone: generative AI can be helpful quickly, but it can also sound confident without evidence.
+        Notice how “helpful” shifts depending on audience and purpose.
+      </p>
+
+      <div class="grid">
+        <article class="card half">
+          <span class="kicker">Watch for</span>
+          <h3>Fluency vs. correctness</h3>
+          <p>
+            Many tools are optimized to produce plausible, helpful language. Your role is to add verification when the stakes increase.
+          </p>
+          <details>
+            <summary>A reliable follow-up move</summary>
+            <div class="inside">
+              Ask the tool to separate: <strong>what it knows</strong>, <strong>what it’s assuming</strong>, and <strong>what it would verify next</strong>.
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Practice</span>
+          <h3>Shift from “answer” to “support”</h3>
+          <p>
+            Instead of “write my policy,” try “draft two options, then list questions I should resolve before adopting either.”
+          </p>
+
+          <div class="prompt" data-prompt>
+            <div class="bar">
+              <strong>Copy/paste prompt — Draft + checklist</strong>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+            <pre><code>Draft two options for a short university-facing message about generative AI.
+Then provide a checklist I can use to review the draft for accuracy, tone, accessibility, and risk.
+Flag anything you are uncertain about.</code></pre>
+          </div>
+        </article>
+      </div>
+
+      <div class="iframe-wrap" aria-label="Embedded welcome video">
+        <iframe id="kmsembed-1_2y2izzut" width="640" height="394" src="https://mediaspace.illinois.edu/embed/secure/iframe/entryId/1_2y2izzut/uiConfId/55779922/st/0" class="kmsembed" allowfullscreen webkitallowfullscreen mozAllowFullScreen allow="autoplay *; fullscreen *; encrypted-media *" referrerPolicy="no-referrer-when-downgrade" sandbox="allow-downloads allow-forms allow-same-origin allow-scripts allow-top-navigation allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation" frameborder="0" title="Should I take my car with me to the carwash?"></iframe>
+      </div>
+
+      <footer>
+        <p><strong>Accessibility note:</strong> Captions/transcripts depend on the embedded player settings for the media.</p>
+      </footer>
+    </section>
+
+    <!-- NEURAL NETWORKS -->
+    <section class="panel" role="tabpanel" id="panel-neural" aria-labelledby="tab-neural" hidden>
+      <h2>Understanding Neural Networks: A Useful Comparison (and Its Limits)</h2>
+      <p>
+        Comparing AI neural networks to human neural networks can help with intuition: many small influences combine into a final outcome.
+        But modern language models do not “understand” like humans—they generate likely continuations based on patterns and the context you provide.
+      </p>
+
+      <div class="grid">
+        <article class="card half">
+          <span class="kicker">Core idea</span>
+          <h3>Connections steer outputs</h3>
+          <p>
+            An LLM uses layers of weighted connections to map context to probable next tokens (pieces of words). Those weights were learned from training data.
+          </p>
+          <details>
+            <summary>Where bias enters</summary>
+            <div class="inside">
+              Training data reflects uneven representation and historical patterns. Models can inherit those patterns and present them with a confident tone unless you
+              counterbalance with constraints and verification.
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Key limit</span>
+          <h3>Prediction is not perception</h3>
+          <p>
+            Humans rely on grounded experience and situational awareness. A model relies on text (or other digital input) plus learned correlations.
+            When context is missing, it may fill gaps with plausible content.
+          </p>
+          <details>
+            <summary>Practical implication</summary>
+            <div class="inside">
+              Better prompting is often “context provisioning”: audience, goal, constraints, examples, and what success looks like.
+            </div>
+          </details>
+        </article>
+
+        <article class="card">
+          <span class="kicker">Activity</span>
+          <h3>“Mary had a little …” and why context controls meaning</h3>
+          <p>
+            Many people expect “lamb.” The model expects that too—until you push it in a different direction. This is a fast way to show how context selects a pathway.
+          </p>
+
+          <details>
+            <summary>Copilot activity (copy/paste)</summary>
+            <div class="inside">
+              <div class="prompt" data-prompt>
+                <div class="bar">
+                  <strong>Copy/paste prompt — Context steering</strong>
+                  <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>Complete the phrase “Mary had a little …” in four different ways:
+1) the most common continuation,
+2) a continuation suitable for a university context,
+3) a continuation that changes the setting (not a farm),
+4) a continuation that subtly shifts the meaning of “little”.
+
+After each completion, briefly explain what words in the prompt shaped your choice.</code></pre>
+              </div>
+
+              <div class="note" role="note">
+                Reality check: the model’s explanation can be a post-hoc story. Treat it as a hypothesis, not proof.
+              </div>
+            </div>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <!-- RAG -->
+    <section class="panel" role="tabpanel" id="panel-rag" aria-labelledby="tab-rag" hidden>
+      <h2>Where the Information Is Coming From: No Retrieval, Internet, Grounded (RAG)</h2>
+      <p>
+        “Is it reliable?” depends on how the answer was produced. A model might respond from internal training patterns, it might retrieve from the internet,
+        or it might be grounded in a trusted set of documents (RAG: Retrieval-Augmented Generation).
+      </p>
+
+      <div class="grid">
+        <article class="card third">
+          <span class="kicker">Stage 1</span>
+          <h3>No retrieval</h3>
+          <p>
+            Good for drafting and brainstorming; risky for highly specific facts, policies, or anything that changes over time.
+          </p>
+          <details>
+            <summary>Prompt example</summary>
+            <div class="inside">
+              <div class="prompt" data-prompt>
+                <div class="bar">
+                  <strong>Copy/paste — Model-only response</strong>
+                  <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>Explain “retrieval-augmented generation (RAG)” to a mixed university audience in ~150 words.
+Then list two things you are unsure about and how you would verify them.</code></pre>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="card third">
+          <span class="kicker">Stage 2</span>
+          <h3>Internet-supported</h3>
+          <p>
+            Better for “what’s current,” but only if sources are credible and the tool provides citations.
+          </p>
+          <details>
+            <summary>Prompt example</summary>
+            <div class="inside">
+              <div class="prompt" data-prompt>
+                <div class="bar">
+                  <strong>Copy/paste — Internet-supported response</strong>
+                  <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>Using current web sources, summarize what “RAG” means in higher education and why it matters.
+Include citations and state how you judged source reliability.</code></pre>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="card third">
+          <span class="kicker">Stage 3</span>
+          <h3>Grounded (RAG)</h3>
+          <p>
+            Most reliable for institutional guidance because you can trace claims back to a known document set.
+          </p>
+          <details>
+            <summary>Prompt example</summary>
+            <div class="inside">
+              <div class="prompt" data-prompt>
+                <div class="bar">
+                  <strong>Copy/paste — Grounded-only</strong>
+                  <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>Answer using ONLY the provided documents:
+“What guidance is given about what data may or may not be entered into AI tools?”
+Cite the exact lines/sections used. If not found, say “Not found in the provided materials.”</code></pre>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="card">
+          <span class="kicker">Takeaway</span>
+          <h3>Grounding doesn’t guarantee truth—it makes answers checkable</h3>
+          <p>
+            The strongest habit to build is not “trust the model,” but “require evidence when it matters.”
+          </p>
+        </article>
+      </div>
+    </section>
+
+    <!-- GUARDRAILS + VIDEO -->
+    <section class="panel" role="tabpanel" id="panel-spec" aria-labelledby="tab-spec" hidden>
+      <h2>Guardrails &amp; Specification: The “Talented Intern” Test</h2>
+      <p>
+        If you ask a talented but untrained intern to “build a workshop website,” you’ll get something—but not necessarily what you meant.
+        AI is similar: detailed specifications reduce ambiguity and give you more control over the outcome.
+      </p>
+
+      <div class="grid">
+        <article class="card half">
+          <span class="kicker">Why guardrails</span>
+          <h3>Boundaries reduce harm (and rework)</h3>
+          <p>
+            Guardrails are most important when stakes are high: protected data, grading decisions, personnel matters, legal/policy interpretation.
+          </p>
+          <details>
+            <summary>Specification in plain language</summary>
+            <div class="inside">
+              A good spec names the audience and purpose, sets constraints (format, length, accessibility), provides examples, and explains what “done” looks like.
+              If you can’t describe success criteria, you can’t evaluate the output.
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Claude demo</span>
+          <h3>Detailed spec prompt</h3>
+          <p>
+            Run a vague prompt and a detailed spec back-to-back. The contrast is a great teaching moment.
+          </p>
+
+          <div class="prompt" data-prompt>
+            <div class="bar">
+              <strong>Copy/paste — Website specification (Claude-friendly)</strong>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+            <pre><code>You are a careful web developer building an accessible, single-file workshop website for University of Illinois faculty/staff/students.
+
+Hard requirements:
+- One self-contained HTML file with embedded CSS + JavaScript (no external libraries).
+- Accessible navigation using tabs, keyboard-friendly.
+- Use cards and native accordions (details/summary).
+- At most one embedded video per page.
+- Provide copy/paste prompt examples.
+- Prioritize Title II/WCAG-friendly patterns: skip link, focus states, semantic headings, readable contrast.
+
+Content requirements:
+- Neural networks + context + bias.
+- RAG stages: no retrieval, internet-supported, grounded.
+- Guardrails + specification.
+- Multimodal “bits are bits” (NotebookLM).
+- Campus tools (link to https://genai.illinois.edu/ai-apps/ and mention Illinois Chat).
+- Learn More page with feedback link and contact.
+
+Output: Return the full HTML file only.</code></pre>
+          </div>
+
+          <div class="note" role="note">
+            Pushback question for the room: “What would count as evidence this output meets the spec?”
+          </div>
+        </article>
+      </div>
+
+      <div class="iframe-wrap" aria-label="Embedded guardrails video">
+        <iframe id="kmsembed-1_psvmemr8" width="640" height="394" src="https://mediaspace.illinois.edu/embed/secure/iframe/entryId/1_psvmemr8/uiConfId/55779922/st/0" class="kmsembed" allowfullscreen webkitallowfullscreen mozAllowFullScreen allow="autoplay *; fullscreen *; encrypted-media *" referrerPolicy="no-referrer-when-downgrade" sandbox="allow-downloads allow-forms allow-same-origin allow-scripts allow-top-navigation allow-pointer-lock allow-popups allow-modals allow-orientation-lock allow-popups-to-escape-sandbox allow-presentation allow-top-navigation-by-user-activation" frameborder="0" title="The Problem with Guardrails"></iframe>
+      </div>
+    </section>
+
+    <!-- BITS -->
+    <section class="panel" role="tabpanel" id="panel-bits" aria-labelledby="tab-bits" hidden>
+      <h2>Bits Are Bits: Multimodal AI (Voice, Documents, and More)</h2>
+      <p>
+        Once something is digitized, it becomes “bits”—text, images, audio, video, and data. That’s why AI can work across modes:
+        you can speak to a tool, upload readings, and generate summaries or study aids. The same reliability rule holds: constrain the task and require evidence.
+      </p>
+
+      <div class="grid">
+        <article class="card half">
+          <span class="kicker">NotebookLM</span>
+          <h3>Document-grounded workflows</h3>
+          <p>
+            NotebookLM is a useful example: it’s designed to work from documents you provide, which fits academic norms (quote sources; separate summary from interpretation).
+          </p>
+          <details>
+            <summary>Evidence-first prompt</summary>
+            <div class="inside">
+              <div class="prompt" data-prompt>
+                <div class="bar">
+                  <strong>Copy/paste — Evidence-first summary</strong>
+                  <button class="copy-btn" type="button">Copy</button>
+                </div>
+                <pre><code>Summarize the provided materials for a university audience in 6–8 sentences.
+Include 3 direct quotes (or precise references) from the source material.
+Separate “What the source says” from “My interpretation.”</code></pre>
+              </div>
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Caution</span>
+          <h3>Multimodal ≠ more correct</h3>
+          <p>
+            Richer inputs can reduce ambiguity, but can also introduce new errors (misheard audio, missing context, out-of-date documents).
+          </p>
+          <details>
+            <summary>What to require in higher-stakes work</summary>
+            <div class="inside">
+              Ask for quotes/citations to the provided materials and require at least one independent verification step for any claim that matters.
+            </div>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <section class="panel" role="tabpanel" id="panel-tools" aria-labelledby="tab-tools" hidden>
+      <h2>Campus Tools: University of Illinois</h2>
+      <p>
+        Campus tool availability and pricing can change. This page intentionally points to the official source of truth and frames it as a grounding example.
+      </p>
+
+      <div class="grid">
+        <article class="card">
+          <span class="kicker">Official page</span>
+          <h3>AI Apps (Office of the CIO / Enterprise GenAI)</h3>
+          <p>
+            Visit: <a href="https://genai.illinois.edu/ai-apps/" target="_blank" rel="noopener noreferrer">https://genai.illinois.edu/ai-apps/</a>
+          </p>
+          <details>
+            <summary>Workshop note: where Illinois Chat fits</summary>
+            <div class="inside">
+              <p>
+                This is a good place to mention <strong>Illinois Chat</strong> and talk about why institutional stewardship matters:
+                data guidance, support pathways, and responsible-use expectations shape what is appropriate to do.
+              </p>
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Grounded prompt</span>
+          <h3>Ask for traceable details</h3>
+          <div class="prompt" data-prompt>
+            <div class="bar">
+              <strong>Copy/paste — Grounded tools question</strong>
+              <button class="copy-btn" type="button">Copy</button>
+            </div>
+            <pre><code>Using ONLY the University of Illinois AI Apps page (https://genai.illinois.edu/ai-apps/):
+- Identify tools listed for chat/writing/analysis and any campus chatbot options (including Illinois Chat).
+- Quote the lines that describe eligibility and cost (included vs. purchase).
+- If the page does not specify something, explicitly say “Not specified on the page.”</code></pre>
+          </div>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Risk lens</span>
+          <h3>Don’t outsource your risk assessment</h3>
+          <p>
+            Use AI for drafting and ideation, but keep humans responsible for decisions—especially when outputs could affect students, employees, or policy compliance.
+          </p>
+          <details>
+            <summary>A quick “stoplight” heuristic</summary>
+            <div class="inside">
+              Green: low-stakes drafting/brainstorming. Yellow: summaries of your documents (require quotes). Red: protected data and high-stakes decisions.
+            </div>
+          </details>
+        </article>
+      </div>
+    </section>
+
+    <!-- MORE -->
+    <section class="panel" role="tabpanel" id="panel-more" aria-labelledby="tab-more" hidden>
+      <h2>Learn More</h2>
+      <p>
+        Want to go deeper or bring this to your unit? Here are campus pathways plus the workshop feedback link.
+      </p>
+
+      <div class="grid">
+        <article class="card half">
+          <span class="kicker">Campus pathways</span>
+          <h3>Key offices and hubs</h3>
+          <details open>
+            <summary>Center for Innovation in Teaching &amp; Learning (CITL)</summary>
+            <div class="inside">
+              CITL supports teaching and learning across Illinois, including course design, assessment, accessibility, and practical strategies for responsible AI use.
+            </div>
+          </details>
+          <details>
+            <summary>Office of the CIO / Enterprise GenAI</summary>
+            <div class="inside">
+              Official tool guidance and availability:
+              <a href="https://genai.illinois.edu/ai-apps/" target="_blank" rel="noopener noreferrer">https://genai.illinois.edu/ai-apps/</a>
+            </div>
+          </details>
+        </article>
+
+        <article class="card half">
+          <span class="kicker">Feedback</span>
+          <h3>Please Share Your Feedback</h3>
+          <p>
+            Thanks for participating. Please take a moment to complete our feedback form:
+            <a href="https://go.illinois.edu/HO_Intro_Gen_AI" target="_blank" rel="noopener noreferrer">https://go.illinois.edu/HO_Intro_Gen_AI</a>
+          </p>
+          <div class="note" role="note">
+            Questions or follow-up? Contact Jim Wentworth at
+            <a href="mailto:jwentwor@illinois.edu">jwentwor@illinois.edu</a>.
+          </div>
+        </article>
+
+        <article class="card">
+          <span class="kicker">Accessibility</span>
+          <h3>Designed for keyboard and screen readers</h3>
+          <p>
+            This site uses semantic headings, a skip link, visible focus styles, native accordions, and ARIA tabs.
+            If you notice an accessibility issue, please include it in the feedback form.
+          </p>
+        </article>
+      </div>
+
+      <footer>
+        <p>Tip: if you want to distribute this, hosting as a static page (e.g., GitHub Pages) preserves all behavior and keeps it easy to update.</p>
+      </footer>
+    </section>
+  </main>
+
+  <script>
+    (function(){
+      // ---- Set today's date (local). Keep a readable fallback in HTML.
+      const todayEl = document.getElementById('today');
+      if (todayEl) {
+        try {
+          const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+          todayEl.textContent = fmt.format(new Date());
+        } catch(e) {}
+      }
+
+      // ---- Tabs: robust WAI-ARIA pattern with keyboard support
+      const tabs = Array.from(document.querySelectorAll('[role="tab"]'));
+      if (!tabs.length) return;
+
+      function getPanel(tab){
+        const id = tab.getAttribute('aria-controls');
+        return id ? document.getElementById(id) : null;
+      }
+
+      function setActive(tab, opts){
+        const options = opts || {};
+        tabs.forEach(t => {
+          const selected = (t === tab);
+          t.setAttribute('aria-selected', selected ? 'true' : 'false');
+          t.tabIndex = selected ? 0 : -1;
+          const p = getPanel(t);
+          if (p) p.hidden = !selected;
+        });
+
+        // Focus panel for SR context (only if invoked by click/keyboard, ok either way)
+        const panel = getPanel(tab);
+        if (panel) {
+          panel.setAttribute('tabindex', '-1');
+          try { panel.focus({ preventScroll: true }); }
+          catch(e) { try { panel.focus(); } catch(e2){} }
+          setTimeout(() => panel.removeAttribute('tabindex'), 50);
+        }
+
+        if (!options.noScroll) {
+          try { window.scrollTo(0,0); } catch(e) {}
+        }
+      }
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => setActive(tab));
+
+        tab.addEventListener('keydown', (e) => {
+          const idx = tabs.indexOf(tab);
+          let next = null;
+
+          if (e.key === 'ArrowRight') next = (idx + 1) % tabs.length;
+          if (e.key === 'ArrowLeft')  next = (idx - 1 + tabs.length) % tabs.length;
+          if (e.key === 'Home')       next = 0;
+          if (e.key === 'End')        next = tabs.length - 1;
+
+          if (next !== null) {
+            e.preventDefault();
+            tabs[next].focus();
+            setActive(tabs[next], { noScroll: true });
+          }
+        });
+      });
+
+      // ---- Copy buttons
+      async function copyToClipboard(text){
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text);
+        }
+        // fallback
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly','');
+        ta.style.position = 'absolute';
+        ta.style.left = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch(e) {}
+        document.body.removeChild(ta);
+      }
+
+      document.querySelectorAll('.prompt[data-prompt]').forEach(block => {
+        const btn = block.querySelector('.copy-btn');
+        const pre = block.querySelector('pre');
+        if (!btn || !pre) return;
+
+        btn.addEventListener('click', async () => {
+          const text = (pre.innerText || '').trim();
+          const original = btn.textContent;
+          btn.textContent = 'Copying…';
+          try {
+            await copyToClipboard(text);
+            btn.textContent = 'Copied';
+            setTimeout(() => btn.textContent = original, 1200);
+          } catch(e) {
+            btn.textContent = 'Copy failed';
+            setTimeout(() => btn.textContent = original, 1600);
+          }
+        });
+      });
+
+      // Ensure first tab state is consistent (in case of edits)
+      const initiallySelected = tabs.find(t => t.getAttribute('aria-selected') === 'true') || tabs[0];
+      setActive(initiallySelected, { noScroll: true });
+    })();
+  </script>
+</body>
+</html>
